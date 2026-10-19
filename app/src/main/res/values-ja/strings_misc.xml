@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Task 9: misc ドメイン — ja 翻訳 -->
+<resources>
+    <!-- CastSheets: デバイス選択 -->
+    <string name="misc_cast_title">TVにキャスト</string>
+    <string name="misc_cast_none_title">TVが見つかりません</string>
+    <string name="misc_cast_none_desc">TVとスマートフォンが同じWi-Fiに接続されていることを確認し、TV側でDLNA/スクリーンミラーリングを有効にしてください</string>
+    <string name="misc_cast_scanning">スキャン中…</string>
+    <string name="misc_cast_connecting">%1$s に接続中…</string>
+    <string name="misc_cast_control_addr">制御アドレス: %1$s</string>
+    <string name="misc_cast_manual_add">手動追加</string>
+    <string name="misc_cast_manual_hint">記述XMLアドレス http://…/desc.xml</string>
+    <string name="misc_cast_add_and_cast">追加してキャスト</string>
+    <string name="misc_cast_add_failed">追加に失敗しました：アドレスが無効かレンダラーではありません</string>
+    <string name="misc_cast_unknown_device">不明なデバイス</string>
+    <!-- CastSheets: リモコン パネル -->
+    <string name="misc_cast_ended">キャストを終了しました</string>
+    <string name="misc_cast_rewind_30s">30秒戻る</string>
+    <string name="misc_cast_play">再生</string>
+    <string name="misc_cast_pause">一時停止</string>
+    <string name="misc_cast_next_episode">次のエピソード</string>
+    <string name="misc_cast_volume">音量</string>
+    <string name="misc_cast_disconnect">キャストを解除</string>
+    <string name="misc_cast_pull_back">この端末で再生</string>
+    <string name="misc_cast_active_with">キャスト中 · %1$s</string>
+    <string name="misc_cast_connecting_with">接続中 · %1$s</string>
+    <!-- AlphabetSidebar（ライブラリ側バー） -->
+    <string name="misc_section_digit">数字</string>
+    <!-- MediaPosterCard -->
+    <string name="misc_stop_scan">スキャンを停止</string>
+    <!-- NvMeteredDialog -->
+    <string name="misc_metered_title">モバイルデータで再生します</string>
+    <string name="misc_metered_body">現在モバイルデータ通信中です。続行するとデータを消費します。確認なしで再生できるのはWi-Fi接続時のみです。</string>
+    <string name="misc_metered_dont_ask">モバイルデータで再確認しない</string>
+    <string name="misc_metered_continue">再生を続ける</string>
+    <string name="misc_cancel">キャンセル</string>
+    <!-- PosterCard -->
+    <string name="misc_more">その他</string>
+    <!-- Selection -->
+    <string name="misc_sel_remove">%1$s を削除</string>
+    <string name="misc_sel_clear_all">すべてクリア</string>
+    <string name="misc_sel_search_hint">現在のフォルダを検索</string>
+    <string name="misc_sel_exit_search">検索を終了</string>
+    <string name="misc_sel_clear">クリア</string>
+    <string name="misc_sel_exit_multi">複数選択を終了</string>
+    <plurals name="misc_sel_selected_count">
+        <item quantity="other">%1$d 件選択中</item>
+    </plurals>
+    <string name="misc_sel_select_all">すべて選択</string>
+    <string name="misc_sel_invert">選択反転</string>
+    <!-- Sheets -->
+    <string name="misc_confirm">OK</string>
+    <string name="misc_close">閉じる</string>
+    <!-- States -->
+    <string name="misc_load_failed">読み込みに失敗しました</string>
+    <string name="misc_retry">再試行</string>
+    <!-- TopBar -->
+    <string name="misc_back">戻る</string>
+    <!-- Settings: 第2期バッジ -->
+    <string name="misc_phase2">第2期</string>
+    <!-- ImageViewerScreen -->
+    <string name="misc_img_needs_android9">この形式には Android 9 以上が必要です</string>
+    <string name="misc_img_heic_fail">このシステムではHEIC画像をデコードできません</string>
+    <string name="misc_open_with">別のアプリで開く</string>
+    <string name="misc_unknown_size">不明</string>
+    <!-- PdfViewerScreen -->
+    <string name="misc_pdf_missing">ファイルが存在しないか読み取れません</string>
+    <string name="misc_pdf_cannot_open">このPDFを開けません</string>
+    <string name="misc_pdf_encrypted">PDFが暗号化されています</string>
+    <string name="misc_pdf_no_password">パスワード解除はまだサポートしていません</string>
+    <string name="misc_pdf_no_pages">このPDFにはページがありません</string>
+    <string name="misc_pdf_goto_page">ページに移動</string>
+    <string name="misc_pdf_goto">移動</string>
+    <string name="misc_pdf_dl_title">先にダウンロードしてから開く</string>
+    <string name="misc_pdf_dl_msg">このファイルは%1$sです。先に端末のキャッシュにダウンロードしてから開きます</string>
+    <string name="misc_pdf_dl_confirm">ダウンロードして開く</string>
+    <string name="misc_pdf_page_n">%1$d ページ</string>
+    <string name="misc_pdf_preparing">ダウンロードを準備中…</string>
+    <!-- TextViewerScreen -->
+    <string name="misc_text_read_failed">読み取り失敗</string>
+    <string name="misc_text_binary">このファイルはバイナリのためテキストとしてプレビューできません</string>
+    <string name="misc_text_empty">このファイルは空です</string>
+    <string name="misc_text_encoding">エンコーディング</string>
+    <string name="misc_text_mono">等幅フォント</string>
+    <string name="misc_text_wrap">自動折り返し</string>
+    <string name="misc_text_choose_encoding">エンコーディングを選択</string>
+    <string name="misc_text_reloaded">%1$s で再読み込みしました</string>
+    <string name="misc_text_truncated">ファイルが大きいため先頭 %1$d KBのみ表示</string>
+    <string name="misc_text_open_full">全文を開く</string>
+    <!-- ViewerActivity / ViewerFiles -->
+    <string name="misc_viewer_default_title">ファイル</string>
+    <string name="misc_viewer_missing_args">ファイルを開けません（パラメータ不足）</string>
+    <string name="misc_viewer_bad_uri">ファイルアドレスを解析できません</string>
+    <string name="misc_viewer_no_handler">このタイプを処理できるアプリが見つかりません</string>
+    <string name="misc_viewer_open_failed">オープンに失敗しました：%1$s</string>
+    <string name="misc_viewer_source_missing">ファイルソースが存在しないか削除されました（id=%1$d）</string>
+    <string name="misc_viewer_uri_unparsed">ファイルアドレスを解析できません: %1$s</string>
+</resources>

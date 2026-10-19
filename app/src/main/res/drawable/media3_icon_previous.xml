@@ -1,0 +1,13 @@
+<!-- 通知栏按钮图标：与 media3-session 同名资源覆盖其默认细线图标（厚重实心风，颜色交由系统着色） -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+  <path
+      android:fillColor="@android:color/white"
+      android:pathData="M4.3,3.4 L4.7,3.4 Q5.8,3.4 5.8,4.5 L5.8,19.5 Q5.8,20.6 4.7,20.6 L4.3,20.6 Q3.2,20.6 3.2,19.5 L3.2,4.5 Q3.2,3.4 4.3,3.4 Z"/>
+  <path
+      android:fillColor="@android:color/white"
+      android:pathData="M20.6,19.2 L20.6,4.8 Q20.6,3.4 19.43,4.16 L8.57,11.24 Q7.4,12 8.57,12.76 L19.43,19.84 Q20.6,20.6 20.6,19.2 Z"/>
+</vector>
