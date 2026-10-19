@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 深色变体（2026-09-20 浅色模式改造：values/ 基准改为浅色，本目录保持原深色值）。
+     仅影响冷启动首帧底色（Compose 接管前）；应用内主题切换以设置-界面「主题」偏好为准，
+     与系统不一致时首帧底色可能差一拍，属已知局限。 -->
+<resources>
+    <style name="Theme.NovaX" parent="android:Theme.Material.NoActionBar">
+        <item name="android:windowBackground">#0A0A0F</item>
+        <item name="android:statusBarColor">#0A0A0F</item>
+        <item name="android:navigationBarColor">#0A0A0F</item>
+        <item name="android:windowAnimationStyle">@style/NvWindowAnimation</item>
+    </style>
+</resources>

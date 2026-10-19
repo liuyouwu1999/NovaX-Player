@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- update 域（簡中）— Task 1：檢查更新文案 -->
+<resources>
+    <string name="update_check_row_title">檢查更新</string>
+    <string name="update_auto_check_row_title">自動檢查更新</string>
+    <string name="update_row_current">當前版本 %1$s</string>
+    <string name="update_row_up_to_date">已是最新版本</string>
+    <string name="update_check_failed">檢查失敗：網路不可用或無法連線 GitHub</string>
+    <string name="update_rate_limited">檢查過於頻繁，請稍後再試</string>
+    <string name="update_dialog_new_version">發現新版本 %1$s</string>
+    <string name="update_btn_install">立即下載安裝</string>
+    <string name="update_btn_browser">瀏覽器下載</string>
+        <!-- 2026-10-26 方案1：忽略此版本（自动检查对同 tag 静默，新版本恢复提醒） -->
+    <string name="update_btn_ignore_version">忽略此版本</string>
+    <string name="update_btn_later">以後再說</string>
+    <string name="update_btn_copy_link">複製下載連結</string>
+    <string name="update_link_copied">下載連結已複製</string>
+    <string name="update_changelog_truncated">更新日誌已摺疊</string>
+    <string name="update_view_full_notes">查看完整說明</string>
+    <string name="update_open_project_page">開啟項目主頁</string>
+    <string name="update_dl_notif_title">正在下載 NovaX 更新</string>
+    <string name="update_dl_progress">已下載 %1$d%%</string>
+    <string name="update_download_failed">下載失敗，請重試或改用瀏覽器下載</string>
+    <string name="update_verify_failed">安裝包校驗失敗，已刪除。請改用瀏覽器下載</string>
+    <string name="update_cannot_verify">無法獲取校驗檔案，不提供應用內安裝</string>
+    <string name="update_need_perm_title">需要「安裝未知應用」權限</string>
+    <string name="update_need_perm_body">僅用於向系統提交剛下載的本應用更新包；拒絕後仍可在瀏覽器下載後手動安裝。</string>
+    <string name="update_btn_grant">去授權</string>
+    <string name="update_btn_cancel">取消</string>
+</resources>

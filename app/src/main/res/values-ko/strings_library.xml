@@ -1,0 +1,247 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- library 도메인(한국어) -->
+<resources>
+    <!-- ═══ ui/library ═══ -->
+    <string name="lib_title">미디어 라이브러리</string>
+    <string name="lib_rescan">다시 스캔</string>
+    <string name="lib_cd_toggle_view">보기 전환</string>
+    <string name="lib_sort">정렬</string>
+    <string name="lib_sort_added">추가일</string>
+    <string name="lib_sort_title">제목 A→Z</string>
+    <string name="lib_sort_size">크기 (큰 → 작은)</string>
+    <string name="lib_type_all">전체</string>
+    <string name="lib_type_long">장편 영상</string>
+    <string name="lib_type_short">단편 영상</string>
+    <string name="lib_type_series">시리즈</string>
+    <string name="lib_watched_state">시청 상태</string>
+    <string name="lib_watch_status">시청 상태</string>
+    <string name="lib_watched">시청함</string>
+    <string name="lib_unwatched">미시청</string>
+    <string name="lib_folders">폴더</string>
+    <string name="lib_all_folders">모든 폴더</string>
+    <string name="lib_sources">미디어 소스</string>
+    <string name="lib_all_sources">모든 소스</string>
+    <string name="lib_all">전체</string>
+    <string name="lib_clear">지우기</string>
+    <string name="lib_clear_filters">필터 지우기</string>
+    <string name="lib_filter">필터</string>
+    <string name="lib_chip_folder">폴더 · %1$s</string>
+    <string name="lib_chip_source">소스 · %1$s</string>
+    <string name="lib_series_empty_title">아직 묶을 시리즈가 없습니다</string>
+    <string name="lib_series_empty_desc">같은 작품의 에피소드를 같은 폴더에 넣으세요\n(같은 폴더에 영상 2개 이상이면 자동으로 시리즈로 묶이며, 폴더 이름이 시리즈 이름이 됩니다)</string>
+    <string name="lib_empty_title">미디어 라이브러리가 비어 있습니다</string>
+    <string name="lib_empty_desc">NAS 소스를 추가하면 자동으로 인덱스가 생성됩니다\n파일 탭에서 미디어 소스를 추가해 주세요</string>
+    <string name="lib_not_indexed_title">아직 인덱스가 없습니다</string>
+    <string name="lib_not_indexed_desc">아래 버튼을 눌러 추가한 소스를 스캔하세요</string>
+    <string name="lib_scan_now">지금 스캔</string>
+    <string name="lib_scan_done_empty_title">스캔이 완료되었지만 동영상 파일을 찾지 못했습니다</string>
+    <string name="lib_scan_done_empty_desc">선택한 폴더에 동영상이 있는지 확인하거나 다른 폴더를 선택해 다시 스캔해 주세요</string>
+    <string name="lib_no_match_title">조건에 맞는 영화가 없습니다</string>
+    <string name="lib_no_match_desc">필터를 지우거나 다시 스캔해 보세요</string>
+    <string name="lib_rescan_title">로컬 인덱스를 업데이트할까요?</string>
+    <plurals name="lib_rescan_msg">
+        <item quantity="other">미디어 소스 %1$d개의 파일을 다시 확인합니다. 새 파일은 인덱스에 추가되고 사라진 항목은 삭제됩니다.</item>
+    </plurals>
+    <string name="lib_rescan_confirm">인덱스 업데이트</string>
+    <string name="lib_source_filter_all">소스: 전체</string>
+    <string name="lib_source_filter_named">소스: %1$s</string>
+    <string name="lib_source_fallback">소스 %1$d</string>
+    <string name="lib_scan_failed_banner">%1$s 스캔 실패: %2$s. 상단의 새로 고침으로 다시 시도할 수 있습니다</string>
+    <string name="lib_scan_noted_banner">%1$s 스캔이 완료되었지만 메시지가 있습니다: %2$s</string>
+    <string name="lib_unknown_error">알 수 없는 오류</string>
+    <plurals name="lib_scan_other_sources">
+        <item quantity="other">외 %1$d개 소스</item>
+    </plurals>
+    <plurals name="lib_episode_badge">
+        <item quantity="other">%1$d화</item>
+    </plurals>
+    <plurals name="lib_watched_episodes">
+        <item quantity="other">시청한 에피소드 %1$d개</item>
+    </plurals>
+    <string name="lib_series_fallback">시리즈</string>
+    <string name="lib_play">재생</string>
+    <string name="lib_cast">화면 전송</string>
+    <string name="lib_details">상세</string>
+    <string name="lib_open_folder">파일 위치 폴더 열기</string>
+    <string name="lib_favorite">즐겨찾기에 추가</string>
+    <string name="lib_unfavorite">즐겨찾기에서 제거</string>
+    <string name="lib_mark_watched">본 것으로 표시</string>
+    <string name="lib_unmark_watched">안 본 것으로 표시</string>
+    <string name="lib_reextract_thumb">썸네일 다시 추출</string>
+    <string name="lib_show_path">파일 경로 표시</string>
+    <string name="lib_copied">복사됨</string>
+
+    <!-- ═══ ui/home ═══ -->
+    <string name="home_empty_source_title">미디어 소스 추가하기</string>
+    <string name="home_empty_source_desc">SMB / WebDAV / SFTP / Jellyfin / 로컬 저장소 지원. 추가하면 미디어 인덱스가 자동으로 생성됩니다</string>
+    <string name="home_add_source">소스 추가</string>
+    <string name="home_section_continue">이어서 시청</string>
+    <string name="home_guide_continue">시청한 동영상이 여기에 표시되며, 마지막 위치에서 이어서 재생됩니다</string>
+    <string name="home_go_files">파일로 이동</string>
+    <string name="home_section_recent">최근 추가됨</string>
+    <string name="home_section_favorites">즐겨찾기</string>
+    <string name="home_cd_search">검색</string>
+    <string name="home_open_folder">파일 위치 폴더 열기</string>
+    <string name="home_remove_from_continue">이어서 시청에서 제거</string>
+    <string name="home_removed_from_continue">이어서 시청에서 제거했습니다</string>
+    <string name="home_delete_entry">이 기록 삭제</string>
+    <string name="home_deleted_entry">기록을 삭제했습니다</string>
+    <string name="home_cancel">취소</string>
+    <string name="home_favorite">즐겨찾기에 추가</string>
+    <string name="home_unfavorite">즐겨찾기에서 제거</string>
+    <string name="home_favorited_toast">즐겨찾기에 추가했습니다</string>
+    <string name="home_unfavorited_toast">즐겨찾기에서 제거했습니다</string>
+    <string name="home_dead_favorite_cleaned">파일을 사용할 수 없어 즐겨찾기에서 제거했습니다</string>
+    <string name="home_reextract_thumb">썸네일 다시 추출</string>
+    <string name="home_reextracting_toast">썸네일을 다시 추출하고 있습니다</string>
+    <string name="home_show_path">파일 경로 표시</string>
+    <plurals name="home_media_count">
+        <item quantity="other">파일 %1$d개</item>
+    </plurals>
+    <string name="home_browse_hint">구경하기</string>
+    <string name="home_library">미디어 라이브러리</string>
+    <string name="home_files">파일</string>
+    <string name="home_browse_sources">소스 탐색</string>
+    <string name="home_search">검색</string>
+    <string name="home_find_titles">작품 찾기</string>
+    <string name="home_settings">설정</string>
+    <string name="home_preferences">환경설정</string>
+    <plurals name="home_source_count_line">
+        <item quantity="other">미디어 소스 %1$d개 · 미디어 라이브러리에서 모두 보기</item>
+    </plurals>
+    <string name="home_cd_resume">이어서 재생</string>
+    <string name="home_source_fallback">소스 %1$d</string>
+    <string name="home_chip_episode">S%1$sE%2$s</string>
+    <string name="home_chip_text">%1$s</string>
+    <string name="home_chip_continue">이어서 시청</string>
+    <plurals name="home_chip_remaining_min">
+        <item quantity="other">남은 시간 %1$d분</item>
+    </plurals>
+    <plurals name="home_overview_movies">
+        <item quantity="other">영화 %1$d편</item>
+    </plurals>
+    <plurals name="home_overview_episodes">
+        <item quantity="other">에피소드 %1$d개</item>
+    </plurals>
+    <plurals name="home_overview_videos">
+        <item quantity="other">동영상 %1$d개</item>
+    </plurals>
+    <plurals name="home_overview_images">
+        <item quantity="other">이미지 %1$d장</item>
+    </plurals>
+
+    <!-- ═══ ui/detail ═══ -->
+    <string name="detail_back">뒤로</string>
+    <string name="detail_play">▶ 재생</string>
+    <string name="detail_play_season_ep">▶ S%1$dE1 재생</string>
+    <plurals name="detail_play_resume_ep">
+        <item quantity="other">▶ %1$s 이어서 재생 · 남은 시간 %2$d분</item>
+    </plurals>
+    <plurals name="detail_play_resume">
+        <item quantity="other">▶ 이어서 재생 · 남은 시간 %1$d분</item>
+    </plurals>
+    <string name="detail_more">더보기</string>
+    <string name="detail_favorited_toast">즐겨찾기에 추가했습니다</string>
+    <string name="detail_unfavorited_toast">즐겨찾기에서 제거했습니다</string>
+    <string name="detail_cast">출연진</string>
+    <string name="detail_season_n">시즌 %1$d</string>
+    <string name="detail_no_episodes">이 시즌에는 에피소드가 없습니다</string>
+    <string name="detail_no_episodes_parsed">에피소드를 찾지 못했습니다</string>
+    <string name="detail_rescrape">다시 스크래핑</string>
+    <string name="detail_favorite">즐겨찾기에 추가</string>
+    <string name="detail_unfavorite">즐겨찾기에서 제거</string>
+    <string name="detail_share">공유</string>
+    <string name="detail_share_todo">공유 기능은 준비 중입니다</string>
+    <string name="detail_resume_confirm_title">%1$s(으)로부터 이어서 재생할까요?</string>
+    <plurals name="detail_resume_confirm_msg">
+        <item quantity="other">E%1$d · %2$s — %3$d분까지 시청했습니다.</item>
+    </plurals>
+    <string name="detail_resume">이어서 재생</string>
+    <string name="detail_cancel">취소</string>
+    <string name="detail_expand">펼치기</string>
+    <string name="detail_collapse">접기</string>
+    <string name="detail_scrape_hint">미디어 정보를 인식하지 못했습니다 · 설정-미디어 라이브러리에서 TMDB를 구성한 뒤 \"다시 스크래핑\"을 실행하세요</string>
+    <string name="detail_cd_watched">시청함</string>
+    <plurals name="detail_duration_min">
+        <item quantity="other">%1$d분</item>
+    </plurals>
+    <plurals name="detail_total_episodes">
+        <item quantity="other">총 %1$d개 에피소드</item>
+    </plurals>
+    <plurals name="detail_episodes_count">
+        <item quantity="other">%1$d개 에피소드</item>
+    </plurals>
+    <plurals name="detail_total_seasons">
+        <item quantity="other">총 %1$d개 시즌</item>
+    </plurals>
+    <string name="detail_info_path">파일 경로</string>
+    <string name="detail_info_source">출처</string>
+    <string name="detail_unknown_source">알 수 없는 소스</string>
+    <string name="detail_info_resolution">해상도</string>
+    <string name="detail_unknown">알 수 없음</string>
+    <string name="detail_info_added">추가일</string>
+    <string name="detail_info_codec">코덱</string>
+    <string name="detail_err_deleted">항목이 없거나 삭제되었습니다</string>
+    <string name="detail_err_not_found">미디어 항목을 찾을 수 없습니다(id=%1$s)</string>
+    <string name="detail_chasing">%1$s까지 시청</string>
+    <string name="detail_mock_overview">내장 샘플(데모 데이터): %1$s 제공, %2$s 코덱·%3$s 해상도. 실제 라이브러리 항목은 스크래핑 후 여기에 TMDB 줄거리가 표시됩니다.</string>
+    <string name="detail_tech_info">미디어 정보</string>
+    <string name="detail_details">상세 정보</string>
+    <string name="detail_hide_details">상세 정보 접기</string>
+
+    <!-- ═══ ui/search ═══ -->
+    <string name="search_no_results_for">\"%1$s\"에 대한 결과가 없습니다</string>
+    <string name="search_no_results_hint">· 더 짧은 키워드로 시도해 보세요\n· 또는 파일 탭에서 소스 파일을 직접 찾아보세요</string>
+    <string name="search_go_files">파일에서 검색</string>
+    <string name="search_hint">영화, 시리즈, 동영상 검색</string>
+    <string name="search_cd_clear">지우기</string>
+    <string name="search_cancel">취소</string>
+    <string name="search_history">검색 기록</string>
+    <string name="search_recent">최근 추가됨</string>
+    <string name="search_empty_footnote">로컬 미디어 라이브러리 인덱스 기반으로 검색 결과가 즉시 표시됩니다</string>
+    <string name="search_clear_history_title">검색 기록 지우기</string>
+    <plurals name="search_clear_history_msg">
+        <item quantity="other">검색 기록 %1$d건을 모두 삭제합니다. 이 작업은 되돌릴 수 없습니다.</item>
+    </plurals>
+    <string name="search_clear">모두 지우기</string>
+    <string name="search_cd_remove_history">이 기록 삭제</string>
+    <string name="search_filter_all">전체</string>
+    <string name="search_filter_movie">영화</string>
+    <string name="search_filter_series">시리즈</string>
+    <string name="search_filter_video">동영상</string>
+    <string name="search_group_movies">영화</string>
+    <string name="search_group_series">시리즈</string>
+    <string name="search_group_videos">동영상</string>
+    <plurals name="search_series_meta">
+        <item quantity="other">에피소드 %1$d개 · %2$s</item>
+    </plurals>
+    <plurals name="search_episode_count">
+        <item quantity="other">에피소드 %1$d개</item>
+    </plurals>
+    <string name="search_more">더보기</string>
+    <plurals name="search_indexing_banner">
+        <item quantity="other">미디어 라이브러리 인덱스 생성 중. 결과가 불완전할 수 있습니다(%1$d개 발견)</item>
+    </plurals>
+    <string name="search_series_fallback">시리즈</string>
+
+    <!-- ═══ ui/history ═══ -->
+    <string name="hist_title">시청 기록</string>
+    <string name="hist_empty_title">시청 기록이 없습니다</string>
+    <string name="hist_empty_desc">재생한 동영상이 여기에 표시됩니다. 탭하면 마지막 위치에서 이어서 재생됩니다</string>
+    <string name="hist_clear">지우기</string>
+    <string name="hist_clear_title">시청 기록 지우기</string>
+    <string name="hist_clear_msg">재생 위치와 시청 기록을 모두 삭제하며 복구할 수 없습니다.</string>
+    <string name="hist_time_just_now">방금</string>
+    <plurals name="hist_time_min_ago">
+        <item quantity="other">%1$d분 전</item>
+    </plurals>
+    <plurals name="hist_time_hour_ago">
+        <item quantity="other">%1$d시간 전</item>
+    </plurals>
+    <plurals name="hist_time_day_ago">
+        <item quantity="other">%1$d일 전</item>
+    </plurals>
+    <string name="hist_finished">시청 완료</string>
+    <string name="hist_open_folder">파일 위치 폴더 열기</string>
+    <string name="hist_delete_item">이 항목 삭제</string>
+</resources>

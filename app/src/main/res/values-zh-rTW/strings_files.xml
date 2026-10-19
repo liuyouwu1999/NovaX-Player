@@ -1,0 +1,290 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- files 域（簡體中文，源文案逐字平移） -->
+<resources>
+    <!-- 通用 -->
+    <string name="files_title">檔案</string>
+    <string name="files_root">根</string>
+    <string name="files_cancel">取消</string>
+    <string name="files_delete">刪除</string>
+    <string name="files_retry">重試</string>
+    <string name="files_reset">重置</string>
+    <string name="files_next">下一步</string>
+    <string name="files_select_all">全選</string>
+    <string name="files_continue">繼續</string>
+    <string name="files_size_unknown">未知</string>
+    <string name="files_err_join">%1$s：%2$s</string>
+
+    <!-- 源列表 -->
+    <string name="files_add_source">添加源</string>
+    <string name="files_cd_scan_lan">掃描區域網</string>
+    <string name="files_empty_sources_title">還沒有添加任何源</string>
+    <string name="files_empty_sources_msg">已掃描區域網，未發現設備。可手動添加 NAS。</string>
+    <string name="files_add_manually">手動添加</string>
+    <string name="files_no_share_selected">未選共享（瀏覽時自動選擇）</string>
+    <string name="files_add_source_hint">連線 NAS（SMB / WebDAV / SFTP / Jellyfin）或瀏覽本機影片</string>
+    <string name="files_discovery_title">發現區域網設備</string>
+    <string name="files_scanning_lan">正在掃描區域網（SMB / WebDAV）…</string>
+    <string name="files_no_devices">未發現設備，請在下方選擇協議手動添加</string>
+    <string name="files_sheet_edit_source">編輯源</string>
+    <string name="files_sheet_duplicate_source">複製源</string>
+    <string name="files_sheet_delete_source">刪除源</string>
+    <string name="files_delete_source_confirm">刪除源 \"%1$s\"？</string>
+    <string name="files_delete_source_msg">僅移除連線配置，不刪除 NAS 上的檔案</string>
+    <string name="files_battery_title">允許忽略電池優化？</string>
+    <string name="files_battery_msg">部分手機省電策略可能中斷 NAS 播放，建議允許 NovaX 忽略電池優化。</string>
+    <string name="files_go_settings">去設定</string>
+
+    <!-- 源卡片狀態 -->
+    <string name="files_state_connected">已連線</string>
+    <string name="files_state_offline">離線</string>
+    <string name="files_state_failed">連線失敗</string>
+
+    <!-- 協議 -->
+    <string name="files_protocol_smb">SMB</string>
+    <string name="files_protocol_webdav">WebDAV</string>
+    <string name="files_protocol_sftp">SFTP</string>
+    <string name="files_protocol_local">本地</string>
+    <string name="files_protocol_jellyfin">Jellyfin</string>
+
+    <!-- 檔案類型 / 過濾 -->
+    <string name="files_type_video">影片</string>
+    <string name="files_type_audio">音訊</string>
+    <string name="files_type_image">圖像</string>
+    <string name="files_type_subtitle">字幕</string>
+    <string name="files_type_doc">文檔</string>
+    <string name="files_type_other">其他</string>
+    <string name="files_filter_none">無</string>
+    <string name="files_filter_chip">已過濾 · %1$s</string>
+    <string name="files_type_filter_title">類型過濾器</string>
+    <plurals name="files_show_n_items">
+        <item quantity="other">顯示 %1$d 項</item>
+    </plurals>
+    <string name="files_filter_empty">沒有符合過濾條件的檔案</string>
+    <string name="files_filter_empty_hint">點上方「已過濾」Chip 可重置過濾</string>
+
+    <!-- 排序 -->
+    <string name="files_sort_title">排序方式</string>
+    <string name="files_sort_name">名稱（A–Z / 拼音）</string>
+    <string name="files_sort_modified">修改時間（新 → 舊）</string>
+    <string name="files_sort_size">大小（大 → 小）</string>
+    <string name="files_sort_type">類型</string>
+    <string name="files_dirs_first">資料夾恆置頂</string>
+
+    <!-- 目錄內搜索 -->
+    <string name="files_search_subs">含子目錄</string>
+    <string name="files_search_scope">深度 ≤%1$d · 最多 %2$d 條</string>
+    <string name="files_searching_subs">正在搜索子目錄…</string>
+    <string name="files_search_not_found">未找到 \"%1$s\"</string>
+    <string name="files_search_not_found_hint">檢查關鍵詞或開啟含子目錄</string>
+
+    <!-- 瀏覽器狀態 -->
+    <string name="files_browser_error_title">無法讀取目錄</string>
+    <string name="files_need_storage_title">需要存儲權限</string>
+    <string name="files_need_storage_msg">本地存儲未授權，無法讀取檔案</string>
+    <string name="files_grant_access">去授權</string>
+    <string name="files_dir_empty">此資料夾為空</string>
+    <string name="files_dir_empty_hint">返回上一級或選擇其他目錄</string>
+
+    <!-- 多選欄 -->
+    <string name="files_play_selected">播放選取</string>
+    <string name="files_no_playable_video">選取項中沒有可播放的影片</string>
+    <string name="files_add_favorite">加入收藏</string>
+    <string name="files_remove_favorite">取消收藏</string>
+    <string name="files_exclude_from_library">排除出媒體庫</string>
+    <string name="files_exclude_pick_dirs_first">請先勾選要排除的資料夾</string>
+    <string name="files_nas_delete_unsupported">NAS 源刪除將在後續版本支援</string>
+    <string name="files_delete_pick_files_first">請先勾選要刪除的檔案</string>
+    <string name="files_open_with">其他應用開啟</string>
+    <string name="files_open_with_single_only">僅支援單個本地非影片檔案</string>
+    <string name="files_deselect_all">全不選</string>
+
+    <!-- 頂欄 / 無障礙描述 -->
+    <string name="files_cd_filter_sort">過濾與排序</string>
+    <string name="files_cd_search">搜索</string>
+    <string name="files_cd_watched">已看</string>
+
+    <!-- 刪除 / 重命名 / 資訊對話框 -->
+    <plurals name="files_delete_n_confirm">
+        <item quantity="other">刪除 %1$d 個檔案？</item>
+    </plurals>
+    <string name="files_delete_selection_msg">將從本地存儲中刪除所選檔案，不可恢復</string>
+    <string name="files_delete_file_confirm">刪除檔案 \"%1$s\"？</string>
+    <string name="files_delete_single_msg">將從本地存儲中刪除該檔案，不可恢復</string>
+    <string name="files_rename">重命名</string>
+    <string name="files_new_name">新檔名</string>
+    <string name="files_rename_failed_toast">重命名失敗：目標已存在</string>
+    <string name="files_delete_failed_toast">刪除失敗</string>
+    <string name="files_multi_select">多選</string>
+    <string name="files_show_info">顯示資訊</string>
+    <string name="files_info_title">檔案資訊</string>
+    <string name="files_info_name">檔名</string>
+    <string name="files_info_path">路徑</string>
+    <string name="files_info_size">大小</string>
+    <string name="files_unknown_ext">檔案</string>
+    <string name="files_unknown_type_line">%1$s 檔案 · %2$s</string>
+    <string name="files_ext_fallback">影片</string>
+
+    <!-- 外發 / 下載 -->
+    <string name="files_no_app_for_type">未找到可處理此類型的應用</string>
+    <string name="files_open_failed">開啟失敗：%1$s</string>
+    <string name="files_downloading">正在下載…</string>
+    <string name="files_download_progress">正在下載… %1$d%%</string>
+    <string name="files_file_large">檔案較大</string>
+    <string name="files_big_file_msg">該檔案 %1$s，將先下載到本機快取再開啟</string>
+
+    <!-- 投放 / 已看 -->
+    <string name="files_cast">投放</string>
+    <string name="files_mark_watched">標記已看</string>
+    <string name="files_mark_unwatched">取消已看</string>
+    <string name="files_marked_watched_toast">已標記已看</string>
+    <string name="files_marked_unwatched_toast">已標記未看</string>
+
+    <!-- 收藏 Toast -->
+    <string name="files_favorited_toast">已加入收藏</string>
+    <string name="files_unfavorited_toast">已取消收藏</string>
+    <string name="files_fav_failed">收藏失敗，請重試</string>
+    <string name="files_fav_all_dups">選取項均已在收藏中</string>
+    <plurals name="files_fav_added">
+        <item quantity="other">已加入收藏 %1$d 項</item>
+    </plurals>
+
+    <!-- 批量刪除（本地） -->
+    <plurals name="files_delete_failed_count">
+        <item quantity="other">%1$d 項刪除失敗</item>
+    </plurals>
+
+    <!-- 媒體庫排除 -->
+    <string name="files_exclude_confirm_single">從媒體庫排除？</string>
+    <string name="files_exclude_confirm_n">排除 %1$d 個資料夾？</string>
+    <string name="files_exclude_confirm_msg">排除後這些目錄（含子目錄）不再被索引，現有條目清除；進入目錄可隨時恢復收錄。</string>
+    <string name="files_exclude">排除</string>
+    <string name="files_excluded_banner">此目錄已從媒體庫排除 · 點按恢復收錄</string>
+    <string name="files_reincluded_toast">已恢復收錄，正在更新媒體索引…</string>
+    <string name="files_excluded_toast">已排除，正在更新媒體索引…</string>
+
+    <!-- 嚮導：步驟與標題 -->
+    <string name="files_wizard_edit_title">編輯源 · %1$s</string>
+    <string name="files_wizard_credentials_title">%1$s · 地址與憑據</string>
+    <string name="files_wizard_dirs_title">選擇媒體目錄（可多選）</string>
+    <string name="files_choose_protocol">選擇協議</string>
+    <string name="files_local_storage">本地存儲</string>
+    <string name="files_local_storage_desc">讀取本機目錄中的影片</string>
+
+    <!-- 嚮導：表單欄位 -->
+    <string name="files_field_host_ip">主機（IP 或主機名）</string>
+    <string name="files_field_host_domain">主機（IP 或域名）</string>
+    <string name="files_placeholder_host_domain">192.168.1.10 或 nas.example.com</string>
+    <string name="files_field_port">埠</string>
+    <string name="files_field_domain">域（可選）</string>
+    <string name="files_field_share">共享名</string>
+    <string name="files_field_share_placeholder">留空 = 進入時自動列出共享</string>
+    <string name="files_field_root_path">根路徑（可選）</string>
+    <string name="files_https_subtitle_webdav">加密連線，埠預設隨開關 80↔443</string>
+    <string name="files_https_subtitle_jellyfin">加密連線，埠預設隨開關 8096↔443</string>
+    <string name="files_sftp_root_placeholder">留空 = 登入家目錄，如 /volume1/videos</string>
+    <string name="files_field_server">伺服器地址</string>
+    <string name="files_field_nickname">暱稱（可選）</string>
+    <string name="files_nickname_placeholder">我的 NAS</string>
+    <string name="files_nickname_local_hint">選資料夾後自動填，兜底「我的手機」</string>
+    <string name="files_anonymous">匿名存取</string>
+    <string name="files_field_account">帳號</string>
+    <string name="files_field_password">密碼</string>
+    <string name="files_testing_connection">正在測試連線 %1$s…</string>
+    <string name="files_testing">測試中…</string>
+
+    <!-- 嚮導：本地目錄選擇器 -->
+    <string name="files_go_up">返回上級</string>
+    <string name="files_dir_selected_cd">已選定此目錄</string>
+    <string name="files_dir_select_cd">選定此目錄</string>
+    <string name="files_dir_unreadable_hint">無法讀取該目錄（存儲權限未授予或路徑無效），請點「返回上級」換一個目錄</string>
+    <string name="files_no_subdirs">此目錄下沒有子資料夾</string>
+    <string name="files_current_selected_hint">已選定當前目錄，可點下方「測試連線」</string>
+    <string name="files_select_current_dir">選定當前所在目錄</string>
+
+    <!-- 嚮導：共享 -->
+    <string name="files_share_list">共享列表</string>
+    <string name="files_fetch_shares">獲取共享列表</string>
+    <string name="files_refetch_shares">重新獲取</string>
+    <string name="files_cd_checked">已選擇</string>
+
+    <!-- 嚮導：掃描根與儲存 -->
+    <string name="files_scan_hint_none">未勾選目錄時將掃描整個源；點行尾圓圈可只掃描指定目錄</string>
+    <plurals name="files_scan_hint_selected">
+        <item quantity="other">已選 %1$d 個掃描目錄（含子目錄）</item>
+    </plurals>
+    <string name="files_http_warning">明文 HTTP + Basic 認證：口令將以 Base64 明文傳輸，同一網路的任何人可截獲，建議使用 https://</string>
+    <string name="files_wizard_dir_error_title">目錄讀取失敗</string>
+    <string name="files_wizard_dir_empty_hint">返回上一級，或直接儲存源</string>
+        <string name="files_wizard_skip_scan">僅作檔案來源（不進媒體庫）</string>
+    <string name="files_saved_files_only_toast">已儲存為僅檔案來源：不掃描進媒體庫</string>
+    <string name="files_scan_hint_disabled">此來源目前為僅檔案來源（不進媒體庫）；勾選目錄並儲存即可恢復掃描</string>
+    <string name="files_save_source_all">儲存源（掃描整個源）</string>
+    <plurals name="files_save_source_selected">
+        <item quantity="other">儲存源（掃描已選 %1$d 個目錄）</item>
+    </plurals>
+
+    <!-- 嚮導：預設暱稱 -->
+    <string name="files_nick_copy">%1$s 副本</string>
+    <string name="files_default_nick_smb">SMB 源</string>
+    <string name="files_default_nick_webdav">WebDAV 源</string>
+    <string name="files_default_nick_sftp">SFTP 源</string>
+    <string name="files_default_nick_local">我的手機</string>
+
+    <!-- 表單校驗 -->
+    <string name="files_form_host_req_title">請填寫主機</string>
+    <string name="files_form_host_req_msg">主機名或 IP 不能為空</string>
+    <string name="files_form_dir_req_title">請填寫目錄</string>
+    <string name="files_form_dir_req_msg">請填寫本地根目錄的絕對路徑</string>
+    <string name="files_form_path_invalid_title">路徑無效</string>
+    <string name="files_form_path_invalid_msg">請填寫以 / 開頭的絕對路徑</string>
+    <string name="files_form_user_req_title">請填寫帳號</string>
+    <string name="files_form_user_req_msg">Jellyfin 需要帳號密碼登入，請填寫服務端使用者名</string>
+    <string name="files_form_pass_req_title">請填寫密碼</string>
+    <string name="files_form_pass_req_msg">密碼不能為空</string>
+    <string name="files_err_storage_perm_title">需要存儲權限</string>
+    <string name="files_err_storage_perm_msg">本地源需要「所有檔案存取」授權；可在系統設定中開啟後重試，或改用媒體庫方式添加</string>
+    <string name="files_save_failed_title">儲存失敗</string>
+    <string name="files_save_failed_msg">請重試，連線配置尚未完成儲存</string>
+    <string name="files_index_started_toast">已開始建立媒體索引</string>
+
+    <!-- 連線錯誤映射：標題 -->
+    <string name="files_err_credential_title">帳號或密碼錯誤</string>
+    <string name="files_err_pwd_expired_title">密碼已過期</string>
+    <string name="files_err_account_unavailable_title">帳號不可用</string>
+    <string name="files_err_no_access_title">無存取權限</string>
+    <string name="files_err_path_missing_title">路徑不存在</string>
+    <string name="files_err_hostkey_title">主機指紋校驗</string>
+    <string name="files_err_refused_title">連線被拒絕</string>
+    <string name="files_err_dns_title">無法解析主機</string>
+    <string name="files_err_timeout_title">連線逾時</string>
+    <string name="files_err_unreachable_title">網路不可達</string>
+    <string name="files_err_dir_unreadable_title">目錄不可讀</string>
+    <string name="files_err_share_missing_title">共享名缺失</string>
+    <string name="files_err_generic_title">連線失敗</string>
+    <string name="files_err_generic_detail">%1$s</string>
+
+    <!-- 連線錯誤映射：詳情 -->
+    <string name="files_err_cred_smb_msg">SMB 認證被拒絕，請檢查帳號、密碼與域設定</string>
+    <string name="files_err_cred_webdav_msg">WebDAV 認證失敗（HTTP 401），請檢查帳號與密碼</string>
+    <string name="files_err_cred_jellyfin_msg">Jellyfin 認證失敗，請檢查使用者名與密碼</string>
+    <string name="files_err_cred_sftp_msg">SFTP 認證被拒絕，請檢查帳號與密碼（密碼認證需在 NAS 上開啟）</string>
+    <string name="files_err_pwd_expired_msg">該帳號密碼已過期，請在 NAS 上更新後再試</string>
+    <string name="files_err_account_unavailable_msg">帳號被禁用或鎖定，請在 NAS 上解鎖後重試</string>
+    <string name="files_err_no_access_msg">伺服器拒絕存取，請確認帳號對該共享/目錄有讀取權限</string>
+    <string name="files_err_no_access_403_msg">伺服器返回 403，請檢查帳號權限</string>
+    <string name="files_err_path_missing_msg">伺服器上找不到該目錄，可能已被移動、改名或暫時離線</string>
+    <string name="files_err_path_missing_with_msg">伺服器上找不到該目錄，可能已被移動、改名或暫時離線：%1$s</string>
+    <string name="files_err_hostkey_tofu_msg">主機密鑰指紋與首次連線時不一致（可能存在中間人）。如確認是伺服器變更，請刪除該源後重新添加以重置信任</string>
+    <string name="files_err_hostkey_ssh_msg">SSH 主機密鑰校驗未通過，請確認連線的是目標 NAS 而非偽造主機</string>
+    <string name="files_err_refused_smb_msg">主機拒絕連線，請檢查 IP 與埠（SMB 預設 445，NAS 需開啟 SMB 服務）</string>
+    <string name="files_err_refused_sftp_msg">主機拒絕連線，請檢查 IP 與埠（SFTP 預設 22，NAS 需開啟 SSH 服務）</string>
+    <string name="files_err_refused_msg">主機拒絕連線，請檢查 IP 與埠</string>
+    <string name="files_err_dns_msg">找不到該主機名，請檢查地址拼寫或改用 IP</string>
+    <string name="files_err_timeout_msg">伺服器響應逾時，請檢查網路與 NAS 防火牆設定</string>
+    <string name="files_err_unreachable_msg">無法路由到主機，請確認手機與 NAS 在同一區域網</string>
+    <string name="files_err_dir_unreadable_msg">沒有讀取該目錄的權限，請授予存儲權限或選擇應用可存取的目錄</string>
+    <string name="files_err_share_missing_msg">SMB 源未填寫共享名</string>
+
+    <!-- 無障礙 -->
+    <string name="files_cd_toggle_password">切換密碼可見</string>
+</resources>

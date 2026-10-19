@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- policy 域（zh-rCN）：原文逐字平移，簡體中文為合規基準文本（倉庫根 PRIVACY.md/USER_AGREEMENT.md 與本檔案人工同步） -->
+<resources>
+    <!-- 文檔標題（政策頁頂欄） -->
+    <string name="policy_doc_privacy">隱私政策</string>
+    <string name="policy_doc_agreement">使用者協議</string>
+    <!-- 頁眉行與四語免責腳註（zh 同樣顯示） -->
+    <string name="policy_meta_updated_version">最後更新：%1$s · 版本 %2$d</string>
+    <string name="policy_lang_disclaimer">非中文譯文僅供參考，以簡體中文版為準</string>
+    <!-- 首啟同意彈窗（spec §1.4） -->
+    <string name="policy_consent_title">隱私政策與使用者協議</string>
+    <string name="policy_consent_body">歡迎使用 NovaX。開發者不通過本應用收集任何個人資訊：無統計/廣告/上報組件，觀看紀錄與 NAS 憑據等全部資料僅儲存在您的設備上。使用刮削或網路源功能時，請求由您的設備直接發往您配置的伺服器（詳見全文）。</string>
+    <string name="policy_consent_view_full">查看《隱私政策》與《使用者協議》全文</string>
+    <string name="policy_consent_agree">同意並繼續</string>
+    <string name="policy_consent_decline">不同意</string>
+
+    <!-- 隱私政策（9 節 33 段，鍵 policy_p{N}_t / policy_p{N}_p{M}） -->
+    <string name="policy_p1_t">一、概要</string>
+    <string name="policy_p1_p1">NovaX（下稱「本應用」）是一款本地與區域網影片播放工具。開發者不通過本應用收集任何個人資訊：不接入統計、廣告、推送或崩潰上報類第三方 SDK，不採集設備標識、位置、通訊錄等任何資訊，開發者沒有任何伺服器，也無法讀取您的任何資料。</string>
+    <string name="policy_p1_p2">本應用內置的開源組件（播放內核、網路庫等）僅作為本地功能運行，不會向其提供方傳輸您的個人資訊。</string>
+    <string name="policy_p2_t">二、僅儲存在您設備上的資料</string>
+    <string name="policy_p2_p1">觀看紀錄、收藏、媒體庫索引、偏好設定、以及您配置的 NAS 帳號與密碼，全部僅儲存在本應用的私有目錄中（帳號密碼經 Android Keystore 加密後存儲）。這些資料不會上傳，卸載本應用即全部刪除。</string>
+    <string name="policy_p2_p2">開發者無法存取上述資料；本應用也沒有任何遙測或上報通道。</string>
+    <string name="policy_p2_p3">隱私鎖：啟用後，鎖定的 PIN 碼以加密形式僅儲存在本應用私有目錄；鎖定範圍內的觀看紀錄與收藏以密文儲存；鎖定規則不出設備（不備份、不上傳）。</string>
+    <string name="policy_p2_p4">生物辨識：指紋/臉部解鎖僅呼叫 Android 系統的 BiometricPrompt 在本地完成驗證，本應用不收集、不儲存、不上傳任何生物特徵資料。拒絕相關權限時指紋/臉部解鎖不可用，PIN 解鎖仍可正常使用。</string>
+    <string name="policy_p3_t">三、由您主動配置的網路功能</string>
+    <string name="policy_p3_p1">本應用的網路請求均由您的設備直接發往您自行配置的目標，不經過開發者任何中轉：</string>
+    <string name="policy_p3_p2">· SMB / WebDAV / SFTP / Jellyfin 源：連線您填寫的伺服器，憑據僅存本機；</string>
+    <string name="policy_p3_p3">· TMDB 刮削（可選功能）：您自行註冊並填入 API Key 後，海報與影視元資料請求由設備直發 api.themoviedb.org 與 image.tmdb.org（對方伺服器可見您的 IP 地址）；</string>
+    <string name="policy_p3_p4">· DLNA 投放：在區域網內發送設備發現與控制指令；投放時本應用會在區域網內以隨機地址向電視提供播放內容流（僅限區域網，停止投放即關閉）；</string>
+    <string name="policy_p3_p5">· 網路播放直鏈：直接連線您開啟的地址。</string>
+    <string name="policy_p3_p6">· 檢查更新：應用啟動（可關閉）或您手動點擊時，設備直連 GitHub 公開接口（api.github.com）查詢最新版本號；點擊下載時從 GitHub 下載伺服器獲取安裝包。此過程不傳輸任何使用者資料。</string>
+    <string name="policy_p4_t">四、明文流量提示</string>
+    <string name="policy_p4_p1">本應用支援 http 協議的 NAS 與直鏈源（許多家庭 NAS 不提供 https）。使用明文協議時，傳輸內容（含您的帳號密碼與播放內容）在鏈路上可能被同一網路內的第三方截獲；SFTP/SMB 的加密強度取決於您伺服器的配置。請在可信網路中使用，或優先選擇加密協議。</string>
+    <string name="policy_p5_t">五、權限清單與用途</string>
+    <string name="policy_p5_p1">本應用共聲明 16 項權限（其中三項為舊系統兼容權限），用途與拒絕後果如下：</string>
+    <string name="policy_p5_p2">1. 網路（INTERNET）：網路播放、NAS 源連線、刮削、投放。拒絕則網路功能不可用，本地播放不受影響。</string>
+    <string name="policy_p5_p3">2. 網路狀態（ACCESS_NETWORK_STATE）：識別計費網路以提供流量提醒。拒絕則流量提醒失效。</string>
+    <string name="policy_p5_p4">3. Wi-Fi 狀態（ACCESS_WIFI_STATE）：投放設備發現。拒絕影響投放發現。</string>
+    <string name="policy_p5_p5">4. Wi-Fi 組播（CHANGE_WIFI_MULTICAST_STATE）：DLNA 設備發現協議所需。拒絕則無法發現電視。</string>
+    <string name="policy_p5_p6">5. 通知（POST_NOTIFICATIONS，Android 13+）：背景播放的通知欄控制。拒絕則背景播放無通知。</string>
+    <string name="policy_p5_p7">6. 喚醒鎖（WAKE_LOCK）：保持背景播放不被中斷。</string>
+    <string name="policy_p5_p8">7-8. 前臺服務（FOREGROUND_SERVICE / FOREGROUND_SERVICE_MEDIA_PLAYBACK）：背景播放服務。</string>
+    <string name="policy_p5_p9">9. 所有檔案存取（MANAGE_EXTERNAL_STORAGE）：播放 RMVB 等非標準格式及配套字幕需要完整檔案可見性。此項僅當您在系統設定中手動授予後生效；不授予仍可播放常見格式（走系統媒體庫路徑）。</string>
+    <string name="policy_p5_p10">10. 影片媒體讀取（READ_MEDIA_VIDEO，Android 13+）：掃描與播放媒體庫中的影片。拒絕則無法掃描媒體庫影片（可改用「所有檔案存取」或外部「開啟方式」進入）。</string>
+    <string name="policy_p5_p11">11. 存儲讀取（READ_EXTERNAL_STORAGE，僅 Android 12L 及以下）：舊系統的媒體讀取。拒絕則舊系統上媒體庫掃描不可用。</string>
+    <string name="policy_p5_p12">12. 存儲寫入（WRITE_EXTERNAL_STORAGE，僅 Android 9 及以下）：舊系統儲存贊助二維碼到相簿。拒絕則無法儲存贊助碼（不影響其他功能）。</string>
+    <string name="policy_p5_p13">13. 電池優化豁免（REQUEST_IGNORE_BATTERY_OPTIMIZATIONS）：三星等廠商激進背景策略會中斷 NAS 長連線。僅請求一次，可拒絕。</string>
+    <string name="policy_p5_p14">14. 安裝未知應用（REQUEST_INSTALL_PACKAGES）：僅當您在更新彈窗點擊『立即下載安裝』時，用於向系統提交安裝本應用更新包；拒絕則無法應用內一鍵更新，仍可在瀏覽器下載 APK 手動安裝。</string>
+    <string name="policy_p5_p15">15. 生物辨識（USE_BIOMETRIC）：僅在您解鎖隱私鎖時，用於調起 Android 系統的指紋/臉部驗證對話框；驗證由系統在本地完成，本應用不接觸生物特徵資料。拒絕則指紋/臉部解鎖不可用，PIN 解鎖不受影響。</string>
+    <string name="policy_p5_p16">16. 指紋（USE_FINGERPRINT，Android 9 及以下）：舊系統上生物辨識解鎖的兼容權限。拒絕則舊系統上指紋解鎖不可用，PIN 解鎖不受影響。</string>
+    <string name="policy_p6_t">六、系統備份</string>
+    <string name="policy_p6_p1">本應用已將媒體資料庫（含 NAS 憑據與觀看紀錄）及全部偏好設定排除在 Android 雲備份與換機遷移之外；SFTP 主機指紋檔案與本地崩潰日誌同樣排除。換機後需重新添加源。</string>
+    <string name="policy_p7_t">七、未成年人</string>
+    <string name="policy_p7_p1">本應用不收集任何資訊（含未成年人），不設年齡門檻，家長可藉助系統自帶的螢幕時間管理工具管理使用。</string>
+    <string name="policy_p8_t">八、政策的變更</string>
+    <string name="policy_p8_p1">本政策有版本號與更新日期；若收集範圍或權限用途發生重大變化，將在您下次啟動時重新彈出提示徵求同意。歷史版本可通過發布頁查看。</string>
+    <string name="policy_p9_t">九、聯繫我們</string>
+    <string name="policy_p9_p1">如對本政策有任何疑問、糾正或刪除請求（儘管開發者不持有您的資料），請聯繫：liuyouwu1999@163.com。我們將在合理期限內回復。</string>
+
+    <!-- 使用者協議（8 節 8 段，鍵 policy_ua{N}_t / policy_ua{N}_p{M}） -->
+    <string name="policy_ua1_t">一、協議的接受</string>
+    <string name="policy_ua1_p1">您下載、安裝或使用 NovaX（下稱「本應用」），即表示已閱讀並同意本協議。若不同意，請退出並卸載本應用。</string>
+    <string name="policy_ua2_t">二、按現狀提供</string>
+    <string name="policy_ua2_p1">本應用為個人開發者免費作品，按「現狀」提供。開發者不承諾其在全部設備、全部檔案格式或全部網路環境下無缺陷地運行，亦不承諾持續更新。贊助行為屬自願支援，不構成服務合同。</string>
+    <string name="policy_ua3_t">三、內容責任</string>
+    <string name="policy_ua3_p1">本應用僅提供本地與區域網檔案的播放能力，不提供、不存儲、不推薦任何內容。您使用本應用播放的內容之來源與合法性由您自行負責；不得利用本應用傳播或展示違反法律法規或他人權利的內容。</string>
+    <string name="policy_ua4_t">四、智慧財產權</string>
+    <string name="policy_ua4_p1">本應用介面與代碼的著作權歸開發者所有；所依賴的開源組件歸其各自權利人所有，致謝清單見應用內「設定-關於-開源致謝」。NovaX 名稱與圖示不得被冒用。</string>
+    <string name="policy_ua5_t">五、第三方服務</string>
+    <string name="policy_ua5_p1">本應用的投放、NAS 連線、TMDB 刮削等功能依賴您自行配置的第三方設備或服務，其可用性與安全性由相應提供方負責。因第三方服務變動導致的功能失效不屬於開發者違約。</string>
+    <string name="policy_ua6_t">六、免責與責任上限</string>
+    <string name="policy_ua6_p1">在法律允許的最大範圍內，開發者不對您因使用或無法使用本應用造成的任何直接或間接損失承擔責任。若您因播放、轉發內容引發糾紛，責任由您自行承擔。</string>
+    <string name="policy_ua7_t">七、協議的變更</string>
+    <string name="policy_ua7_p1">本協議隨隱私政策一併版本化管理；重大變更將在下次啟動時重新提示。繼續使用即視為接受變更後的協議。</string>
+    <string name="policy_ua8_t">八、聯繫方式</string>
+    <string name="policy_ua8_p1">聯繫信箱：liuyouwu1999@163.com。</string>
+</resources>

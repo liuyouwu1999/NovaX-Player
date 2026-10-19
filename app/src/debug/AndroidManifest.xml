@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 仅 debug 构建生效：开放文件查看器给 adb/am start，供自动化测试与诊断复现 -->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+    <application>
+        <!-- C9 冒烟：ViewerActivity debug exported（release 仍为 false） -->
+        <activity
+            android:name="com.novax.app.ui.viewers.ViewerActivity"
+            android:exported="true"
+            android:configChanges="orientation|screenSize|screenLayout|keyboardHidden"
+            tools:node="replace" />
+
+        <!-- 2026-10-13 §2 取证:RmvbPlayerActivity debug exported(release 仍 false)——
+             adb am start 携带 novax.debug.force_fake_tail 直起兜底页;其余属性=主清单全量 -->
+        <activity
+            android:name="com.novax.app.player.RmvbPlayerActivity"
+            android:exported="true"
+            android:screenOrientation="sensorLandscape"
+            android:configChanges="orientation|screenSize|screenLayout|keyboardHidden|smallestScreenSize|density|uiMode"
+            tools:node="replace" />
+    </application>
+</manifest>
