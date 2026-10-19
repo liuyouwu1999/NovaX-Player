@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 返回时底页恢复（75%→1），200ms。decelerate_cubic 对应 NvMotion.CurveDecelerate -->
+<set xmlns:android="http://schemas.android.com/apk/res/android">
+    <alpha
+        android:fromAlpha="0.75"
+        android:toAlpha="1.0"
+        android:duration="200"
+        android:interpolator="@android:interpolator/decelerate_cubic" />
+</set>
