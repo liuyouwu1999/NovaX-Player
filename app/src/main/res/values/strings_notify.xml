@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- notify domain (English default) — Task 7: background media notification copy (PlaybackService) -->
+<resources>
+    <!-- Queue position line shown as the notification artist row; built at PlaybackService with applicationContext.getString -->
+    <string name="notify_queue_subtitle">Ep. %1$d of %2$d</string>
+</resources>

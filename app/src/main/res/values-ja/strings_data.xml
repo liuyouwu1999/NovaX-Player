@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- data ドメイン(ja): データ層から露出するユーザー向けメッセージ（キャストエラー/トースト、
+     スキャンバナー）。文はです・ます体、ラベルは体言止め。 -->
+<resources>
+    <!-- キャストセッションエラー (CastSession) -->
+    <string name="data_cast_err_wifi_needed">キャストには Wi-Fi 接続が必要です</string>
+    <string name="data_cast_err_bad_tv_address">TV アドレスが無効のためキャストできません</string>
+    <string name="data_cast_err_connect_timeout">キャスト接続がタイムアウトしました</string>
+    <string name="data_cast_err_tv_cannot_fetch">TV がストリームを取得できません。ネットワークを確認してください</string>
+    <string name="data_cast_err_cast_failed">キャストに失敗しました</string>
+    <string name="data_cast_err_disconnected">キャスト接続が切断されました</string>
+
+    <!-- キャストトースト / 事前処理の注意 (CastSessionHolder) -->
+    <string name="data_cast_ended_with_reason">キャストを終了しました：%1$s</string>
+    <string name="data_cast_ended_wifi_lost">Wi-Fi が切断されたためキャストを終了しました</string>
+    <string name="data_cast_ended_metered">従量制ネットワークに切り替わったためキャストを終了しました</string>
+    <string name="data_cast_warn_unsupported_format">形式が対応していない可能性があります。黒い画面になる場合は端末で再生してください</string>
+    <string name="data_cast_warn_dolby_vision">ドルビービジョンは黒画面になる可能性があります。端末での再生を推奨します</string>
+    <string name="data_cast_err_source_unreadable">ソースを読み取れません（NAS 接続失敗）。キャストをキャンセルしました</string>
+    <string name="data_cast_err_source_stalled">ソースの読み取りが停止しました（NAS 無応答？）。キャストをキャンセルしました</string>
+    <string name="data_cast_err_source_missing">メディアソースが存在しません（削除された可能性があります）</string>
+
+    <!-- UPnP 制御層エラー (UpnpControlSoapExecutor / UpnpErrorText) -->
+    <string name="data_cast_err_service_not_ready">キャストサービスの準備ができていません。再試行してください</string>
+    <string name="data_cast_err_generic">キャスト操作に失敗しました</string>
+    <string name="data_cast_err_tv_no_response">TV が応答しません。ネットワークを確認してください</string>
+    <string name="data_cast_err_action_unsupported">TV はこの操作に対応していません</string>
+    <string name="data_cast_err_tv_rejected_args">TV が操作を拒否しました（引数が不正）</string>
+    <string name="data_cast_err_tv_out_of_sync">TV の状態が同期していません。再試行してください</string>
+    <string name="data_cast_err_tv_rejected_value">TV が操作を拒否しました（引数値が不正）</string>
+    <string name="data_cast_err_tv_action_failed">TV が操作を実行できませんでした</string>
+    <string name="data_cast_err_tv_rejected_out_of_range">TV が操作を拒否しました（引数値が範囲外）</string>
+    <string name="data_cast_err_tv_out_of_memory">TV のメモリが不足しています</string>
+    <string name="data_cast_err_tv_needs_intervention">TV が操作を実行できませんでした（手動対応が必要）</string>
+    <string name="data_cast_err_session_expired">TV のキャストセッションが失効しました。再度キャストしてください</string>
+    <string name="data_cast_err_tv_not_ready_701">TV がまだ準備できていません（701）。再試行後も失敗しました</string>
+    <string name="data_cast_err_tv_failed_with_code">TV が操作を実行できませんでした（エラーコード %1$d）</string>
+    <string name="data_cast_err_tv_timeout">TV の応答がタイムアウトしました。ネットワークを確認してください</string>
+
+    <!-- スキャンバナー (MediaScanner → LibraryScreen / HomeViewModel) -->
+    <string name="data_scan_banner_title">%1$s をスキャン中 · %2$d ディレクトリ済み · %3$d 件発見</string>
+    <string name="data_scan_note_truncated">%1$d ファイルの上限に達したため、一部のファイルのみインデックスしました</string>
+    <string name="data_scan_note_missing_dirs">%1$d 個のスキャンディレクトリがサーバーに存在しないか移動されました（最初: %2$s）。スキップしました。ソースを編集してスキャンディレクトリを選び直してください</string>
+    <string name="data_scan_note_skipped_dirs">読み取れないディレクトリ %1$d 個をスキップしました（最初: %2$s）</string>
+    <string name="data_scan_error_path_missing">ディレクトリがサーバーに存在しないか、移動・改名されました</string>
+    <string name="data_scan_error_path_missing_with_dir">ディレクトリがサーバーに存在しないか、移動・改名されました：%1$s</string>
+    <!-- Task 9: スクレイピング終状メッセージ -->
+    <string name="data_scrape_failed_detail">スクレイピングに失敗しました：%1$s</string>
+    <string name="data_scrape_no_api_key">TMDB APIキーが設定されていません</string>
+    <string name="data_scrape_key_invalid">TMDB APIキーが無効または期限切れです。設定のライブラリで確認してください</string>
+    <string name="data_scrape_nothing_new">スクレイピングする新規項目はありません</string>
+</resources>

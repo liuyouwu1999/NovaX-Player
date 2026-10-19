@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Task 9: misc 域——中文逐字平移自代码原句 -->
+<resources>
+    <!-- CastSheets：设备选择弹层 -->
+    <string name="misc_cast_title">投到电视</string>
+    <string name="misc_cast_none_title">没有发现电视</string>
+    <string name="misc_cast_none_desc">确认电视与手机连同一 Wi-Fi，电视端开启 DLNA/多屏互动</string>
+    <string name="misc_cast_scanning">正在扫描…</string>
+    <string name="misc_cast_connecting">正在连接 %1$s…</string>
+    <string name="misc_cast_control_addr">控制地址：%1$s</string>
+    <string name="misc_cast_manual_add">手动添加</string>
+    <string name="misc_cast_manual_hint">描述 XML 地址 http://…/desc.xml</string>
+    <string name="misc_cast_add_and_cast">添加并投屏</string>
+    <string name="misc_cast_add_failed">添加失败：地址无效或非渲染器</string>
+    <string name="misc_cast_unknown_device">未知设备</string>
+    <!-- CastSheets：遥控面板 -->
+    <string name="misc_cast_ended">投屏已结束</string>
+    <string name="misc_cast_rewind_30s">快退30秒</string>
+    <string name="misc_cast_play">播放</string>
+    <string name="misc_cast_pause">暂停</string>
+    <string name="misc_cast_next_episode">下集</string>
+    <string name="misc_cast_volume">音量</string>
+    <string name="misc_cast_disconnect">断开投屏</string>
+    <string name="misc_cast_pull_back">拉回本机播放</string>
+    <string name="misc_cast_active_with">正在投屏 · %1$s</string>
+    <string name="misc_cast_connecting_with">正在连接 · %1$s</string>
+    <!-- AlphabetSidebar（媒体库侧条；"数" 为内部分组键，保留代码内） -->
+    <string name="misc_section_digit">数字</string>
+    <!-- NvInlineBanner 关闭钮（2026-10-26 扫描提示横幅可关闭） -->
+    <string name="misc_banner_dismiss">关闭提示</string>
+    <!-- MediaPosterCard -->
+    <string name="misc_stop_scan">停止扫描</string>
+    <!-- NvMeteredDialog -->
+    <string name="misc_metered_title">即将使用移动流量播放</string>
+    <string name="misc_metered_body">当前使用移动流量，继续播放将消耗数据流量；仅 Wi-Fi 下可免确认播放。</string>
+    <string name="misc_metered_dont_ask">流量下不再提醒</string>
+    <string name="misc_metered_continue">继续播放</string>
+    <string name="misc_cancel">取消</string>
+    <!-- PosterCard -->
+    <string name="misc_more">更多</string>
+    <!-- Selection -->
+    <string name="misc_sel_remove">移除 %1$s</string>
+    <string name="misc_sel_clear_all">清除全部</string>
+    <string name="misc_sel_search_hint">搜索当前目录</string>
+    <string name="misc_sel_exit_search">退出搜索</string>
+    <string name="misc_sel_clear">清空</string>
+    <string name="misc_sel_exit_multi">退出多选</string>
+    <plurals name="misc_sel_selected_count">
+        <item quantity="other">已选 %1$d 项</item>
+    </plurals>
+    <string name="misc_sel_select_all">全选</string>
+    <string name="misc_sel_invert">反选</string>
+    <!-- Sheets -->
+    <string name="misc_confirm">确认</string>
+    <string name="misc_close">关闭</string>
+    <!-- States -->
+    <string name="misc_load_failed">加载失败</string>
+    <string name="misc_retry">重试</string>
+    <!-- TopBar -->
+    <string name="misc_back">返回</string>
+    <!-- Settings：二期徽标 -->
+    <string name="misc_phase2">二期</string>
+    <!-- ImageViewerScreen -->
+    <string name="misc_img_needs_android9">此格式需要 Android 9+</string>
+    <string name="misc_img_heic_fail">当前系统无法解码 HEIC 图片</string>
+    <string name="misc_open_with">用其他应用打开</string>
+    <string name="misc_unknown_size">未知</string>
+    <!-- PdfViewerScreen -->
+    <string name="misc_pdf_missing">文件不存在或不可读</string>
+    <string name="misc_pdf_cannot_open">无法打开此 PDF</string>
+    <string name="misc_pdf_encrypted">PDF 已加密</string>
+    <string name="misc_pdf_no_password">暂不支持密码解锁</string>
+    <string name="misc_pdf_no_pages">此 PDF 不包含任何页面</string>
+    <string name="misc_pdf_goto_page">跳转到页面</string>
+    <string name="misc_pdf_goto">跳转</string>
+    <string name="misc_pdf_dl_title">先下载后打开</string>
+    <string name="misc_pdf_dl_msg">该文件 %1$s，将先下载到本机缓存再打开</string>
+    <string name="misc_pdf_dl_confirm">下载并打开</string>
+    <string name="misc_pdf_page_n">第 %1$d 页</string>
+    <string name="misc_pdf_preparing">准备下载…</string>
+    <!-- TextViewerScreen -->
+    <string name="misc_text_read_failed">读取失败</string>
+    <string name="misc_text_binary">此文件为二进制，无法以文本预览</string>
+    <string name="misc_text_empty">此文件为空</string>
+    <string name="misc_text_encoding">编码</string>
+    <string name="misc_text_mono">等宽字体</string>
+    <string name="misc_text_wrap">自动换行</string>
+    <string name="misc_text_choose_encoding">选择编码</string>
+    <string name="misc_text_reloaded">已按 %1$s 重新加载</string>
+    <string name="misc_text_truncated">文件较大，仅显示前 %1$d KB</string>
+    <string name="misc_text_open_full">完整打开</string>
+    <!-- ViewerActivity / ViewerFiles -->
+    <string name="misc_viewer_default_title">文件</string>
+    <string name="misc_viewer_missing_args">无法打开文件（参数缺失）</string>
+    <string name="misc_viewer_bad_uri">无法解析文件地址</string>
+    <string name="misc_viewer_no_handler">未找到可处理此类型的应用</string>
+    <string name="misc_viewer_open_failed">打开失败：%1$s</string>
+    <string name="misc_viewer_source_missing">文件源不存在或已被删除（id=%1$d）</string>
+    <string name="misc_viewer_uri_unparsed">无法解析文件地址: %1$s</string>
+</resources>
