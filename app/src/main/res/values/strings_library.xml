@@ -1,0 +1,273 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- library domain (English default): lib_ = ui/library, home_ = ui/home, detail_ = ui/detail,
+     search_ = ui/search, hist_ = ui/history -->
+<resources>
+    <!-- ═══ ui/library ═══ -->
+    <string name="lib_title">Media library</string>
+    <string name="lib_rescan">Rescan</string>
+    <string name="lib_cd_toggle_view">Toggle view</string>
+    <string name="lib_sort">Sort</string>
+    <string name="lib_sort_added">Date added</string>
+    <string name="lib_sort_title">Title A→Z</string>
+    <string name="lib_sort_size">Size (large → small)</string>
+    <string name="lib_type_all">All</string>
+    <string name="lib_type_long">Long videos</string>
+    <string name="lib_type_short">Short videos</string>
+    <string name="lib_type_series">Series</string>
+    <string name="lib_watched_state">Watch status</string>
+    <string name="lib_watch_status">Watch status</string>
+    <string name="lib_watched">Watched</string>
+    <string name="lib_unwatched">Unwatched</string>
+    <string name="lib_folders">Folders</string>
+    <string name="lib_all_folders">All folders</string>
+    <string name="lib_sources">Media sources</string>
+    <string name="lib_all_sources">All sources</string>
+    <string name="lib_all">All</string>
+    <string name="lib_clear">Clear</string>
+    <string name="lib_clear_filters">Clear filters</string>
+    <string name="lib_filter">Filter</string>
+    <string name="lib_chip_folder">Folder · %1$s</string>
+    <string name="lib_chip_source">Source · %1$s</string>
+    <string name="lib_series_empty_title">No series to group yet</string>
+    <string name="lib_series_empty_desc">Put the episodes of a show in the same folder\n(≥2 videos in one folder auto-group into a series; the folder name becomes the series name)</string>
+    <string name="lib_empty_title">Media library is empty</string>
+    <string name="lib_empty_desc">Add a NAS source to build the index automatically\nGo to the Files tab to add a media source</string>
+    <string name="lib_not_indexed_title">No index yet</string>
+    <string name="lib_not_indexed_desc">Tap the button below to scan the added sources</string>
+    <string name="lib_scan_now">Scan now</string>
+    <string name="lib_scan_done_empty_title">Scan finished, no video files found</string>
+    <string name="lib_scan_done_empty_desc">Check whether the selected folders contain videos, or pick another folder and scan again</string>
+    <string name="lib_no_match_title">No matching videos</string>
+    <string name="lib_no_match_desc">Try clearing the filters or scanning again</string>
+    <string name="lib_rescan_title">Update local index?</string>
+    <plurals name="lib_rescan_msg">
+        <item quantity="one">Files in %1$d media source will be rechecked: new files join the index and missing entries are removed.</item>
+        <item quantity="other">Files in %1$d media sources will be rechecked: new files join the index and missing entries are removed.</item>
+    </plurals>
+    <string name="lib_rescan_confirm">Update index</string>
+    <string name="lib_source_filter_all">Source: All</string>
+    <string name="lib_source_filter_named">Source: %1$s</string>
+    <string name="lib_source_fallback">Source %1$d</string>
+    <string name="lib_scan_failed_banner">Scan of %1$s failed: %2$s. Tap refresh in the top bar to retry</string>
+    <string name="lib_scan_noted_banner">Scan of %1$s finished with notes: %2$s</string>
+    <string name="lib_unknown_error">Unknown error</string>
+    <plurals name="lib_scan_other_sources">
+        <item quantity="one">+%1$d more source</item>
+        <item quantity="other">+%1$d more sources</item>
+    </plurals>
+    <plurals name="lib_episode_badge">
+        <item quantity="one">%1$d ep</item>
+        <item quantity="other">%1$d eps</item>
+    </plurals>
+    <plurals name="lib_watched_episodes">
+        <item quantity="one">Watched %1$d episode</item>
+        <item quantity="other">Watched %1$d episodes</item>
+    </plurals>
+    <string name="lib_series_fallback">Series</string>
+    <string name="lib_play">Play</string>
+    <string name="lib_cast">Cast</string>
+    <string name="lib_details">Details</string>
+    <string name="lib_open_folder">Open containing folder</string>
+    <string name="lib_favorite">Add to favorites</string>
+    <string name="lib_unfavorite">Remove from favorites</string>
+    <string name="lib_mark_watched">Mark as watched</string>
+    <string name="lib_unmark_watched">Mark as unwatched</string>
+    <string name="lib_reextract_thumb">Re-extract thumbnails</string>
+    <string name="lib_show_path">Show file path</string>
+    <string name="lib_copied">Copied</string>
+
+    <!-- ═══ ui/home ═══ -->
+    <string name="home_empty_source_title">Add your media source</string>
+    <string name="home_empty_source_desc">Supports SMB / WebDAV / SFTP / Jellyfin / local storage. Media indexing starts automatically after adding</string>
+    <string name="home_add_source">Add source</string>
+    <string name="home_section_continue">Continue watching</string>
+    <string name="home_guide_continue">Videos you\'ve watched appear here and resume from where you left off</string>
+    <string name="home_go_files">Go to Files</string>
+    <string name="home_section_recent">Recently added</string>
+    <string name="home_section_favorites">Favorites</string>
+    <string name="home_cd_search">Search</string>
+    <string name="home_open_folder">Open containing folder</string>
+    <string name="home_remove_from_continue">Remove from Continue watching</string>
+    <string name="home_removed_from_continue">Removed from Continue watching</string>
+    <string name="home_delete_entry">Delete this entry</string>
+    <string name="home_deleted_entry">Entry deleted</string>
+    <string name="home_cancel">Cancel</string>
+    <string name="home_favorite">Add to favorites</string>
+    <string name="home_unfavorite">Remove from favorites</string>
+    <string name="home_favorited_toast">Added to favorites</string>
+    <string name="home_unfavorited_toast">Removed from favorites</string>
+    <string name="home_dead_favorite_cleaned">File unavailable — removed from favorites</string>
+    <string name="home_reextract_thumb">Re-extract thumbnails</string>
+    <string name="home_reextracting_toast">Re-extracting thumbnail</string>
+    <string name="home_show_path">Show file path</string>
+    <plurals name="home_media_count">
+        <item quantity="one">%1$d file</item>
+        <item quantity="other">%1$d files</item>
+    </plurals>
+    <string name="home_browse_hint">Browse</string>
+    <string name="home_library">Media library</string>
+    <string name="home_files">Files</string>
+    <string name="home_browse_sources">Browse sources</string>
+    <string name="home_search">Search</string>
+    <string name="home_find_titles">Find titles</string>
+    <string name="home_settings">Settings</string>
+    <string name="home_preferences">Preferences</string>
+    <plurals name="home_source_count_line">
+        <item quantity="one">%1$d media source · Open the media library to browse all</item>
+        <item quantity="other">%1$d media sources · Open the media library to browse all</item>
+    </plurals>
+    <string name="home_cd_resume">Resume</string>
+    <string name="home_source_fallback">Source %1$d</string>
+    <string name="home_chip_episode">S%1$sE%2$s</string>
+    <string name="home_chip_text">%1$s</string>
+    <string name="home_chip_continue">Continue watching</string>
+    <plurals name="home_chip_remaining_min">
+        <item quantity="one">%1$d min left</item>
+        <item quantity="other">%1$d min left</item>
+    </plurals>
+    <plurals name="home_overview_movies">
+        <item quantity="one">%1$d movie</item>
+        <item quantity="other">%1$d movies</item>
+    </plurals>
+    <plurals name="home_overview_episodes">
+        <item quantity="one">%1$d episode</item>
+        <item quantity="other">%1$d episodes</item>
+    </plurals>
+    <plurals name="home_overview_videos">
+        <item quantity="one">%1$d video</item>
+        <item quantity="other">%1$d videos</item>
+    </plurals>
+    <plurals name="home_overview_images">
+        <item quantity="one">%1$d image</item>
+        <item quantity="other">%1$d images</item>
+    </plurals>
+
+    <!-- ═══ ui/detail ═══ -->
+    <string name="detail_back">Back</string>
+    <string name="detail_play">▶ Play</string>
+    <string name="detail_play_season_ep">▶ Play S%1$dE1</string>
+    <plurals name="detail_play_resume_ep">
+        <item quantity="one">▶ Resume %1$s · %2$d min left</item>
+        <item quantity="other">▶ Resume %1$s · %2$d min left</item>
+    </plurals>
+    <plurals name="detail_play_resume">
+        <item quantity="one">▶ Resume · %1$d min left</item>
+        <item quantity="other">▶ Resume · %1$d min left</item>
+    </plurals>
+    <string name="detail_more">More</string>
+    <string name="detail_favorited_toast">Added to favorites</string>
+    <string name="detail_unfavorited_toast">Removed from favorites</string>
+    <string name="detail_cast">Cast</string>
+    <string name="detail_season_n">Season %1$d</string>
+    <string name="detail_no_episodes">No episodes in this season</string>
+    <string name="detail_no_episodes_parsed">No episodes detected</string>
+    <string name="detail_rescrape">Re-scrape</string>
+    <string name="detail_favorite">Add to favorites</string>
+    <string name="detail_unfavorite">Remove from favorites</string>
+    <string name="detail_share">Share</string>
+    <string name="detail_share_todo">Sharing isn\'t available yet</string>
+    <string name="detail_resume_confirm_title">Continue from %1$s?</string>
+    <plurals name="detail_resume_confirm_msg">
+        <item quantity="one">E%1$d · %2$s — watched up to %3$d min.</item>
+        <item quantity="other">E%1$d · %2$s — watched up to %3$d min.</item>
+    </plurals>
+    <string name="detail_resume">Resume</string>
+    <string name="detail_cancel">Cancel</string>
+    <string name="detail_expand">Expand</string>
+    <string name="detail_collapse">Collapse</string>
+    <string name="detail_scrape_hint">Couldn\'t recognize media info · Configure TMDB under Settings – Media library, then \"Re-scrape\"</string>
+    <string name="detail_cd_watched">Watched</string>
+    <plurals name="detail_duration_min">
+        <item quantity="one">%1$d min</item>
+        <item quantity="other">%1$d min</item>
+    </plurals>
+    <plurals name="detail_total_episodes">
+        <item quantity="one">%1$d episode total</item>
+        <item quantity="other">%1$d episodes total</item>
+    </plurals>
+    <plurals name="detail_episodes_count">
+        <item quantity="one">%1$d episode</item>
+        <item quantity="other">%1$d episodes</item>
+    </plurals>
+    <plurals name="detail_total_seasons">
+        <item quantity="one">%1$d season total</item>
+        <item quantity="other">%1$d seasons total</item>
+    </plurals>
+    <string name="detail_info_path">File path</string>
+    <string name="detail_info_source">Source</string>
+    <string name="detail_unknown_source">Unknown source</string>
+    <string name="detail_info_resolution">Resolution</string>
+    <string name="detail_unknown">Unknown</string>
+    <string name="detail_info_added">Date added</string>
+    <string name="detail_info_codec">Codec</string>
+    <string name="detail_err_deleted">The item doesn\'t exist or has been deleted</string>
+    <string name="detail_err_not_found">Media item not found (id=%1$s)</string>
+    <string name="detail_chasing">Up to %1$s</string>
+    <string name="detail_mock_overview">Built-in sample (demo data): provided by %1$s, encoded in %2$s at %3$s. Real library entries show the TMDB overview here after scraping.</string>
+    <string name="detail_tech_info">Media info</string>
+    <string name="detail_details">Details</string>
+    <string name="detail_hide_details">Hide details</string>
+
+    <!-- ═══ ui/search ═══ -->
+    <string name="search_no_results_for">No results for \"%1$s\"</string>
+    <string name="search_no_results_hint">· Try a shorter keyword\n· Or browse source files in the Files tab</string>
+    <string name="search_go_files">Search in Files</string>
+    <string name="search_hint">Search movies, series, videos</string>
+    <string name="search_cd_clear">Clear</string>
+    <string name="search_cancel">Cancel</string>
+    <string name="search_history">Search history</string>
+    <string name="search_recent">Recently added</string>
+    <string name="search_empty_footnote">Results come from the local media library index and appear instantly</string>
+    <string name="search_clear_history_title">Clear search history</string>
+    <plurals name="search_clear_history_msg">
+        <item quantity="one">All %1$d search record will be deleted. This can\'t be undone.</item>
+        <item quantity="other">All %1$d search records will be deleted. This can\'t be undone.</item>
+    </plurals>
+    <string name="search_clear">Clear all</string>
+    <string name="search_cd_remove_history">Delete this history entry</string>
+    <string name="search_filter_all">All</string>
+    <string name="search_filter_movie">Movies</string>
+    <string name="search_filter_series">Series</string>
+    <string name="search_filter_video">Videos</string>
+    <string name="search_group_movies">Movies</string>
+    <string name="search_group_series">Series</string>
+    <string name="search_group_videos">Videos</string>
+    <plurals name="search_series_meta">
+        <item quantity="one">%1$d episode · %2$s</item>
+        <item quantity="other">%1$d episodes · %2$s</item>
+    </plurals>
+    <plurals name="search_episode_count">
+        <item quantity="one">%1$d episode</item>
+        <item quantity="other">%1$d episodes</item>
+    </plurals>
+    <string name="search_more">More</string>
+    <plurals name="search_indexing_banner">
+        <item quantity="one">Media library index building — results may be incomplete (%1$d found)</item>
+        <item quantity="other">Media library index building — results may be incomplete (%1$d found)</item>
+    </plurals>
+    <string name="search_series_fallback">Series</string>
+
+    <!-- ═══ ui/history ═══ -->
+    <string name="hist_title">Watch history</string>
+    <string name="hist_empty_title">No watch history yet</string>
+    <string name="hist_empty_desc">Videos you\'ve played appear here — tap to resume from your last position</string>
+    <string name="hist_clear">Clear</string>
+    <string name="hist_clear_title">Clear watch history</string>
+    <string name="hist_clear_msg">All playback progress and watch records will be deleted. This can\'t be undone.</string>
+    <string name="hist_time_just_now">Just now</string>
+    <plurals name="hist_time_min_ago">
+        <item quantity="one">%1$d minute ago</item>
+        <item quantity="other">%1$d minutes ago</item>
+    </plurals>
+    <plurals name="hist_time_hour_ago">
+        <item quantity="one">%1$d hour ago</item>
+        <item quantity="other">%1$d hours ago</item>
+    </plurals>
+    <plurals name="hist_time_day_ago">
+        <item quantity="one">%1$d day ago</item>
+        <item quantity="other">%1$d days ago</item>
+    </plurals>
+    <string name="hist_finished">Finished</string>
+    <string name="hist_open_folder">Open containing folder</string>
+    <string name="hist_delete_item">Delete this entry</string>
+</resources>

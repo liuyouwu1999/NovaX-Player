@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- data 域（zh-rCN）：全部收代码原句（逐字平移，不借机改写） -->
+<resources>
+    <!-- 投屏会话错误（CastSession） -->
+    <string name="data_cast_err_wifi_needed">投屏需要连接 Wi-Fi</string>
+    <string name="data_cast_err_bad_tv_address">电视地址无效，无法投屏</string>
+    <string name="data_cast_err_connect_timeout">投屏连接超时</string>
+    <string name="data_cast_err_tv_cannot_fetch">电视无法取流，请检查网络</string>
+    <string name="data_cast_err_cast_failed">投屏失败</string>
+    <string name="data_cast_err_disconnected">投屏连接已中断</string>
+
+    <!-- 投屏 Toast / 预处理提醒（CastSessionHolder） -->
+    <string name="data_cast_ended_with_reason">投屏已结束：%1$s</string>
+    <string name="data_cast_ended_wifi_lost">Wi-Fi 已断开，投屏结束</string>
+    <string name="data_cast_ended_metered">已切换到计量网络，投屏结束</string>
+    <string name="data_cast_warn_unsupported_format">格式可能不受支持，黑屏请本机播放</string>
+    <string name="data_cast_warn_dolby_vision">杜比视界可能黑屏，建议本机播放</string>
+    <string name="data_cast_err_source_unreadable">片源无法读取（NAS 连接失败），已取消投屏</string>
+    <string name="data_cast_err_source_stalled">片源读取停滞（NAS 无响应？），已取消投屏</string>
+    <string name="data_cast_err_source_missing">媒体源不存在（可能已删除）</string>
+
+    <!-- UPnP 控制层错误（UpnpControlSoapExecutor / UpnpErrorText） -->
+    <string name="data_cast_err_service_not_ready">投屏服务未就绪，请重试</string>
+    <string name="data_cast_err_generic">投屏操作失败</string>
+    <string name="data_cast_err_tv_no_response">电视无响应，请检查网络</string>
+    <string name="data_cast_err_action_unsupported">电视不支持该操作</string>
+    <string name="data_cast_err_tv_rejected_args">电视拒绝该操作（参数无效）</string>
+    <string name="data_cast_err_tv_out_of_sync">电视状态不同步，请重试</string>
+    <string name="data_cast_err_tv_rejected_value">电视拒绝该操作（参数值无效）</string>
+    <string name="data_cast_err_tv_action_failed">电视执行该操作失败</string>
+    <string name="data_cast_err_tv_rejected_out_of_range">电视拒绝该操作（参数值越界）</string>
+    <string name="data_cast_err_tv_out_of_memory">电视内存不足</string>
+    <string name="data_cast_err_tv_needs_intervention">电视执行该操作失败（需人工干预）</string>
+    <string name="data_cast_err_session_expired">电视投屏会话已失效，请重新投屏</string>
+    <string name="data_cast_err_tv_not_ready_701">电视还未就绪（701），已重试仍失败</string>
+    <string name="data_cast_err_tv_failed_with_code">电视执行该操作失败（错误码 %1$d）</string>
+    <string name="data_cast_err_tv_timeout">电视响应超时，请检查网络</string>
+
+    <!-- 扫描横幅（MediaScanner → LibraryScreen / HomeViewModel） -->
+    <string name="data_scan_banner_title">正在扫描 %1$s · 已扫 %2$d 目录 · 发现 %3$d 个</string>
+    <string name="data_scan_note_truncated">已达 %1$d 文件上限，仅索引部分文件</string>
+    <string name="data_scan_note_missing_dirs">%1$d 个扫描目录在服务器上不存在或已被移动（首个: %2$s），已跳过；请编辑该源重新选择扫描目录</string>
+    <string name="data_scan_note_skipped_dirs">%1$d 个目录不可读已跳过（首个: %2$s）</string>
+    <string name="data_scan_error_path_missing">目录在服务器上不存在或已被移动、改名</string>
+    <string name="data_scan_error_path_missing_with_dir">目录在服务器上不存在或已被移动、改名：%1$s</string>
+    <!-- Task 9: 刮削终态消息（NvScraper 经 appContext.getString 发布） -->
+    <string name="data_scrape_failed_detail">刮削失败：%1$s</string>
+    <string name="data_scrape_no_api_key">未配置 TMDB API Key</string>
+    <string name="data_scrape_key_invalid">TMDB API Key 无效或已失效，请在 设置-媒体库 检查</string>
+    <string name="data_scrape_nothing_new">没有待刮削的新条目</string>
+</resources>

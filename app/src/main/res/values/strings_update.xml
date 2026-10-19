@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- update domain (English default) — Task 1: check-for-updates strings; key set is the contract consumed by Tasks 6-9 -->
+<resources>
+    <string name="update_check_row_title">Check for updates</string>
+    <string name="update_auto_check_row_title">Check for updates automatically</string>
+    <string name="update_row_current">Current version %1$s</string>
+    <string name="update_row_up_to_date">You\'re up to date</string>
+    <string name="update_check_failed">Check failed — network unavailable or GitHub unreachable</string>
+    <string name="update_rate_limited">Too many checks — try again later</string>
+    <string name="update_dialog_new_version">New version %1$s available</string>
+    <string name="update_btn_install">Download &amp; install</string>
+    <string name="update_btn_browser">Download in browser</string>
+    <string name="update_btn_later">Later</string>
+    <string name="update_btn_copy_link">Copy download link</string>
+    <string name="update_link_copied">Download link copied</string>
+    <string name="update_changelog_truncated">Changelog truncated</string>
+    <string name="update_view_full_notes">View full notes</string>
+    <string name="update_open_project_page">Open project page</string>
+    <string name="update_dl_notif_title">Downloading NovaX update</string>
+    <string name="update_dl_progress">%1$d%% downloaded</string>
+    <string name="update_download_failed">Download failed — retry or use your browser</string>
+    <string name="update_verify_failed">Integrity check failed — file removed. Download via browser</string>
+    <string name="update_cannot_verify">Checksum unavailable — in-app install disabled</string>
+    <string name="update_need_perm_title">\"Install unknown apps\" permission needed</string>
+    <string name="update_need_perm_body">Only used to hand the update you just downloaded to the system installer. Browser download still works if denied.</string>
+    <string name="update_btn_grant">Grant</string>
+    <string name="update_btn_cancel">Cancel</string>
+</resources>
