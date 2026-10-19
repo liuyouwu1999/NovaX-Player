@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <!-- 2026-10-15 v1.0.0.0：打赏二维码"保存到相册"（API 26-28 旧路径；29+ 走 MediaStore 免权限） -->
+    <uses-permission
+        android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+        android:maxSdkVersion="28"
+        tools:ignore="ScopedStorage" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <!-- C13 投屏：SSDP 组播发现需要 MulticastLock（CHANGE_WIFI_MULTICAST_STATE） -->
+    <uses-permission android:name="android.permission.CHANGE_WIFI_MULTICAST_STATE" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <!-- 2026-09-18 本地源「所有文件访问」：范围存储会把 RMVB/字幕等非媒体文件对
+         File API 隐藏，本地播放器必须全量可见（仅在用户于系统设置授予后生效） -->
+    <uses-permission
+        android:name="android.permission.MANAGE_EXTERNAL_STORAGE"
+        tools:ignore="ScopedStorage" />
+    <!-- P1-6 后台播放（MediaSessionService 前台服务）：34+ 要求声明 FGS 类型权限 -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK" />
+    <!-- 电池优化豁免（三星 MARs 会掐 SMB 长连接）：SMB 源测试成功后询问一次 -->
+    <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
+
+    <!-- 本地源：目录浏览/播放需要媒体读取权限（运行时在文件页向导中请求） -->
+    <uses-permission android:name="android.permission.READ_MEDIA_VIDEO" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" android:maxSdkVersion="32" />
+
+    <!-- C9「用其他应用打开」：resolveActivity 需要的包可见性声明（API 30+） -->
+    <queries>
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <data android:mimeType="*/*" />
+        </intent>
+    </queries>
+
+    <application
+        android:name=".NvApp"
+        android:allowBackup="true"
+        android:dataExtractionRules="@xml/data_extraction_rules"
+        android:fullBackupContent="@xml/full_backup_content"
+        android:icon="@mipmap/ic_launcher"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:label="@string/app_name"
+        android:supportsRtl="true"
+        android:usesCleartextTraffic="true"
+        android:theme="@style/Theme.NovaX">
+        <activity
+            android:name=".MainActivity"
+            android:windowSoftInputMode="adjustResize"
+            android:exported="true"
+            android:configChanges="orientation|screenSize|screenLayout|keyboardHidden|smallestScreenSize|density|uiMode"
+            android:theme="@style/Theme.NovaX">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <!-- 2026-09-28 外部「打开方式」入口：文件管理器/相册 VIEW 本地音视频（读授权随
+             Intent 的 FLAG_GRANT_READ_URI_PERMISSION 授予）。RealMedia 系 MIME 必须显式
+             声明——部分文件管理器对 .rmvb 不映射 video/*。RMVB 的 libVLC 兜底页由
+             startPlayback 内部路由，不导出 -->
+        <activity
+            android:name=".player.PlayerActivity"
+            android:exported="true"
+            android:launchMode="singleTop"
+            android:screenOrientation="sensorLandscape"
+            android:configChanges="orientation|screenSize|screenLayout|keyboardHidden|smallestScreenSize|density|uiMode"
+            android:supportsPictureInPicture="true">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="video/*" />
+                <data android:mimeType="audio/*" />
+                <data android:mimeType="application/vnd.rn-realmedia" />
+                <data android:mimeType="application/vnd.rn-realmedia-vbr" />
+            </intent-filter>
+        </activity>
+
+        <!-- 2026-09-18 双内核兜底：RM/RMVB 走 libVLC（路由见 PlayerActivity.startPlayback） -->
+        <activity
+            android:name=".player.RmvbPlayerActivity"
+            android:exported="false"
+            android:screenOrientation="sensorLandscape"
+            android:configChanges="orientation|screenSize|screenLayout|keyboardHidden|smallestScreenSize|density|uiMode" />
+
+        <!-- P1-6 后台播放：MediaSessionService（引擎+通知栏控制驻留；media3 默认通知 provider） -->
+        <service
+            android:name=".player.PlaybackService"
+            android:exported="false"
+            android:foregroundServiceType="mediaPlayback">
+            <intent-filter>
+                <action android:name="androidx.media3.session.MediaSessionService" />
+            </intent-filter>
+        </service>
+
+        <!-- C13 投屏：jUPnP 栈常驻绑定（app 上下文），发现 DLNA MediaRenderer -->
+        <service
+            android:name="com.novax.app.data.cast.NvUpnpService"
+            android:exported="false" />
+
+        <!-- C9 文件预览器（图片/PDF/文本）：release 不导出，debug 清单覆盖 exported 供 adb 冒烟 -->
+        <activity
+            android:name=".ui.viewers.ViewerActivity"
+            android:exported="false"
+            android:configChanges="orientation|screenSize|screenLayout|keyboardHidden|smallestScreenSize|density|uiMode" />
+
+        <!-- C9 未知类型外发：FileProvider（cache-path / files-path 全覆盖） -->
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_provider_paths" />
+        </provider>
+    </application>
+
+</manifest>

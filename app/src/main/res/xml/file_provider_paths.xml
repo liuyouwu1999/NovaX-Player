@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- C9：FileProvider 路径（未知类型外发 / 文本「完整打开」）：覆盖 cache 与 files 全目录 -->
+<paths>
+    <cache-path name="cache" path="." />
+    <files-path name="files" path="." />
+</paths>
