@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- data domain (English default): user-visible messages surfaced from the data layer
+     (cast errors/toasts, scan banner notes). Exception/log Chinese diagnostics stay in
+     code (whitelist) — only UI-bound strings live here. -->
+<resources>
+    <!-- Cast session errors (CastSession) -->
+    <string name="data_cast_err_wifi_needed">Casting needs a Wi-Fi connection</string>
+    <string name="data_cast_err_bad_tv_address">TV address is invalid, cannot cast</string>
+    <string name="data_cast_err_connect_timeout">Casting connection timed out</string>
+    <string name="data_cast_err_tv_cannot_fetch">TV cannot fetch the stream, check the network</string>
+    <string name="data_cast_err_cast_failed">Casting failed</string>
+    <string name="data_cast_err_disconnected">Casting connection lost</string>
+
+    <!-- Cast session holder toasts / pre-cast warnings -->
+    <string name="data_cast_ended_with_reason">Casting ended: %1$s</string>
+    <string name="data_cast_ended_wifi_lost">Wi-Fi disconnected, casting ended</string>
+    <string name="data_cast_ended_metered">Switched to a metered network, casting ended</string>
+    <string name="data_cast_warn_unsupported_format">This format may not be supported; if the screen stays black, play it on this device</string>
+    <string name="data_cast_warn_dolby_vision">Dolby Vision may show a black screen; playing on this device is recommended</string>
+    <string name="data_cast_err_source_unreadable">Source cannot be read (NAS connection failed), casting cancelled</string>
+    <string name="data_cast_err_source_stalled">Source read stalled (NAS not responding?), casting cancelled</string>
+    <string name="data_cast_err_source_missing">Media source no longer exists (it may have been deleted)</string>
+
+    <!-- UPnP control errors (UpnpControlSoapExecutor / UpnpErrorText) -->
+    <string name="data_cast_err_service_not_ready">Cast service is not ready, please retry</string>
+    <string name="data_cast_err_generic">Cast operation failed</string>
+    <string name="data_cast_err_tv_no_response">TV is not responding, check the network</string>
+    <string name="data_cast_err_action_unsupported">TV does not support this action</string>
+    <string name="data_cast_err_tv_rejected_args">TV rejected the action (invalid arguments)</string>
+    <string name="data_cast_err_tv_out_of_sync">TV state is out of sync, please retry</string>
+    <string name="data_cast_err_tv_rejected_value">TV rejected the action (invalid argument value)</string>
+    <string name="data_cast_err_tv_action_failed">TV failed to perform the action</string>
+    <string name="data_cast_err_tv_rejected_out_of_range">TV rejected the action (value out of range)</string>
+    <string name="data_cast_err_tv_out_of_memory">TV is out of memory</string>
+    <string name="data_cast_err_tv_needs_intervention">TV failed to perform the action (manual intervention required)</string>
+    <string name="data_cast_err_session_expired">TV cast session expired, please cast again</string>
+    <string name="data_cast_err_tv_not_ready_701">TV is not ready yet (701); retry did not help</string>
+    <string name="data_cast_err_tv_failed_with_code">TV failed to perform the action (error code %1$d)</string>
+    <string name="data_cast_err_tv_timeout">TV response timed out, check the network</string>
+
+    <!-- Scan banner (MediaScanner → LibraryScreen / HomeViewModel) -->
+    <string name="data_scan_banner_title">Scanning %1$s · %2$d dirs scanned · %3$d found</string>
+    <string name="data_scan_note_truncated">Reached the %1$d file limit; only part of the files were indexed</string>
+    <string name="data_scan_note_missing_dirs">%1$d scan directories no longer exist on the server or were moved (first: %2$s), skipped; edit the source to reselect scan directories</string>
+    <string name="data_scan_note_skipped_dirs">%1$d unreadable directories skipped (first: %2$s)</string>
+    <string name="data_scan_error_path_missing">Directory does not exist on the server, or was moved or renamed</string>
+    <string name="data_scan_error_path_missing_with_dir">Directory does not exist on the server, or was moved or renamed: %1$s</string>
+    <!-- Task 9: scrape progress terminal messages (NvScraper publishes via appContext.getString) -->
+    <string name="data_scrape_failed_detail">Scrape failed: %1$s</string>
+    <string name="data_scrape_no_api_key">No TMDB API key configured</string>
+    <string name="data_scrape_key_invalid">TMDB API key is invalid or expired; check it in Settings > Media library</string>
+    <string name="data_scrape_nothing_new">No new items to scrape</string>
+</resources>

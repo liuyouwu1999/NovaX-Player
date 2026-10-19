@@ -1,0 +1,39 @@
+# NovaX CI（2026-10-25 外部审查整改）：push 后自动 debug 编译（3 ABI）+ 全量 JVM 单测，
+# 防「编译失败仍推送」事故重演。设计要点：
+# - 触发不加 branches 过滤——公开仓仅 main 一条分支（单提交 amend 工作流），force push 亦触发；
+# - 全文无 secret；不跑 release（keystore 缺失 fail-fast，见 app/build.gradle.kts 尾部守卫）；
+#   不跑 androidTest（需真机）；
+# - media3-ffmpeg-ext 的 ffmpeg 为预编译静态库入库，CI 仅 CMake 链接；
+# - 首跑冷环境（SDK platform 36+37 / NDK / CMake 3.22.1 下载）约 20–40 分钟属预期，非故障。
+name: ci
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - uses: gradle/actions/setup-gradle@v6
+
+      - name: Build (debug, all ABIs) and unit tests
+        run: ./gradlew assembleDebug testDebugUnitTest --stacktrace
+
+      - name: Upload test reports on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-reports
+          path: |
+            app/build/reports/tests/**
+            build/reports/**
+          if-no-files-found: ignore

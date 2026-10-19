@@ -1,0 +1,247 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- library 域（簡體中文，源文案逐字平移） -->
+<resources>
+    <!-- ═══ ui/library ═══ -->
+    <string name="lib_title">媒體庫</string>
+    <string name="lib_rescan">重新掃描</string>
+    <string name="lib_cd_toggle_view">切換視圖</string>
+    <string name="lib_sort">排序</string>
+    <string name="lib_sort_added">添加時間</string>
+    <string name="lib_sort_title">標題 A→Z</string>
+    <string name="lib_sort_size">大小 大→小</string>
+    <string name="lib_type_all">全部</string>
+    <string name="lib_type_long">長影片</string>
+    <string name="lib_type_short">短影片</string>
+    <string name="lib_type_series">劇集</string>
+    <string name="lib_watched_state">已看狀態</string>
+    <string name="lib_watch_status">觀看狀態</string>
+    <string name="lib_watched">已看</string>
+    <string name="lib_unwatched">未看</string>
+    <string name="lib_folders">目錄</string>
+    <string name="lib_all_folders">全部目錄</string>
+    <string name="lib_sources">媒體源</string>
+    <string name="lib_all_sources">全部源</string>
+    <string name="lib_all">全部</string>
+    <string name="lib_clear">清除</string>
+    <string name="lib_clear_filters">清除篩選</string>
+    <string name="lib_filter">篩選</string>
+    <string name="lib_chip_folder">目錄 · %1$s</string>
+    <string name="lib_chip_source">源 · %1$s</string>
+    <string name="lib_series_empty_title">還沒有可聚合的劇集</string>
+    <string name="lib_series_empty_desc">把同一部劇的各集放進同一個資料夾\n（同資料夾 ≥2 個影片即自動聚合成劇，資料夾名就是劇名）</string>
+    <string name="lib_empty_title">媒體庫還是空的</string>
+    <string name="lib_empty_desc">添加 NAS 源後自動建立索引\n請到「檔案」頁添加媒體源</string>
+    <string name="lib_not_indexed_title">還沒有建立索引</string>
+    <string name="lib_not_indexed_desc">點下方按鈕掃描已添加的源</string>
+    <string name="lib_scan_now">立即掃描</string>
+    <string name="lib_scan_done_empty_title">掃描完成，未發現影片檔案</string>
+    <string name="lib_scan_done_empty_desc">檢查所選目錄是否包含影片，或換一個目錄重新掃描</string>
+    <string name="lib_no_match_title">沒有符合條件的影片</string>
+    <string name="lib_no_match_desc">試試清除篩選或重新掃描</string>
+    <string name="lib_rescan_title">更新本地索引？</string>
+    <plurals name="lib_rescan_msg">
+        <item quantity="other">將重新檢查 %1$d 個媒體源的檔案，新增檔案加入索引，已消失條目清除。</item>
+    </plurals>
+    <string name="lib_rescan_confirm">更新索引</string>
+    <string name="lib_source_filter_all">源：全部</string>
+    <string name="lib_source_filter_named">源：%1$s</string>
+    <string name="lib_source_fallback">源 %1$d</string>
+    <string name="lib_scan_failed_banner">掃描 %1$s 失敗：%2$s，可點頂欄刷新重試</string>
+    <string name="lib_scan_noted_banner">掃描 %1$s 完成，但有提示：%2$s</string>
+    <string name="lib_unknown_error">未知錯誤</string>
+    <plurals name="lib_scan_other_sources">
+        <item quantity="other">另 %1$d 個源</item>
+    </plurals>
+    <plurals name="lib_episode_badge">
+        <item quantity="other">%1$d 集</item>
+    </plurals>
+    <plurals name="lib_watched_episodes">
+        <item quantity="other">已看 %1$d 集</item>
+    </plurals>
+    <string name="lib_series_fallback">劇集</string>
+    <string name="lib_play">播放</string>
+    <string name="lib_cast">投放</string>
+    <string name="lib_details">詳情</string>
+    <string name="lib_open_folder">開啟所在資料夾</string>
+    <string name="lib_favorite">收藏</string>
+    <string name="lib_unfavorite">取消收藏</string>
+    <string name="lib_mark_watched">標記為已看</string>
+    <string name="lib_unmark_watched">取消已看</string>
+    <string name="lib_reextract_thumb">重新抽幀</string>
+    <string name="lib_show_path">顯示檔案路徑</string>
+    <string name="lib_copied">已複製</string>
+
+    <!-- ═══ ui/home ═══ -->
+    <string name="home_empty_source_title">添加你的媒體源</string>
+    <string name="home_empty_source_desc">支援 SMB / WebDAV / SFTP / Jellyfin / 本地存儲，添加後自動建立媒體索引</string>
+    <string name="home_add_source">添加源</string>
+    <string name="home_section_continue">繼續觀看</string>
+    <string name="home_guide_continue">看過的影片會出現在這裡，接著上次的進度繼續播</string>
+    <string name="home_go_files">去檔案頁</string>
+    <string name="home_section_recent">最近添加</string>
+    <string name="home_section_favorites">收藏</string>
+    <string name="home_cd_search">搜索</string>
+    <string name="home_open_folder">開啟所在資料夾</string>
+    <string name="home_remove_from_continue">從繼續觀看移除</string>
+    <string name="home_removed_from_continue">已從繼續觀看移除</string>
+    <string name="home_delete_entry">清除這條記錄</string>
+    <string name="home_deleted_entry">已清除這條記錄</string>
+    <string name="home_cancel">取消</string>
+    <string name="home_favorite">加入收藏</string>
+    <string name="home_unfavorite">取消收藏</string>
+    <string name="home_favorited_toast">已加入收藏</string>
+    <string name="home_unfavorited_toast">已取消收藏</string>
+    <string name="home_dead_favorite_cleaned">檔案已失效，已從收藏清理</string>
+    <string name="home_reextract_thumb">重新抽幀</string>
+    <string name="home_reextracting_toast">正在重新抽取封面</string>
+    <string name="home_show_path">顯示檔案路徑</string>
+    <plurals name="home_media_count">
+        <item quantity="other">%1$d 個檔案</item>
+    </plurals>
+    <string name="home_browse_hint">去逛逛</string>
+    <string name="home_library">媒體庫</string>
+    <string name="home_files">檔案</string>
+    <string name="home_browse_sources">瀏覽源</string>
+    <string name="home_search">搜索</string>
+    <string name="home_find_titles">找片子</string>
+    <string name="home_settings">設定</string>
+    <string name="home_preferences">偏好</string>
+    <plurals name="home_source_count_line">
+        <item quantity="other">%1$d 個媒體源 · 開啟媒體庫瀏覽全部</item>
+    </plurals>
+    <string name="home_cd_resume">續播</string>
+    <string name="home_source_fallback">源 %1$d</string>
+    <string name="home_chip_episode">S%1$sE%2$s</string>
+    <string name="home_chip_text">%1$s</string>
+    <string name="home_chip_continue">繼續觀看</string>
+    <plurals name="home_chip_remaining_min">
+        <item quantity="other">剩 %1$d 分鐘</item>
+    </plurals>
+    <plurals name="home_overview_movies">
+        <item quantity="other">%1$d 部影片</item>
+    </plurals>
+    <plurals name="home_overview_episodes">
+        <item quantity="other">%1$d 集劇集</item>
+    </plurals>
+    <plurals name="home_overview_videos">
+        <item quantity="other">%1$d 個影片</item>
+    </plurals>
+    <plurals name="home_overview_images">
+        <item quantity="other">%1$d 張圖片</item>
+    </plurals>
+
+    <!-- ═══ ui/detail ═══ -->
+    <string name="detail_back">返回</string>
+    <string name="detail_play">▶ 播放</string>
+    <string name="detail_play_season_ep">▶ 播放 S%1$dE1</string>
+    <plurals name="detail_play_resume_ep">
+        <item quantity="other">▶ 繼續播放 %1$s · 剩餘 %2$d 分鐘</item>
+    </plurals>
+    <plurals name="detail_play_resume">
+        <item quantity="other">▶ 繼續播放 · 剩餘 %1$d 分鐘</item>
+    </plurals>
+    <string name="detail_more">更多</string>
+    <string name="detail_favorited_toast">已加入收藏</string>
+    <string name="detail_unfavorited_toast">已取消收藏</string>
+    <string name="detail_cast">演職人員</string>
+    <string name="detail_season_n">第 %1$d 季</string>
+    <string name="detail_no_episodes">本季暫無選集</string>
+    <string name="detail_no_episodes_parsed">未解析到分集</string>
+    <string name="detail_rescrape">重新刮削</string>
+    <string name="detail_favorite">加入收藏</string>
+    <string name="detail_unfavorite">取消收藏</string>
+    <string name="detail_share">分享</string>
+    <string name="detail_share_todo">分享功能開發中</string>
+    <string name="detail_resume_confirm_title">從 %1$s 繼續播放？</string>
+    <plurals name="detail_resume_confirm_msg">
+        <item quantity="other">「E%1$d · %2$s」已觀看到 %3$d 分鐘。</item>
+    </plurals>
+    <string name="detail_resume">繼續播放</string>
+    <string name="detail_cancel">取消</string>
+    <string name="detail_expand">展開</string>
+    <string name="detail_collapse">收起</string>
+    <string name="detail_scrape_hint">未能識別影片資訊 · 可在設定-媒體庫配置 TMDB 後「重新刮削」</string>
+    <string name="detail_cd_watched">已看</string>
+    <plurals name="detail_duration_min">
+        <item quantity="other">%1$d 分鐘</item>
+    </plurals>
+    <plurals name="detail_total_episodes">
+        <item quantity="other">共 %1$d 集</item>
+    </plurals>
+    <plurals name="detail_episodes_count">
+        <item quantity="other">%1$d 集</item>
+    </plurals>
+    <plurals name="detail_total_seasons">
+        <item quantity="other">共 %1$d 季</item>
+    </plurals>
+    <string name="detail_info_path">檔案路徑</string>
+    <string name="detail_info_source">來源</string>
+    <string name="detail_unknown_source">未知源</string>
+    <string name="detail_info_resolution">解析度</string>
+    <string name="detail_unknown">未知</string>
+    <string name="detail_info_added">添加時間</string>
+    <string name="detail_info_codec">編碼</string>
+    <string name="detail_err_deleted">條目不存在或已被刪除</string>
+    <string name="detail_err_not_found">未找到媒體條目（id=%1$s）</string>
+    <string name="detail_chasing">看到 %1$s</string>
+    <string name="detail_mock_overview">內置樣片（演示資料）：由 %1$s 提供，採用 %2$s 編碼與 %3$s 解析度。媒體庫真實條目在刮削後此處顯示 TMDB 簡介。</string>
+    <string name="detail_tech_info">媒體資訊</string>
+    <string name="detail_details">詳細資訊</string>
+    <string name="detail_hide_details">收起詳細資訊</string>
+
+    <!-- ═══ ui/search ═══ -->
+    <string name="search_no_results_for">沒有找到\"%1$s\"</string>
+    <string name="search_no_results_hint">· 試試更短的關鍵詞\n· 或到檔案頁直接瀏覽源檔案</string>
+    <string name="search_go_files">去檔案搜索</string>
+    <string name="search_hint">搜索影片、劇集、影片</string>
+    <string name="search_cd_clear">清除</string>
+    <string name="search_cancel">取消</string>
+    <string name="search_history">搜索歷史</string>
+    <string name="search_recent">最近添加</string>
+    <string name="search_empty_footnote">基於本地媒體庫索引，搜索結果即時呈現</string>
+    <string name="search_clear_history_title">清空搜索歷史</string>
+    <plurals name="search_clear_history_msg">
+        <item quantity="other">將刪除全部 %1$d 條搜索記錄，此操作不可撤銷。</item>
+    </plurals>
+    <string name="search_clear">清空</string>
+    <string name="search_cd_remove_history">刪除該條歷史</string>
+    <string name="search_filter_all">全部</string>
+    <string name="search_filter_movie">影片</string>
+    <string name="search_filter_series">劇集</string>
+    <string name="search_filter_video">影片</string>
+    <string name="search_group_movies">影片</string>
+    <string name="search_group_series">劇集</string>
+    <string name="search_group_videos">影片</string>
+    <plurals name="search_series_meta">
+        <item quantity="other">%1$d 集 · %2$s</item>
+    </plurals>
+    <plurals name="search_episode_count">
+        <item quantity="other">%1$d 集</item>
+    </plurals>
+    <string name="search_more">更多</string>
+    <plurals name="search_indexing_banner">
+        <item quantity="other">媒體庫索引建立中，結果可能不全（已發現 %1$d 個）</item>
+    </plurals>
+    <string name="search_series_fallback">劇集</string>
+
+    <!-- ═══ ui/history ═══ -->
+    <string name="hist_title">觀看紀錄</string>
+    <string name="hist_empty_title">暫無觀看記錄</string>
+    <string name="hist_empty_desc">播放過的影片會出現在這裡，點擊可從上次進度繼續</string>
+    <string name="hist_clear">清空</string>
+    <string name="hist_clear_title">清空觀看紀錄</string>
+    <string name="hist_clear_msg">將刪除全部播放進度與觀看記錄，不可恢復。</string>
+    <string name="hist_time_just_now">剛剛</string>
+    <plurals name="hist_time_min_ago">
+        <item quantity="other">%1$d 分鐘前</item>
+    </plurals>
+    <plurals name="hist_time_hour_ago">
+        <item quantity="other">%1$d 小時前</item>
+    </plurals>
+    <plurals name="hist_time_day_ago">
+        <item quantity="other">%1$d 天前</item>
+    </plurals>
+    <string name="hist_finished">已看完</string>
+    <string name="hist_open_folder">開啟所在資料夾</string>
+    <string name="hist_delete_item">刪除該條</string>
+</resources>

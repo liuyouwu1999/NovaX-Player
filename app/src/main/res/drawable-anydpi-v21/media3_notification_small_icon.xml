@@ -1,0 +1,10 @@
+<!-- 通知栏/状态栏小图标：与 media3-session 同名资源覆盖其默认圆形播放 PNG（纯白单色，系统着色） -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+  <path
+      android:fillColor="@android:color/white"
+      android:pathData="M4.8,19.2 L4.8,4.8 Q4.8,3.2 6.16,4.03 L17.84,11.17 Q19.2,12 17.84,12.83 L6.16,19.97 Q4.8,20.8 4.8,19.2 Z"/>
+</vector>
