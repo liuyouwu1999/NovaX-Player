@@ -1,0 +1,296 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- files domain (English default) -->
+<resources>
+    <!-- Generic / shared -->
+    <string name="files_title">Files</string>
+    <string name="files_root">Root</string>
+    <string name="files_cancel">Cancel</string>
+    <string name="files_delete">Delete</string>
+    <string name="files_retry">Retry</string>
+    <string name="files_reset">Reset</string>
+    <string name="files_next">Next</string>
+    <string name="files_select_all">Select all</string>
+    <string name="files_continue">Continue</string>
+    <string name="files_size_unknown">Unknown</string>
+    <string name="files_err_join">%1$s: %2$s</string>
+
+    <!-- Source list -->
+    <string name="files_add_source">Add source</string>
+    <string name="files_cd_scan_lan">Scan LAN</string>
+    <string name="files_empty_sources_title">No sources yet</string>
+    <string name="files_empty_sources_msg">Scanned the LAN but found no devices. You can add a NAS manually.</string>
+    <string name="files_add_manually">Add manually</string>
+    <string name="files_no_share_selected">No share selected (auto-listed on browse)</string>
+    <string name="files_add_source_hint">Connect to a NAS (SMB / WebDAV / SFTP / Jellyfin) or browse local videos</string>
+    <string name="files_discovery_title">Discovered LAN devices</string>
+    <string name="files_scanning_lan">Scanning LAN (SMB / WebDAV)…</string>
+    <string name="files_no_devices">No devices found. Pick a protocol below to add one manually.</string>
+    <string name="files_sheet_edit_source">Edit source</string>
+    <string name="files_sheet_duplicate_source">Duplicate source</string>
+    <string name="files_sheet_delete_source">Delete source</string>
+    <string name="files_delete_source_confirm">Delete source \"%1$s\"?</string>
+    <string name="files_delete_source_msg">Only removes the connection config; files on the NAS are not deleted</string>
+    <string name="files_battery_title">Allow ignoring battery optimization?</string>
+    <string name="files_battery_msg">Some phones\' power saving policies may interrupt NAS playback. It is recommended to allow NovaX to ignore battery optimization.</string>
+    <string name="files_go_settings">Open settings</string>
+
+    <!-- Source card states -->
+    <string name="files_state_connected">Connected</string>
+    <string name="files_state_offline">Offline</string>
+    <string name="files_state_failed">Connection failed</string>
+
+    <!-- Protocols -->
+    <string name="files_protocol_smb">SMB</string>
+    <string name="files_protocol_webdav">WebDAV</string>
+    <string name="files_protocol_sftp">SFTP</string>
+    <string name="files_protocol_local">Local</string>
+    <string name="files_protocol_jellyfin">Jellyfin</string>
+
+    <!-- File types / filter -->
+    <string name="files_type_video">Videos</string>
+    <string name="files_type_audio">Audio</string>
+    <string name="files_type_image">Images</string>
+    <string name="files_type_subtitle">Subtitles</string>
+    <string name="files_type_doc">Documents</string>
+    <string name="files_type_other">Other</string>
+    <string name="files_filter_none">None</string>
+    <string name="files_filter_chip">Filtered · %1$s</string>
+    <string name="files_type_filter_title">Type filter</string>
+    <plurals name="files_show_n_items">
+        <item quantity="one">Show %1$d item</item>
+        <item quantity="other">Show %1$d items</item>
+    </plurals>
+    <string name="files_filter_empty">No files match the filter</string>
+    <string name="files_filter_empty_hint">Tap the \"Filtered\" chip above to reset the filter</string>
+
+    <!-- Sort -->
+    <string name="files_sort_title">Sort by</string>
+    <string name="files_sort_name">Name (A–Z / Pinyin)</string>
+    <string name="files_sort_modified">Modified (new → old)</string>
+    <string name="files_sort_size">Size (large → small)</string>
+    <string name="files_sort_type">Type</string>
+    <string name="files_dirs_first">Folders always on top</string>
+
+    <!-- In-directory search -->
+    <string name="files_search_subs">Include subdirectories</string>
+    <string name="files_search_scope">Depth ≤%1$d · Up to %2$d results</string>
+    <string name="files_searching_subs">Searching subdirectories…</string>
+    <string name="files_search_not_found">No results for \"%1$s\"</string>
+    <string name="files_search_not_found_hint">Check the keyword or turn on \"Include subdirectories\"</string>
+
+    <!-- Browser states -->
+    <string name="files_browser_error_title">Can\'t read directory</string>
+    <string name="files_need_storage_title">Storage permission required</string>
+    <string name="files_need_storage_msg">Local storage is not authorized, so files can\'t be read</string>
+    <string name="files_grant_access">Grant access</string>
+    <string name="files_dir_empty">This folder is empty</string>
+    <string name="files_dir_empty_hint">Go back one level or pick another directory</string>
+
+    <!-- Selection bar -->
+    <string name="files_play_selected">Play selected</string>
+    <string name="files_no_playable_video">No playable videos in the selection</string>
+    <string name="files_add_favorite">Add to favorites</string>
+    <string name="files_remove_favorite">Remove from favorites</string>
+    <string name="files_exclude_from_library">Exclude from media library</string>
+    <string name="files_exclude_pick_dirs_first">Select the folders to exclude first</string>
+    <string name="files_nas_delete_unsupported">Deleting NAS sources will be supported in a later version</string>
+    <string name="files_delete_pick_files_first">Select the files to delete first</string>
+    <string name="files_open_with">Open with another app</string>
+    <string name="files_open_with_single_only">Only a single local non-video file is supported</string>
+    <string name="files_deselect_all">Deselect all</string>
+
+    <!-- Top bar / content descriptions -->
+    <string name="files_cd_filter_sort">Filter &amp; sort</string>
+    <string name="files_cd_search">Search</string>
+    <string name="files_cd_watched">Watched</string>
+
+    <!-- Delete / rename / info dialogs -->
+    <plurals name="files_delete_n_confirm">
+        <item quantity="one">Delete %1$d file?</item>
+        <item quantity="other">Delete %1$d files?</item>
+    </plurals>
+    <string name="files_delete_selection_msg">The selected files will be deleted from local storage. This can\'t be undone</string>
+    <string name="files_delete_file_confirm">Delete file \"%1$s\"?</string>
+    <string name="files_delete_single_msg">The file will be deleted from local storage. This can\'t be undone</string>
+    <string name="files_rename">Rename</string>
+    <string name="files_new_name">New name</string>
+    <string name="files_rename_failed_toast">Rename failed: target already exists</string>
+    <string name="files_delete_failed_toast">Delete failed</string>
+    <string name="files_multi_select">Multi-select</string>
+    <string name="files_show_info">Details</string>
+    <string name="files_info_title">File info</string>
+    <string name="files_info_name">Name</string>
+    <string name="files_info_path">Path</string>
+    <string name="files_info_size">Size</string>
+    <string name="files_unknown_ext">File</string>
+    <string name="files_unknown_type_line">%1$s file · %2$s</string>
+    <string name="files_ext_fallback">video</string>
+
+    <!-- Open-with / download -->
+    <string name="files_no_app_for_type">No app found that handles this type of file</string>
+    <string name="files_open_failed">Failed to open: %1$s</string>
+    <string name="files_downloading">Downloading…</string>
+    <string name="files_download_progress">Downloading… %1$d%%</string>
+    <string name="files_file_large">Large file</string>
+    <string name="files_big_file_msg">This file is %1$s. It will be downloaded to the local cache before opening</string>
+
+    <!-- Cast / watch state -->
+    <string name="files_cast">Cast</string>
+    <string name="files_mark_watched">Mark as watched</string>
+    <string name="files_mark_unwatched">Mark as unwatched</string>
+    <string name="files_marked_watched_toast">Marked as watched</string>
+    <string name="files_marked_unwatched_toast">Marked as unwatched</string>
+
+    <!-- Favorites toasts -->
+    <string name="files_favorited_toast">Added to favorites</string>
+    <string name="files_unfavorited_toast">Removed from favorites</string>
+    <string name="files_fav_failed">Couldn\'t add to favorites. Please retry.</string>
+    <string name="files_fav_all_dups">All selected items are already in favorites</string>
+    <plurals name="files_fav_added">
+        <item quantity="one">Added %1$d item to favorites</item>
+        <item quantity="other">Added %1$d items to favorites</item>
+    </plurals>
+
+    <!-- Delete selected (local) -->
+    <plurals name="files_delete_failed_count">
+        <item quantity="one">Failed to delete %1$d item</item>
+        <item quantity="other">Failed to delete %1$d items</item>
+    </plurals>
+
+    <!-- Media library exclusion -->
+    <string name="files_exclude_confirm_single">Exclude from media library?</string>
+    <string name="files_exclude_confirm_n">Exclude %1$d folders?</string>
+    <string name="files_exclude_confirm_msg">Once excluded, these directories (including subdirectories) won\'t be indexed and existing entries are removed. Entering a directory re-includes it at any time.</string>
+    <string name="files_exclude">Exclude</string>
+    <string name="files_excluded_banner">This directory is excluded from the media library · Tap to re-include</string>
+    <string name="files_reincluded_toast">Re-included. Updating media index…</string>
+    <string name="files_excluded_toast">Excluded. Updating media index…</string>
+
+    <!-- Wizard: steps & titles -->
+    <string name="files_wizard_edit_title">Edit source · %1$s</string>
+    <string name="files_wizard_credentials_title">%1$s · Address &amp; credentials</string>
+    <string name="files_wizard_dirs_title">Choose media directories (multi-select)</string>
+    <string name="files_choose_protocol">Choose a protocol</string>
+    <string name="files_local_storage">Local storage</string>
+    <string name="files_local_storage_desc">Read videos in on-device directories</string>
+
+    <!-- Wizard: form fields -->
+    <string name="files_field_host_ip">Host (IP or hostname)</string>
+    <string name="files_field_host_domain">Host (IP or domain)</string>
+    <string name="files_placeholder_host_domain">192.168.1.10 or nas.example.com</string>
+    <string name="files_field_port">Port</string>
+    <string name="files_field_domain">Domain (optional)</string>
+    <string name="files_field_share">Share name</string>
+    <string name="files_field_share_placeholder">Leave blank to auto-list shares on entry</string>
+    <string name="files_field_root_path">Root path (optional)</string>
+    <string name="files_https_subtitle_webdav">Encrypted connection; default port follows the switch (80 ↔ 443)</string>
+    <string name="files_https_subtitle_jellyfin">Encrypted connection; default port follows the switch (8096 ↔ 443)</string>
+    <string name="files_sftp_root_placeholder">Leave blank to log into the home directory, e.g. /volume1/videos</string>
+    <string name="files_field_server">Server address</string>
+    <string name="files_field_nickname">Nickname (optional)</string>
+    <string name="files_nickname_placeholder">My NAS</string>
+    <string name="files_nickname_local_hint">Auto-filled after picking a folder; falls back to \"My phone\"</string>
+    <string name="files_anonymous">Anonymous access</string>
+    <string name="files_field_account">Username</string>
+    <string name="files_field_password">Password</string>
+    <string name="files_testing_connection">Testing connection to %1$s…</string>
+    <string name="files_testing">Testing…</string>
+
+    <!-- Wizard: local folder picker -->
+    <string name="files_go_up">Go up</string>
+    <string name="files_dir_selected_cd">This directory is selected</string>
+    <string name="files_dir_select_cd">Select this directory</string>
+    <string name="files_dir_unreadable_hint">Can\'t read this directory (storage permission not granted or path invalid). Tap \"Go up\" to switch to another directory</string>
+    <string name="files_no_subdirs">No subfolders in this directory</string>
+    <string name="files_current_selected_hint">Current directory selected. Tap the button below to test the connection</string>
+    <string name="files_select_current_dir">Select current directory</string>
+
+    <!-- Wizard: shares -->
+    <string name="files_share_list">Shares</string>
+    <string name="files_fetch_shares">Fetch shares</string>
+    <string name="files_refetch_shares">Refresh</string>
+    <string name="files_cd_checked">Selected</string>
+
+    <!-- Wizard: scan roots & save -->
+    <string name="files_scan_hint_none">With no directories checked, the whole source is scanned. Tap the circle at a row\'s end to scan only specific directories</string>
+    <plurals name="files_scan_hint_selected">
+        <item quantity="one">%1$d scan directory selected (subdirectories included)</item>
+        <item quantity="other">%1$d scan directories selected (subdirectories included)</item>
+    </plurals>
+    <string name="files_http_warning">Plain HTTP + Basic auth: the password is sent Base64-encoded in cleartext and can be intercepted by anyone on the same network. https:// is recommended</string>
+    <string name="files_wizard_dir_error_title">Failed to read directory</string>
+    <string name="files_wizard_dir_empty_hint">Go back one level, or just save the source</string>
+        <string name="files_wizard_skip_scan">Save as files-only source (no media library)</string>
+    <string name="files_saved_files_only_toast">Saved as files-only: this source will not be scanned into the media library</string>
+    <string name="files_scan_hint_disabled">This source is files-only (excluded from the media library). Check directories and save to resume scanning</string>
+    <string name="files_save_source_all">Save source (scan whole source)</string>
+    <plurals name="files_save_source_selected">
+        <item quantity="one">Save source (scan %1$d selected directory)</item>
+        <item quantity="other">Save source (scan %1$d selected directories)</item>
+    </plurals>
+
+    <!-- Wizard: default nicknames -->
+    <string name="files_nick_copy">%1$s copy</string>
+    <string name="files_default_nick_smb">SMB source</string>
+    <string name="files_default_nick_webdav">WebDAV source</string>
+    <string name="files_default_nick_sftp">SFTP source</string>
+    <string name="files_default_nick_local">My phone</string>
+
+    <!-- Form validation -->
+    <string name="files_form_host_req_title">Enter a host</string>
+    <string name="files_form_host_req_msg">Hostname or IP can\'t be empty</string>
+    <string name="files_form_dir_req_title">Enter a directory</string>
+    <string name="files_form_dir_req_msg">Enter an absolute path to the local root directory</string>
+    <string name="files_form_path_invalid_title">Invalid path</string>
+    <string name="files_form_path_invalid_msg">Enter an absolute path starting with /</string>
+    <string name="files_form_user_req_title">Enter a username</string>
+    <string name="files_form_user_req_msg">Jellyfin requires username/password login. Enter the server username</string>
+    <string name="files_form_pass_req_title">Enter a password</string>
+    <string name="files_form_pass_req_msg">Password can\'t be empty</string>
+    <string name="files_err_storage_perm_title">Storage permission required</string>
+    <string name="files_err_storage_perm_msg">Local sources need \"All files access\" authorization. Enable it in system settings and retry, or add via the media library instead</string>
+    <string name="files_save_failed_title">Save failed</string>
+    <string name="files_save_failed_msg">Please retry — the connection config has not been saved yet</string>
+    <string name="files_index_started_toast">Media indexing started</string>
+
+    <!-- Connect error mapping: titles -->
+    <string name="files_err_credential_title">Incorrect username or password</string>
+    <string name="files_err_pwd_expired_title">Password expired</string>
+    <string name="files_err_account_unavailable_title">Account unavailable</string>
+    <string name="files_err_no_access_title">Access denied</string>
+    <string name="files_err_path_missing_title">Path not found</string>
+    <string name="files_err_hostkey_title">Host fingerprint check</string>
+    <string name="files_err_refused_title">Connection refused</string>
+    <string name="files_err_dns_title">Can\'t resolve host</string>
+    <string name="files_err_timeout_title">Connection timed out</string>
+    <string name="files_err_unreachable_title">Network unreachable</string>
+    <string name="files_err_dir_unreadable_title">Directory unreadable</string>
+    <string name="files_err_share_missing_title">Share name missing</string>
+    <string name="files_err_generic_title">Connection failed</string>
+    <string name="files_err_generic_detail">%1$s</string>
+
+    <!-- Connect error mapping: messages -->
+    <string name="files_err_cred_smb_msg">SMB authentication was rejected. Check the username, password and domain settings</string>
+    <string name="files_err_cred_webdav_msg">WebDAV authentication failed (HTTP 401). Check the username and password</string>
+    <string name="files_err_cred_jellyfin_msg">Jellyfin authentication failed. Check the username and password</string>
+    <string name="files_err_cred_sftp_msg">SFTP authentication was rejected. Check the username and password (password authentication must be enabled on the NAS)</string>
+    <string name="files_err_pwd_expired_msg">This account\'s password has expired. Update it on the NAS and try again</string>
+    <string name="files_err_account_unavailable_msg">The account is disabled or locked. Unlock it on the NAS and try again</string>
+    <string name="files_err_no_access_msg">The server denied access. Confirm the account has read permission for this share/directory</string>
+    <string name="files_err_no_access_403_msg">The server returned 403. Check the account\'s permissions</string>
+    <string name="files_err_path_missing_msg">The directory can\'t be found on the server — it may have been moved or renamed, or is temporarily offline</string>
+    <string name="files_err_path_missing_with_msg">The directory can\'t be found on the server — it may have been moved or renamed, or is temporarily offline: %1$s</string>
+    <string name="files_err_hostkey_tofu_msg">The host key fingerprint differs from the first connection (possible man-in-the-middle). If the server change is confirmed, delete this source and add it again to reset trust</string>
+    <string name="files_err_hostkey_ssh_msg">SSH host key verification failed. Confirm you are connecting to the target NAS, not an impostor host</string>
+    <string name="files_err_refused_smb_msg">The host refused the connection. Check the IP and port (SMB default 445; the NAS must have the SMB service enabled)</string>
+    <string name="files_err_refused_sftp_msg">The host refused the connection. Check the IP and port (SFTP default 22; the NAS must have the SSH service enabled)</string>
+    <string name="files_err_refused_msg">The host refused the connection. Check the IP and port</string>
+    <string name="files_err_dns_msg">The hostname can\'t be found. Check the spelling or use an IP address</string>
+    <string name="files_err_timeout_msg">The server response timed out. Check the network and the NAS firewall settings</string>
+    <string name="files_err_unreachable_msg">The host can\'t be routed to. Confirm the phone and the NAS are on the same LAN</string>
+    <string name="files_err_dir_unreadable_msg">No permission to read this directory. Grant storage permission or pick a directory the app can access</string>
+    <string name="files_err_share_missing_msg">The SMB source has no share name</string>
+
+    <!-- Accessibility -->
+    <string name="files_cd_toggle_password">Toggle password visibility</string>
+</resources>

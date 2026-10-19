@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Task 9: misc 도메인 — ko 번역 -->
+<resources>
+    <!-- CastSheets: 기기 선택 -->
+    <string name="misc_cast_title">TV로 캐스팅</string>
+    <string name="misc_cast_none_title">발견된 TV가 없습니다</string>
+    <string name="misc_cast_none_desc">TV와 휴대폰이 같은 Wi-Fi에 연결되어 있는지 확인하고, TV에서 DLNA/스크린 미러링을 켜세요</string>
+    <string name="misc_cast_scanning">스캔 중…</string>
+    <string name="misc_cast_connecting">%1$s에 연결 중…</string>
+    <string name="misc_cast_control_addr">제어 주소: %1$s</string>
+    <string name="misc_cast_manual_add">수동 추가</string>
+    <string name="misc_cast_manual_hint">설명 XML 주소 http://…/desc.xml</string>
+    <string name="misc_cast_add_and_cast">추가 후 캐스팅</string>
+    <string name="misc_cast_add_failed">추가 실패: 주소가 잘못되었거나 렌더러가 아닙니다</string>
+    <string name="misc_cast_unknown_device">알 수 없는 기기</string>
+    <!-- CastSheets: 리모컨 패널 -->
+    <string name="misc_cast_ended">캐스팅이 종료되었습니다</string>
+    <string name="misc_cast_rewind_30s">30초 되감기</string>
+    <string name="misc_cast_play">재생</string>
+    <string name="misc_cast_pause">일시정지</string>
+    <string name="misc_cast_next_episode">다음 에피소드</string>
+    <string name="misc_cast_volume">볼륨</string>
+    <string name="misc_cast_disconnect">캐스팅 해제</string>
+    <string name="misc_cast_pull_back">이 기기에서 재생</string>
+    <string name="misc_cast_active_with">캐스팅 중 · %1$s</string>
+    <string name="misc_cast_connecting_with">연결 중 · %1$s</string>
+    <!-- AlphabetSidebar (미디어 라이브러리 측면 바) -->
+    <string name="misc_section_digit">숫자</string>
+    <!-- NvInlineBanner 关闭钮（2026-10-26 扫描提示横幅可关闭） -->
+    <string name="misc_banner_dismiss">알림 닫기</string>
+    <!-- MediaPosterCard -->
+    <string name="misc_stop_scan">스캔 중지</string>
+    <!-- NvMeteredDialog -->
+    <string name="misc_metered_title">모바일 데이터로 재생</string>
+    <string name="misc_metered_body">모바일 데이터 사용 중이며, 계속하면 데이터가 소진됩니다. 확인 없이 재생할 수 있는 것은 Wi-Fi뿐입니다.</string>
+    <string name="misc_metered_dont_ask">모바일 데이터에서 다시 묻지 않기</string>
+    <string name="misc_metered_continue">계속 재생</string>
+    <string name="misc_cancel">취소</string>
+    <!-- PosterCard -->
+    <string name="misc_more">더보기</string>
+    <!-- Selection -->
+    <string name="misc_sel_remove">%1$s 제거</string>
+    <string name="misc_sel_clear_all">모두 지우기</string>
+    <string name="misc_sel_search_hint">현재 폴더에서 검색</string>
+    <string name="misc_sel_exit_search">검색 종료</string>
+    <string name="misc_sel_clear">지우기</string>
+    <string name="misc_sel_exit_multi">다중 선택 종료</string>
+    <plurals name="misc_sel_selected_count">
+        <item quantity="other">%1$d개 선택됨</item>
+    </plurals>
+    <string name="misc_sel_select_all">모두 선택</string>
+    <string name="misc_sel_invert">선택 반전</string>
+    <!-- Sheets -->
+    <string name="misc_confirm">확인</string>
+    <string name="misc_close">닫기</string>
+    <!-- States -->
+    <string name="misc_load_failed">로드 실패</string>
+    <string name="misc_retry">다시 시도</string>
+    <!-- TopBar -->
+    <string name="misc_back">뒤로 가기</string>
+    <!-- Settings: 2단계 배지 -->
+    <string name="misc_phase2">2단계</string>
+    <!-- ImageViewerScreen -->
+    <string name="misc_img_needs_android9">이 형식에는 Android 9+가 필요합니다</string>
+    <string name="misc_img_heic_fail">이 시스템은 HEIC 이미지를 디코딩할 수 없습니다</string>
+    <string name="misc_open_with">다른 앱으로 열기</string>
+    <string name="misc_unknown_size">알 수 없음</string>
+    <!-- PdfViewerScreen -->
+    <string name="misc_pdf_missing">파일이 없거나 읽을 수 없습니다</string>
+    <string name="misc_pdf_cannot_open">이 PDF를 열 수 없습니다</string>
+    <string name="misc_pdf_encrypted">PDF가 암호화되어 있습니다</string>
+    <string name="misc_pdf_no_password">비밀번호 잠금 해제는 아직 지원되지 않습니다</string>
+    <string name="misc_pdf_no_pages">이 PDF에는 페이지가 없습니다</string>
+    <string name="misc_pdf_goto_page">페이지로 이동</string>
+    <string name="misc_pdf_goto">이동</string>
+    <string name="misc_pdf_dl_title">먼저 다운로드 후 열기</string>
+    <string name="misc_pdf_dl_msg">이 파일은 %1$s이며, 먼저 기기 캐시에 내려받은 후 열립니다</string>
+    <string name="misc_pdf_dl_confirm">다운로드 후 열기</string>
+    <string name="misc_pdf_page_n">%1$d페이지</string>
+    <string name="misc_pdf_preparing">다운로드 준비 중…</string>
+    <!-- TextViewerScreen -->
+    <string name="misc_text_read_failed">읽기 실패</string>
+    <string name="misc_text_binary">이 파일은 바이너리이므로 텍스트로 미리 볼 수 없습니다</string>
+    <string name="misc_text_empty">이 파일은 비어 있습니다</string>
+    <string name="misc_text_encoding">인코딩</string>
+    <string name="misc_text_mono">고정폭 글꼴</string>
+    <string name="misc_text_wrap">자동 줄바꿈</string>
+    <string name="misc_text_choose_encoding">인코딩 선택</string>
+    <string name="misc_text_reloaded">%1$s(으)로 다시 불러왔습니다</string>
+    <string name="misc_text_truncated">파일이 커서 처음 %1$d KB만 표시합니다</string>
+    <string name="misc_text_open_full">전체 열기</string>
+    <!-- ViewerActivity / ViewerFiles -->
+    <string name="misc_viewer_default_title">파일</string>
+    <string name="misc_viewer_missing_args">파일을 열 수 없습니다(매개변수 누락)</string>
+    <string name="misc_viewer_bad_uri">파일 주소를 해석할 수 없습니다</string>
+    <string name="misc_viewer_no_handler">이 유형을 처리할 수 있는 앱이 없습니다</string>
+    <string name="misc_viewer_open_failed">열기 실패: %1$s</string>
+    <string name="misc_viewer_source_missing">파일 소스가 없거나 삭제되었습니다(id=%1$d)</string>
+    <string name="misc_viewer_uri_unparsed">파일 주소를 해석할 수 없음: %1$s</string>
+</resources>
