@@ -1,0 +1,278 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- player domain (English default) — Task 6: main player (PlayerActivity / PlayerScreen / PlayerControls / PlayerSheets) -->
+<resources>
+    <!-- Shared -->
+    <string name="player_video">Video</string>
+    <string name="player_back">Back</string>
+    <string name="player_retry">Retry</string>
+    <string name="player_reset">Reset</string>
+    <string name="player_unknown">Unknown</string>
+    <string name="player_cd_close">Close</string>
+
+    <!-- PlayerActivity: entry / routing toasts & errors -->
+    <string name="player_err_unrecognized">Couldn\'t identify the file to open</string>
+    <string name="player_err_open_title">Can\'t open video</string>
+    <string name="player_err_switch_failed">Switch failed: %1$s</string>
+    <string name="player_quality_switch_failed">Quality switch failed: %1$s</string>
+    <string name="player_err_source_missing">Video source doesn\'t exist or has been removed (id=%1$d)</string>
+    <string name="player_switch_cancelled_toast">Episode switch cancelled (metered network)</string>
+    <string name="player_queue_first">Already the first item in the folder</string>
+    <string name="player_queue_last">Already the last item in the folder</string>
+    <string name="player_pip_version_toast">Picture-in-picture requires Android 8.0 or later</string>
+    <string name="player_pip_fail_toast">Couldn\'t enter picture-in-picture</string>
+    <string name="player_soft_route_toast">Can\'t hardware-decode %1$s; switched to software decoding</string>
+    <string name="player_pgs_subtitle_toast">PGS subtitles aren\'t supported; you can load external srt/ass subtitles</string>
+
+    <!-- PlayerScreen: aspect / orientation modes -->
+    <string name="player_aspect_fit">Fit screen</string>
+    <string name="player_aspect_fill">Fill (crop)</string>
+    <string name="player_aspect_16_9">16:9</string>
+    <string name="player_aspect_4_3">4:3</string>
+    <string name="player_orientation_landscape">Landscape</string>
+    <string name="player_orientation_portrait">Portrait</string>
+    <string name="player_orientation_auto">Auto (sensor)</string>
+    <string name="player_orientation_toast">Orientation: %1$s</string>
+    <string name="player_loading">Loading…</string>
+    <string name="player_mirror_on">Mirror: on</string>
+    <string name="player_mirror_off">Mirror: off</string>
+
+    <!-- PlayerScreen: playback toasts -->
+    <string name="player_reconnected_toast">Network restored, reconnecting…</string>
+    <string name="player_next_up_toast">Playing next episode</string>
+    <string name="player_io_retry_toast">Network read interrupted, retrying…</string>
+    <string name="player_sleep_fired_toast">Sleep timer ended, paused</string>
+    <string name="player_audio_unsupported_toast">%1$s audio track isn\'t supported; switched to software decoding</string>
+    <string name="player_speed_locked_toast">Speed locked; long-press and swipe down to cancel</string>
+    <string name="player_speed_unlocked_toast">Speed lock removed</string>
+    <string name="player_cast_unsupported_toast">This video can\'t be cast</string>
+    <string name="player_unseekable_toast">Source limitation: seeking isn\'t supported</string>
+    <string name="player_sleep_off_toast">Sleep timer off</string>
+    <string name="player_sleep_in_min">Will pause in %1$d min</string>
+    <string name="player_loop_a_set">Loop start A set to %1$s</string>
+    <string name="player_loop_b_invalid">Point B must be after point A (current position %1$s)</string>
+    <string name="player_loop_active_toast">AB loop active %1$s → %2$s</string>
+    <string name="player_loop_cleared_toast">AB loop cleared</string>
+    <string name="player_subtitle_reloaded_toast">Subtitle remounted with the new encoding</string>
+
+    <!-- PlayerScreen: resume banner / overlays -->
+    <string name="player_resume_banner">Last watched: %1$s</string>
+    <string name="player_resume_jump">Jump</string>
+    <string name="player_no_subtitle_banner">No subtitles found · Tap CC above to load manually</string>
+    <string name="player_reset_picture">Reset picture</string>
+    <string name="player_slowmo_suffix">" slow"</string>
+    <string name="player_cd_speed_locked">Speed locked</string>
+    <string name="player_auto_reconnect_hint">Will auto-reconnect when the network recovers (up to 3 times)</string>
+
+    <!-- PlayerScreen: lock -->
+    <string name="player_half_lock_toast">Half lock on: long-press the badge to lock fully</string>
+    <string name="player_locked_toast">Locked; double-tap the lock icon to unlock</string>
+    <string name="player_full_lock_toast">Fully locked</string>
+    <string name="player_lock_hint_toast">Double-tap to unlock · Long-press to lock fully</string>
+    <string name="player_cd_lock_badge">Lock badge: double-tap to unlock, long-press to lock fully</string>
+    <string name="player_lock_hint">Locked · Double-tap the lock icon to unlock</string>
+    <string name="player_half_lock_hint">Half locked · Gestures available, double-tap the lock icon to unlock</string>
+
+    <!-- PlayerScreen: error state -->
+    <string name="player_err_play_title">Can\'t play</string>
+    <string name="player_fallback_play">Play with software core (libVLC)</string>
+    <string name="player_err_io_retried">Network read interrupted; already retried automatically</string>
+    <string name="player_err_nas_disconnected">NAS connection lost; check the network</string>
+    <string name="player_err_cleartext">The source uses plain HTTP, which the system blocks</string>
+    <string name="player_err_http_status">The source returned an error (HTTP 403/404 etc.); check that the address is still valid</string>
+    <string name="player_err_path">File path inaccessible; check the source configuration</string>
+    <string name="player_err_container">Failed to parse the file container</string>
+    <string name="player_err_decoder_unsupported">This device\'s hardware decoder doesn\'t support this video codec</string>
+    <string name="player_err_generic">Playback error (%1$s), please retry</string>
+    <string name="player_dv_note">This device can\'t play this source: the device has no Dolby Vision decoder and the file is Dolby Vision Profile 5 (no HDR10 compatibility layer, no fallback picture layer), so there\'s sound but no picture. Use \'Play with software core (libVLC)\' to force-decode the base-layer picture (no Dolby color mapping; colors will look green), or switch to an HDR10 / SDR / Dolby Vision Profile 8 source.</string>
+    <string name="player_no_decoder_note">No decoder on this device can decode the video track (codec: %1$s), so there\'s sound but no picture. Please switch to a source with a different codec.</string>
+
+    <!-- PlayerControls: top bar content descriptions -->
+    <string name="player_cd_orientation">Switch orientation</string>
+    <string name="player_cd_mirror">Mirror picture</string>
+    <string name="player_cd_rotate">Rotate picture</string>
+    <string name="player_cd_pip">Picture-in-picture</string>
+    <string name="player_cd_cast">Cast</string>
+    <string name="player_cd_lock">Lock</string>
+
+    <!-- PlayerControls: bottom bar -->
+    <string name="player_prev_episode">Prev</string>
+    <string name="player_play_pause">Play/Pause</string>
+    <string name="player_next_episode">Next</string>
+    <string name="player_cd_prev">Previous</string>
+    <string name="player_cd_prev_none">No previous (start of folder queue)</string>
+    <string name="player_cd_next">Next</string>
+    <string name="player_cd_next_none">No next (end of folder queue)</string>
+    <string name="player_speed">Speed</string>
+    <string name="player_speed_current">Speed (current %1$s)</string>
+    <string name="player_cd_play">Play</string>
+    <string name="player_cd_pause">Pause</string>
+    <string name="player_cd_rewind_sec">Rewind %1$d s</string>
+    <string name="player_cd_forward_sec">Forward %1$d s</string>
+    <string name="player_live">%1$s / Live</string>
+    <string name="player_brightness_off">Brightness off</string>
+
+    <!-- PlayerSheets: sheet titles -->
+    <string name="player_sheet_subtitles">Subtitles</string>
+    <string name="player_sheet_audio">Audio</string>
+    <string name="player_sheet_speed">Playback speed</string>
+    <string name="player_sheet_aspect">Aspect ratio</string>
+    <string name="player_sheet_quality">Quality</string>
+    <string name="player_info_title">Video info</string>
+    <string name="player_sheet_more">More</string>
+
+    <!-- PlayerSheets: subtitle sheet -->
+    <string name="player_subtitles_off">Subtitles off</string>
+    <string name="player_embedded_subtitles">Embedded subtitles</string>
+    <string name="player_no_subtitles">No subtitles found</string>
+    <string name="player_subtitle_track">Subtitle track %1$s</string>
+    <string name="player_sidecar_subtitles">Subtitles in the same folder</string>
+    <string name="player_external_sub_encoding">External subtitle encoding</string>
+    <string name="player_encoding_auto_detect">Auto-detect</string>
+    <string name="player_subtitle_delay">Subtitle delay</string>
+    <string name="player_delay_none">No offset</string>
+    <string name="player_delay_later">Subtitles delayed by %1$s s</string>
+    <string name="player_delay_earlier">Subtitles advanced by %1$s s</string>
+    <string name="player_same_name_badge">Same name</string>
+    <string name="player_lang_not_loadable">" · Not loadable yet"</string>
+    <string name="player_pick_subtitle">Pick a subtitle</string>
+    <string name="player_pick_subtitle_msg">Found %1$d subtitle files in the same folder; pick one to load</string>
+    <string name="player_no_subtitle_load">Don\'t load subtitles</string>
+    <string name="player_lang_same_as_video">Same name as the video</string>
+    <string name="player_lang_sidecar">Subtitle in the same folder</string>
+
+    <!-- PlayerSheets: language display names -->
+    <string name="player_lang_zh_cn">Chinese (Simplified)</string>
+    <string name="player_lang_zh_tw">Chinese (Traditional)</string>
+    <string name="player_lang_zh_hk">Cantonese</string>
+    <string name="player_lang_zh">Chinese</string>
+    <string name="player_lang_en">English</string>
+    <string name="player_lang_ja">Japanese</string>
+    <string name="player_lang_ko">Korean</string>
+
+    <!-- PlayerSheets: audio sheet -->
+    <string name="player_audio_track_default">Audio track</string>
+    <string name="player_no_audio_info">No audio track info</string>
+
+    <!-- PlayerSheets: speed sheet -->
+    <string name="player_speed_auto_mute">" (auto-muted)"</string>
+    <string name="player_speed_fine_tune">Fine tune (0.1x steps, 0.1–5.0)</string>
+
+    <!-- PlayerSheets: quality sheet -->
+    <string name="player_quality_jellyfin_only">Quality switching is only available for Jellyfin sources</string>
+    <string name="player_quality_original_bitrate">Original (source bitrate ~%1$sM)</string>
+    <string name="player_quality_auto_effective">Auto (currently using %1$s)</string>
+    <string name="player_quality_auto_hint">Auto (starts at original; drops quality when buffering)</string>
+
+    <!-- PlayerSheets: more sheet -->
+    <string name="player_ab_loop_section">AB loop</string>
+    <string name="player_set_loop_a">Set current position as loop start A</string>
+    <string name="player_set_loop_b">Set current position as loop end B</string>
+    <string name="player_clear_loop_active">Clear loop (%1$s → %2$s looping)</string>
+    <string name="player_sleep_section">Sleep timer</string>
+    <string name="player_sleep_off">Off</string>
+    <string name="player_sleep_15">15 min</string>
+    <string name="player_sleep_30">30 min</string>
+    <string name="player_sleep_60">60 min</string>
+    <string name="player_sleep_remaining">%1$s · %2$d min left</string>
+
+    <!-- PlayerSheets: info sheet -->
+    <string name="player_info_section_video">Video</string>
+    <string name="player_info_file">File</string>
+    <string name="player_info_codec">Codec</string>
+    <string name="player_info_resolution">Resolution</string>
+    <string name="player_info_frame_rate">Frame rate</string>
+    <string name="player_info_bitrate">Bitrate</string>
+    <string name="player_info_dynamic_range">Dynamic range</string>
+    <string name="player_info_section_audio">Audio</string>
+    <string name="player_info_channels">Channels</string>
+    <string name="player_info_sample_rate">Sample rate</string>
+    <string name="player_info_section_tracks">Tracks</string>
+    <string name="player_info_audio_tracks">Audio tracks</string>
+    <string name="player_info_text_tracks">Subtitle tracks</string>
+
+    <!-- Task 7: RmvbPlayerActivity (RMVB fallback page) -->
+    <string name="player_proxy_vpn_toast">Proxy detected; turn off your VPN and try again</string>
+    <string name="player_metered_paused_toast">Switched to metered network; playback paused</string>
+    <string name="player_err_switch_target_gone">Target episode no longer exists</string>
+    <string name="player_err_missing_url">Missing playback URL</string>
+    <string name="player_err_source_gone">Video source doesn\'t exist or has been removed</string>
+    <string name="player_err_local_missing">Local file not found: %1$s</string>
+    <string name="player_err_size_unknown">Can\'t get the file size (source unreachable or listing failed); fallback playback unavailable</string>
+    <string name="player_err_surface_timeout">Video surface initialization timed out</string>
+    <string name="player_rotation_toast">Picture rotation: %1$d°</string>
+    <string name="player_toggle_on">On</string>
+    <string name="player_toggle_off">Off</string>
+    <string name="player_tail_decode_restart">End-of-file data couldn\'t be decoded; replaying from the start</string>
+    <string name="player_err_vlc_decode">libVLC can\'t decode this file (damaged/unsupported container or encoding)</string>
+    <string name="player_err_stalled">Playback stalled: no data arriving for a long time</string>
+    <string name="player_resumed_toast">Resumed from last position</string>
+    <string name="player_rmvb_no_subtitles">No subtitle track found · For a local video, put a same-named .srt in the same folder</string>
+    <string name="player_sub_track_num">Subtitle %1$s</string>
+    <string name="player_rmvb_no_audio">No available audio track found</string>
+    <string name="player_audio_track_num">Audio track %1$s</string>
+    <string name="player_rmvb_info_file">File: %1$s</string>
+    <string name="player_rmvb_info_title_line">Title: %1$s</string>
+    <string name="player_rmvb_info_duration">Duration: %1$s</string>
+    <string name="player_rmvb_info_aspect">Aspect ratio: %1$s</string>
+    <string name="player_rmvb_info_speed">Playback speed: %1$s</string>
+    <string name="player_rmvb_info_audio_count">Audio tracks: %1$d</string>
+    <string name="player_rmvb_info_queue">Queue: %1$d of %2$d</string>
+    <string name="player_rmvb_aspect_fit">Fit</string>
+    <string name="player_rmvb_aspect_fit_screen">Fit to screen</string>
+    <string name="player_rmvb_aspect_fill">Fill</string>
+    <string name="player_aspect_toast">Aspect ratio: %1$s</string>
+    <string name="player_cd_aspect_current">Aspect ratio (current %1$s)</string>
+    <string name="player_cd_mirror_current">Mirror picture (current %1$s)</string>
+    <string name="player_cd_rotate_current">Rotate picture (current %1$d°)</string>
+    <string name="player_cd_more_rmvb">More (AB loop / sleep timer)</string>
+    <string name="player_seek_preview">%1$s (release to seek)</string>
+    <string name="player_loop_b_after_a">Point B must be after point A</string>
+
+    <!-- Task 7: PlaybackService toasts -->
+    <string name="player_metered_quality_paused_toast">Metered network; quality switch paused</string>
+    <string name="player_adjacent_soft_route_toast">Adjacent episodes need the software core; switch inside the app</string>
+    <string name="player_metered_autoswitch_paused_toast">Metered network; auto episode switch paused</string>
+    <string name="player_skipped_soft_items_toast">Skipped %1$d item(s) needing software decoding: %2$s</string>
+    <string name="player_switched_to_toast">Switched: %1$s</string>
+    <string name="player_err_check_videourl">switchQuality must not rewrite videoUrl (novax:// logical key; three URL-equality guards depend on it)</string>
+    <string name="player_unknown_error">Unknown error</string>
+    <string name="player_transcode_unavailable_toast">Transcoding unavailable; fell back to the original quality</string>
+    <string name="player_original_best_toast">Original is already the best quality for this tier</string>
+
+    <!-- Task 7: NvQualityTier labels (quality sheet rows) -->
+    <string name="player_quality_tier_original">Original</string>
+    <string name="player_quality_tier_20m">20M</string>
+    <string name="player_quality_tier_10m">10M</string>
+    <string name="player_quality_tier_4m">4M</string>
+    <string name="player_quality_tier_2m">2M</string>
+    <string name="player_quality_tier_auto">Auto</string>
+    <!-- Task 9: MediaTrackInfo video-info panel labels (text seam: composition injects via stringResource) -->
+    <string name="player_dv_label">Dolby Vision</string>
+    <string name="player_dv_profile_fmt">Dolby Vision (Profile %1$d)</string>
+    <string name="player_info_pixel_aspect_fmt">%1$d×%2$d (pixel aspect %3$s)</string>
+    <string name="player_ch_mono">Mono 1.0</string>
+    <string name="player_ch_stereo">Stereo 2.0</string>
+    <string name="player_ch_surround51">5.1 surround</string>
+    <string name="player_ch_surround71">7.1 surround</string>
+    <string name="player_ch_count_fmt">%1$d channels</string>
+    <string name="player_dv_note_p5">No Dolby Vision decoder on this device; Profile 5 has no HDR10 compatibility layer, so the picture cannot display correctly (sound without picture is expected). Use a Profile 8 source, or an SDR/HDR10 source.</string>
+    <string name="player_dv_note_p47_fmt">No Dolby Vision decoder on this device; Profile %1$d is dual-layer Dolby Vision that needs a Blu-ray player or TV-side decoding. Playing on a phone will produce sound without picture.</string>
+    <string name="player_dv_note_p8">No Dolby Vision decoder on this device; Profile 8 carries an HDR10 compatibility layer and should fall back to HDR10 and play normally. If this file still shows a black screen, please report this message (it is a player bug).</string>
+    <!-- Task 9: audio mime display names (audioMimeLabel; display split from the soft-route protocol value) -->
+    <string name="player_codec_unknown">Unknown codec</string>
+    <string name="player_codec_eac3_joc">E-AC-3 JOC (Dolby Atmos)</string>
+    <string name="player_codec_eac3">E-AC-3 (Dolby Digital Plus)</string>
+    <string name="player_codec_ac3">AC-3 (Dolby Digital)</string>
+    <!-- Task 9: soft-route memory display name for the Dolby Vision reason (protocol value is now a neutral token) -->
+    <string name="player_soft_route_reason_dv">Dolby Vision video</string>
+    <!-- Task 9: fallback seek toast (extractor now signals; the activity renders text) -->
+    <string name="player_fallback_seek_toast">No seek index; estimated positioning enabled</string>
+    <!-- Task 9: Jellyfin embedded subtitle track display names (composed UI-side) -->
+    <string name="player_sub_embedded_prefix">[Embedded] %1$s</string>
+    <string name="player_sub_embedded_track">Subtitle %1$d</string>
+    <!-- Task 9: external-open fallback name (NvExternalOpen) -->
+    <string name="player_unknown_file">Unknown file</string>
+    <!-- Task 9: RMVB proxy upstream failure reasons (kind+detail split; proxy emits tokens) -->
+    <string name="player_rmvb_err_upstream_connect">Cannot connect to video source: %1$s</string>
+    <string name="player_rmvb_err_upstream_interrupted">Network connection interrupted: %1$s</string>
+</resources>

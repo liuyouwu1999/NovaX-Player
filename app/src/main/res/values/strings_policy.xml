@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- policy domain (English default): privacy policy + user agreement + first-launch consent dialog.
+     Structure mirrors values-zh-rCN/strings_policy.xml, which is the compliance baseline text. -->
+<resources>
+    <!-- Document titles (policy screen top bar) -->
+    <string name="policy_doc_privacy">Privacy policy</string>
+    <string name="policy_doc_agreement">User agreement</string>
+    <!-- Header line and language disclaimer (shown in every locale) -->
+    <string name="policy_meta_updated_version">Last updated: %1$s · Version %2$d</string>
+    <string name="policy_lang_disclaimer">Non-Chinese translations are for reference only; the Simplified Chinese version prevails.</string>
+    <!-- First-launch consent dialog (spec §1.4) -->
+    <string name="policy_consent_title">Privacy policy &amp; user agreement</string>
+    <string name="policy_consent_body">Welcome to NovaX. The developer does not collect any personal information through this app: there are no analytics, ads, or reporting components, and all data such as watch history and NAS credentials stays on your device only. When you use scraping or network source features, requests go directly from your device to the servers you have configured (see the full text for details).</string>
+    <string name="policy_consent_view_full">View the full Privacy policy and User agreement</string>
+    <string name="policy_consent_agree">Agree and continue</string>
+    <string name="policy_consent_decline">Decline</string>
+
+    <!-- Privacy policy (9 sections, 33 paragraphs; keys policy_p{N}_t / policy_p{N}_p{M}) -->
+    <string name="policy_p1_t">1. Overview</string>
+    <string name="policy_p1_p1">NovaX (hereinafter referred to as the app) is a local and local-network video playback tool. The developer does not collect any personal information through the app: no third-party statistics, advertising, push, or crash-reporting SDKs are integrated; no device identifiers, location, contacts, or any other information is collected; the developer has no servers and cannot read any of your data.</string>
+    <string name="policy_p1_p2">The open-source components built into the app (the playback engine, network library, etc.) run solely as local features and do not transmit your personal information to their providers.</string>
+    <string name="policy_p2_t">2. Data stored only on your device</string>
+    <string name="policy_p2_p1">Watch history, favorites, media library index, preferences, and the NAS accounts and passwords you configure are stored only in the app\'s private directory (credentials are encrypted with Android Keystore). This data is never uploaded and is deleted entirely when you uninstall the app.</string>
+    <string name="policy_p2_p2">The developer cannot access the above data; the app has no telemetry or reporting channels either.</string>
+    <string name="policy_p2_p3">Privacy lock: when enabled, the lock PIN is stored only in the app\'s private directory, in encrypted form; watch history and favorites within the locked scope are stored as ciphertext; lock rules never leave the device (no backup, no upload).</string>
+    <string name="policy_p2_p4">Biometrics: fingerprint/face unlock only invokes the Android system BiometricPrompt and completes verification locally; the app does not collect, store, or upload any biometric data. If you deny the related permission, fingerprint/face unlock becomes unavailable while PIN unlock keeps working.</string>
+    <string name="policy_p3_t">3. Network features configured by you</string>
+    <string name="policy_p3_p1">All network requests made by the app go directly from your device to the destinations you configure, with no relay through the developer:</string>
+    <string name="policy_p3_p2">· SMB / WebDAV / SFTP / Jellyfin sources: connect to the servers you enter; credentials are stored on the device only;</string>
+    <string name="policy_p3_p3">· TMDB scraping (optional): after you register and enter your own API key, poster and movie metadata requests go directly from your device to api.themoviedb.org and image.tmdb.org (their servers can see your IP address);</string>
+    <string name="policy_p3_p4">· Casting: sends device-discovery and control commands on the local network; while casting, the app serves the playback stream to the TV at a random address on the local network (local network only; the stream closes when casting stops);</string>
+    <string name="policy_p3_p5">· Direct network links: connects directly to the address you open.</string>
+    <string name="policy_p3_p6">· Update check: at app start (optional and can be turned off) or when you tap “Check for updates”, the device contacts GitHub\'s public API (api.github.com) to look up the latest release; update packages are downloaded from GitHub\'s download servers. No user data is transmitted in this process.</string>
+    <string name="policy_p4_t">4. Cleartext traffic notice</string>
+    <string name="policy_p4_p1">The app supports NAS and direct-link sources over http (many home NAS devices do not offer https). With cleartext protocols, transmitted content (including your account credentials and playback) may be intercepted on the link by third parties on the same network; the encryption strength of SFTP/SMB depends on your server configuration. Use trusted networks, or prefer encrypted protocols.</string>
+    <string name="policy_p5_t">5. Permission list and purposes</string>
+    <string name="policy_p5_p1">The app declares 16 permissions in total (three of which are legacy-compatibility permissions); their purposes and the consequences of denial are as follows:</string>
+    <string name="policy_p5_p2">1. Network (INTERNET): network playback, NAS source connections, scraping, and casting. If denied, network features are unavailable; local playback is unaffected.</string>
+    <string name="policy_p5_p3">2. Network state (ACCESS_NETWORK_STATE): detects metered networks to provide data-usage reminders. If denied, those reminders stop working.</string>
+    <string name="policy_p5_p4">3. Wi-Fi state (ACCESS_WIFI_STATE): cast device discovery. If denied, discovering cast devices is affected.</string>
+    <string name="policy_p5_p5">4. Wi-Fi multicast (CHANGE_WIFI_MULTICAST_STATE): required by the DLNA device-discovery protocol. If denied, TVs cannot be discovered.</string>
+    <string name="policy_p5_p6">5. Notifications (POST_NOTIFICATIONS, Android 13+): notification controls for background playback. If denied, background playback has no notification.</string>
+    <string name="policy_p5_p7">6. Wake lock (WAKE_LOCK): keeps background playback from being interrupted.</string>
+    <string name="policy_p5_p8">7-8. Foreground service (FOREGROUND_SERVICE / FOREGROUND_SERVICE_MEDIA_PLAYBACK): the background playback service.</string>
+    <string name="policy_p5_p9">9. All files access (MANAGE_EXTERNAL_STORAGE): playing non-standard formats such as RMVB together with their subtitles requires full file visibility. This permission takes effect only after you grant it manually in system settings; without it, common formats can still be played (via the system media library path).</string>
+    <string name="policy_p5_p10">10. Video media reader (READ_MEDIA_VIDEO, Android 13+): scans and plays videos in the media library. If denied, media library videos cannot be scanned (you can grant all files access instead, or open the videos via the system Open with option).</string>
+    <string name="policy_p5_p11">11. Storage read (READ_EXTERNAL_STORAGE, Android 12L and below only): media reading on legacy systems. If denied, media library scanning is unavailable on those systems.</string>
+    <string name="policy_p5_p12">12. Storage write (WRITE_EXTERNAL_STORAGE, Android 9 and below only): saving the donation QR code to the gallery on legacy systems. If denied, the donation code cannot be saved (other features are unaffected).</string>
+    <string name="policy_p5_p13">13. Battery optimization exemption (REQUEST_IGNORE_BATTERY_OPTIMIZATIONS): aggressive background policies on vendors such as Samsung can interrupt long-lived NAS connections. Asked only once; you may decline.</string>
+    <string name="policy_p5_p14">14. Install unknown apps (REQUEST_INSTALL_PACKAGES): used only when you tap “Download &amp; install” in the update dialog, to hand the downloaded update package to the system installer. If denied, one-tap in-app updates are disabled; you can still download the APK in a browser and install it manually.</string>
+    <string name="policy_p5_p15">15. Biometrics (USE_BIOMETRIC): used only when you unlock the privacy lock, to bring up the Android system fingerprint/face verification dialog; verification is completed by the system locally and the app never touches biometric data. If denied, fingerprint/face unlock is unavailable; PIN unlock is unaffected.</string>
+    <string name="policy_p5_p16">16. Fingerprint (USE_FINGERPRINT, Android 9 and below only): legacy-compatibility permission for biometric unlock on older systems. If denied, fingerprint unlock is unavailable on those systems; PIN unlock is unaffected.</string>
+    <string name="policy_p6_t">6. System backups</string>
+    <string name="policy_p6_p1">The app excludes the media database (including NAS credentials and watch history) and all preferences from Android cloud backup and device migration; the SFTP host fingerprint file and local crash logs are excluded as well. Sources must be added again after device migration.</string>
+    <string name="policy_p7_t">7. Minors</string>
+    <string name="policy_p7_p1">The app does not collect any information (including from minors) and has no age gate; parents can manage its use with the screen-time management tools built into the system.</string>
+    <string name="policy_p8_t">8. Changes to this policy</string>
+    <string name="policy_p8_p1">This policy carries a version number and an update date; if the scope of collection or the purposes of permissions change significantly, the consent prompt will be shown again the next time you start the app. Previous versions can be viewed on the releases page.</string>
+    <string name="policy_p9_t">9. Contact us</string>
+    <string name="policy_p9_p1">For any questions, correction, or deletion requests regarding this policy (even though the developer holds none of your data), contact: liuyouwu1999@163.com. We will reply within a reasonable period.</string>
+
+    <!-- User agreement (8 sections, 8 paragraphs; keys policy_ua{N}_t / policy_ua{N}_p{M}) -->
+    <string name="policy_ua1_t">1. Acceptance of this agreement</string>
+    <string name="policy_ua1_p1">By downloading, installing, or using NovaX (hereinafter referred to as the app), you confirm that you have read and agreed to this agreement. If you do not agree, please exit and uninstall the app.</string>
+    <string name="policy_ua2_t">2. Provided as is</string>
+    <string name="policy_ua2_p1">The app is a free work by an individual developer, provided as is. The developer does not promise that it will run defect-free on all devices, with all file formats, or under all network conditions, nor promise continuous updates. Donations are voluntary support and do not constitute a service contract.</string>
+    <string name="policy_ua3_t">3. Content responsibility</string>
+    <string name="policy_ua3_p1">The app only provides the ability to play local and local-network files; it does not provide, store, or recommend any content. You are solely responsible for the origin and legality of the content you play with the app; you must not use the app to distribute or display content that violates laws and regulations or the rights of others.</string>
+    <string name="policy_ua4_t">4. Intellectual property</string>
+    <string name="policy_ua4_p1">The copyright of the app\'s interface and code belongs to the developer; the open-source components it relies on belong to their respective rights holders, see the in-app Settings - About - Open-source licenses list for acknowledgments. The NovaX name and icon must not be misused.</string>
+    <string name="policy_ua5_t">5. Third-party services</string>
+    <string name="policy_ua5_p1">Features such as casting, NAS connections, and TMDB scraping depend on third-party devices or services you configure yourself; their availability and security are the responsibility of the respective providers. Feature failures caused by changes to third-party services do not constitute a breach by the developer.</string>
+    <string name="policy_ua6_t">6. Disclaimer and limitation of liability</string>
+    <string name="policy_ua6_p1">To the maximum extent permitted by law, the developer is not liable for any direct or indirect losses caused by your use of, or inability to use, the app. If disputes arise from content you play or forward, you bear the responsibility yourself.</string>
+    <string name="policy_ua7_t">7. Changes to this agreement</string>
+    <string name="policy_ua7_p1">This agreement is versioned together with the privacy policy; the consent dialog will be shown again at the next launch after major changes. Continued use is deemed acceptance of the amended agreement.</string>
+    <string name="policy_ua8_t">8. Contact</string>
+    <string name="policy_ua8_p1">Contact email: liuyouwu1999@163.com.</string>
+</resources>

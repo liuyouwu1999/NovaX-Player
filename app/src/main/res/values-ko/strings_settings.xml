@@ -1,0 +1,224 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- settings 도메인(한국어): 용어표 + 합니다체(문장)/명사형(레이블) -->
+<resources>
+    <!-- 공통 / 진입 페이지 -->
+    <string name="settings_title">설정</string>
+    <string name="settings_group_playback">플레이어</string>
+    <string name="settings_group_subtitle">자막</string>
+    <string name="settings_group_audio">오디오</string>
+    <string name="settings_group_network">네트워크 / NAS</string>
+    <string name="settings_group_library">미디어 라이브러리</string>
+    <string name="settings_group_ui">모양</string>
+    <string name="settings_group_privacy">개인정보 및 데이터</string>
+    <string name="settings_group_about">정보</string>
+    <string name="settings_auto">자동</string>
+    <string name="settings_encoding_auto">자동</string>
+    <string name="settings_follow_file">파일 따름</string>
+    <string name="settings_columns_count">%1$d열</string>
+    <string name="settings_columns_adaptive">자동 맞춤</string>
+    <string name="settings_tab_home">홈</string>
+    <string name="settings_tab_files">파일</string>
+    <string name="settings_tab_library">미디어 라이브러리</string>
+    <string name="settings_tab_search">검색</string>
+    <string name="settings_tab_settings">설정</string>
+    <string name="settings_state_on">켬</string>
+    <string name="settings_state_off">끔</string>
+
+    <!-- 진입 페이지 요약 -->
+    <string name="settings_summary_playback">기본 %1$s · 길게 눌러 %2$dx · 두 번 탭 %3$ds</string>
+    <string name="settings_speed_remember_short">기억</string>
+    <string name="settings_summary_subtitle">%1$s · %2$s 인코딩</string>
+    <string name="settings_summary_audio">%1$s · %2$s</string>
+    <string name="settings_pitch_preserve">속도를 바꿔도 음정 유지</string>
+    <string name="settings_pitch_varies">속도에 따라 음정 변경</string>
+    <string name="settings_summary_network">시간 초과 %1$ds · 블록 %2$s</string>
+    <string name="settings_summary_library">자동 색인 %1$s · 스크래핑 %2$s</string>
+    <string name="settings_summary_ui">%1$s · 시작 시 %2$s</string>
+    <string name="settings_history_count">시청 기록 %1$d건</string>
+
+    <!-- 플레이어 그룹 -->
+    <string name="settings_default_speed">기본 배속</string>
+    <string name="settings_speed_fixed">고정 1x</string>
+    <string name="settings_speed_remember">마지막 배속 기억</string>
+    <string name="settings_long_press_seek">길게 눌러 빨리 감기</string>
+    <string name="settings_long_press_seek_desc">화면 오른쪽 절반을 길게 누르면 배속 재생하고, 손을 떼면 원래 속도로 돌아옵니다</string>
+    <string name="settings_long_press_speed">길게 누르기 배속 값</string>
+    <string name="settings_left_slowmo">왼쪽 절반 슬로우 모션</string>
+    <string name="settings_left_slowmo_desc">화면 왼쪽 절반을 길게 누르면 0.5x 슬로우 모션으로 재생합니다</string>
+    <string name="settings_half_lock">반잠금 모드</string>
+    <string name="settings_half_lock_desc">한 번 탭=반잠금(제스처 계속 사용), 다시 탭=전체 잠금</string>
+    <string name="settings_double_tap_seconds">빨리 감기/되감기 초</string>
+    <string name="settings_double_tap_seconds_desc">화면 양쪽 두 번 탭과 하단 버튼의 이동 단위입니다</string>
+    <string name="settings_swipe_seek_step" formatted="false">스와이프 빨리 감기 단위(전체 길이의 %, 기본 10)</string>
+    <string name="settings_precise_seek">정밀 시크</string>
+    <string name="settings_precise_seek_desc">자막 맞춤용 프레임 단위 시크, 재생 시작이 약간 느려집니다</string>
+    <string name="settings_av_offset">오디오 싱크 오프셋(다음 재생부터 적용)</string>
+    <string name="settings_av_offset_desc">소리가 화면보다 늦으면 음수, 소리가 먼저 들리면 양수</string>
+    <string name="settings_buffer_level">네트워크 미리 읽기 버퍼(다음 재생부터 적용)</string>
+    <string name="settings_buffer_low">낮음</string>
+    <string name="settings_buffer_medium">중간</string>
+    <string name="settings_buffer_high">높음</string>
+    <string name="settings_buffer_level_desc">미리 읽기 시간: 낮음 15s · 중간 기본값 · 높음 120s</string>
+    <string name="settings_mute_above_2x">3x 이상에서 자동 음소거</string>
+    <string name="settings_mute_above_2x_desc">길게 누르기 3x와 배속 메뉴의 3x 선택 중에는 음소거합니다</string>
+    <string name="settings_decoder_policy">디코더 전략</string>
+    <string name="settings_decoder_policy_desc">하드웨어 디코딩 우선, 실패 시 자동 폴백</string>
+    <string name="settings_resume_on_open">열 때 마지막 위치에서 이어서 재생</string>
+    <string name="settings_auto_next">다음 화 자동 연속 재생</string>
+    <string name="settings_auto_next_desc">폴더 안의 항목 재생이 끝나면 자동으로 다음 항목을 재생합니다</string>
+    <string name="settings_auto_orient_switch">전환 시 자동 방향 전환</string>
+    <string name="settings_auto_orient_switch_desc">화 전환 시 영상 비율에 맞춰 화면 방향을 자동으로 바꿉니다</string>
+    <string name="settings_subtitle_size">자막 글자 크기</string>
+    <string name="settings_size_small">작게</string>
+    <string name="settings_size_standard">표준</string>
+    <string name="settings_size_large">크게</string>
+    <string name="settings_subtitle_size_desc">소프트 자막(내장/외장)의 표시 글자 크기</string>
+    <string name="settings_pip_auto">백그라운드 전환 시 자동 PIP</string>
+    <string name="settings_pip_auto_desc">재생 중 홈 화면으로 나가면 자동으로 PIP 창으로 축소됩니다</string>
+    <string name="settings_volume_boost">볼륨 부스트</string>
+    <string name="settings_volume_boost_desc" formatted="false">소프트웨어로 음량을 증폭합니다, 200%에서는 큰 음원의 파형이 잘릴 수 있습니다</string>
+    <string name="settings_passthrough_toggle">돌비/AC3 패스스루 출력</string>
+    <string name="settings_passthrough_disabled_desc">PCM 디코딩으로 고정(배속 중 오디오 싱크 보장), 비트스트림 패스스루는 일시 중단</string>
+    <string name="settings_passthrough_unsupported_short">(이 기기도 패스스루 미지원)</string>
+    <string name="settings_passthrough_capability">기기 패스스루 지원 현황</string>
+    <string name="settings_passthrough_unsupported">이 기기는 비트스트림 패스스루를 지원하지 않습니다(PCM 디코딩으로 출력)</string>
+    <string name="settings_passthrough_supported">이 기기에서 지원: %1$s</string>
+    <string name="settings_passthrough_probe_failed">감지 실패(시스템 기본값 따름)</string>
+    <string name="settings_passthrough_eac3">E-AC-3(돌비 디지털 플러스)</string>
+    <string name="settings_metered_remind">모바일 데이터 재생 알림</string>
+    <string name="settings_metered_every">매번</string>
+    <string name="settings_metered_once">세션당 한 번</string>
+    <string name="settings_metered_never">알리지 않음</string>
+    <string name="settings_metered_remind_desc">모바일 데이터로 재생 시작/화 전환/자동 연속 재생/알림에서 화 전환/원격 소스 캐스팅 전에 확인합니다. 세션당 한 번 = 앱을 열 때마다 한 번 확인하며 같은 세션에서는 다시 묻지 않습니다</string>
+    <string name="settings_background_play">백그라운드 재생</string>
+    <string name="settings_background_play_desc">켬 = 백그라운드/화면 꺼짐 상태에서도 계속 재생하고 알림과 잠금 화면에서 제어할 수 있습니다, 끔 = 백그라운드 전환 시 자동 일시정지</string>
+    <string name="settings_rmvb_perf">RMVB 성능 모드(프레임 스킵 가속)</string>
+    <string name="settings_rmvb_perf_desc">RM/RMVB 버벅임이 있을 때 켜면 약간의 화질 저하와 맞바꿔 부드러워집니다. 다음 RMVB 재생 페이지부터 적용</string>
+
+    <!-- 자막 그룹 -->
+    <string name="settings_sub_auto_load">같은 이름 자막 자동 로드</string>
+    <string name="settings_sub_auto_load_desc">재생 시 같은 폴더의 같은 이름 외장 자막을 자동으로 마운트합니다</string>
+    <string name="settings_sub_language">기본 언어</string>
+    <string name="settings_sub_encoding">기본 인코딩</string>
+    <string name="settings_sub_encoding_desc">외장 자막이 깨져 보일 때 변경합니다</string>
+    <string name="settings_subtitle_size_delay">자막 크기 / 지연</string>
+    <string name="settings_subtitle_size_delay_desc">크기는 설정 → 플레이어에서, 지연은 플레이어의 「자막」 메뉴에서</string>
+    <string name="settings_sub_offset_step">자막 지연 단계</string>
+    <string name="settings_sub_offset_step_desc">플레이어의 「자막 → 자막 지연」에서 한 번에 ±조정되는 단위입니다</string>
+
+    <!-- 오디오 그룹 -->
+    <string name="settings_audio_language">기본 오디오 트랙 언어</string>
+    <string name="settings_audio_language_desc">멀티 오디오 트랙 영상에서 선택한 언어를 우선합니다</string>
+    <string name="settings_preserve_pitch_desc">배속 재생 중에도 원래 음정을 유지합니다</string>
+
+    <!-- 네트워크 / NAS 그룹 -->
+    <string name="settings_connect_timeout">연결 시간 초과</string>
+    <string name="settings_connect_timeout_desc">네트워크 스트림 연결/읽기 시간 초과입니다, 느린 NAS에서는 늘리세요</string>
+    <string name="settings_smb_block">SMB 읽기 블록 크기</string>
+    <string name="settings_smb_block_desc">블록이 클수록 NAS 왕복이 줄어듭니다, 구형 NAS/패킷 손실이 많은 환경에서는 줄이세요, 기본값 4MB</string>
+    <string name="settings_smb_prefetch">SMB 동시 미리 읽기</string>
+    <string name="settings_smb_prefetch_desc">다음 블록을 미리 읽어 재생을 더 부드럽게 합니다, 매우 느린 NAS에서는 끄세요</string>
+    <string name="settings_thumb_metered">모바일 데이터에서도 썸네일 생성</string>
+    <string name="settings_thumb_metered_desc">켬 = 셀룰러/종량제 네트워크에서도 동영상 썸네일을 자동으로 추출합니다(장당 32MB 읽기 한도, 데이터 사용)</string>
+    <string name="settings_lan_discovery">LAN 검색</string>
+    <string name="settings_lan_discovery_desc">파일 페이지 검색 영역을 자동 스캔합니다(끄면 절전)</string>
+
+    <!-- 모양 그룹 -->
+    <string name="settings_theme">테마</string>
+    <string name="settings_theme_dark">다크</string>
+    <string name="settings_theme_light">라이트</string>
+    <string name="settings_theme_system">시스템 따름</string>
+    <!-- Task 13 앱 내 언어 전환 -->
+    <string name="settings_ui_language">언어</string>
+    <string name="settings_ui_language_auto">시스템 언어 따름</string>
+    <string name="settings_poster_columns">포스터 벽 열 수</string>
+    <string name="settings_poster_columns_desc">미디어 라이브러리 그리드의 열 수</string>
+    <string name="settings_show_file_size">목록에 파일 크기 표시</string>
+    <string name="settings_show_file_size_desc">파일 목록 부제목에 크기 구간을 표시합니다</string>
+    <string name="settings_back_exit">뒤로 버튼으로 바로 종료</string>
+    <string name="settings_back_exit_desc">끔 = 탭 루트에서 뒤로 가기를 2초 안에 한 번 더 눌러야 종료됩니다</string>
+    <string name="settings_start_tab">시작 페이지</string>
+
+    <!-- 개인정보 및 데이터 그룹 -->
+    <string name="settings_cache_calculating">계산 중…</string>
+    <string name="settings_loading">불러오는 중…</string>
+    <string name="settings_watch_history">시청 기록</string>
+    <string name="settings_record_count">기록 %1$d건</string>
+    <string name="settings_clear_cache">캐시 삭제</string>
+    <string name="settings_clear_cache_confirm_message">%1$s 캐시를 삭제할까요? 시청 기록과 저장한 항목은 영향을 받지 않습니다.</string>
+    <string name="settings_clear_action">삭제</string>
+    <string name="settings_cache_cleared">%1$s MB 삭제했습니다</string>
+    <string name="settings_reset_all">모든 설정 초기화</string>
+    <string name="settings_reset_all_message">모든 설정이 기본값으로 되돌려집니다. 시청 기록과 즐겨찾기는 유지됩니다.</string>
+    <string name="settings_reset_action">초기화</string>
+    <string name="settings_reset_done">초기화되었습니다</string>
+
+    <!-- 정보 그룹 / 후원 대화상자 / 크래시 로그 -->
+    <string name="settings_version">버전</string>
+    <string name="settings_author">제작자</string>
+    <string name="settings_email">이메일</string>
+    <string name="settings_donate">제작자 후원하기</string>
+    <string name="settings_donate_qr_cd">위챗 후원 QR 코드</string>
+    <string name="settings_donate_caption">위챗으로 스캔해서 차 한 잔 사주세요</string>
+    <string name="settings_close">닫기</string>
+    <string name="settings_save_to_gallery">갤러리에 저장</string>
+    <string name="settings_qr_saved">갤러리에 저장되었습니다</string>
+    <string name="settings_save_failed">저장 실패: %1$s</string>
+    <string name="settings_qr_no_permission">저장소 권한이 허용되지 않아 저장할 수 없습니다</string>
+    <string name="settings_error_media_store">MediaStore 쓰기에 실패했습니다</string>
+    <string name="settings_error_output_stream">출력 스트림을 여는 데 실패했습니다</string>
+    <string name="settings_privacy_policy">개인정보 처리방침</string>
+    <string name="settings_user_agreement">이용약관</string>
+    <!-- 루트 패키지 접점(MainActivity, i18n Task 8) -->
+    <string name="settings_privacy_declined_exit">개인정보 처리방침 및 이용약관에 동의하지 않아 앱을 종료합니다</string>
+    <string name="settings_press_back_again_exit">한 번 더 누르면 종료됩니다</string>
+    <string name="settings_open_licenses">오픈소스 라이선스</string>
+    <string name="settings_crash_log">크래시 로그</string>
+    <string name="settings_crash_none">크래시 기록이 없습니다</string>
+    <string name="settings_crash_share">크래시 로그 공유</string>
+    <string name="settings_crash_file">로그: %1$s</string>
+    <string name="settings_phase2_toast">이 기능은 이후 버전에 제공될 예정입니다</string>
+
+    <!-- 미디어 라이브러리 그룹 -->
+    <string name="settings_scrape_progress">스크래핑 중 %1$d/%2$d</string>
+    <string name="settings_scrape_done">%1$d개 완료</string>
+    <string name="settings_lib_auto_scan">새 소스 자동 스캔</string>
+    <string name="settings_lib_auto_scan_desc">소스를 추가한 후 자동으로 스캔하여 색인을 만듭니다</string>
+    <string name="settings_rescan_library">미디어 라이브러리 다시 스캔</string>
+    <string name="settings_scanning">스캔 중…</string>
+    <string name="settings_tmdb_scrape">TMDB 스크래핑</string>
+    <string name="settings_lib_scrape_global">스크래핑 사용(TMDB)</string>
+    <string name="settings_lib_scrape_global_desc">스캔 후 새 항목에 포스터와 줄거리를 자동으로 매칭합니다</string>
+    <string name="settings_key_not_set">미설정</string>
+    <string name="settings_tmdb_key_desc">스크래핑에는 v3 키가 필요하며, 미설정이면 온라인 스크래핑을 하지 않습니다</string>
+    <string name="settings_scrape_now">사용 중인 모든 소스 즉시 스크래핑</string>
+    <string name="settings_per_source_scrape">소스별 스크래핑 스위치</string>
+    <string name="settings_no_sources">미디어 소스가 없습니다. 「파일」 페이지에서 추가하면 소스별로 스크래핑을 제어할 수 있습니다</string>
+    <string name="settings_source_scrape">%1$s 스크래핑 사용</string>
+    <string name="settings_source_scrape_desc">전체 스위치가 켜져 있을 때 해당 소스에 적용됩니다</string>
+    <string name="settings_key_placeholder">32자리 16진수 문자열</string>
+    <string name="settings_key_help">themoviedb.org에서 무료로 가입한 후 「계정 설정 → API」에서 얻을 수 있습니다. 이 기기에만 저장됩니다.</string>
+    <string name="settings_save">저장</string>
+    <string name="settings_cancel">취소</string>
+
+    <!-- 오픈소스 라이선스 페이지 -->
+    <string name="settings_licenses_header">NovaX는 다음과 같은 훌륭한 오픈소스 프로젝트를 기반으로 만들어졌습니다. 감사드립니다.</string>
+    <string name="settings_licenses_footer">각 프로젝트의 전체 라이선스 전문은 https://www.apache.org/licenses/LICENSE-2.0 등 공식 출처에서 확인할 수 있습니다.\nNovaX는 거인의 어깨 위에 서 있습니다. 오픈소스 커뮤니티에 감사드립니다.</string>
+    <string name="settings_license_stack_name">Kotlin 2.2.20 / Coroutines 1.10.2 / AndroidX(Core 1.17.0 · Lifecycle 2.9.4 · Activity Compose 1.11.0 · Navigation Compose 2.9.5) / Jetpack Compose(BOM 2026.09.00, Material Icons 포함) / DataStore 1.1.7 / Room 2.8.2 / Coil 3.3.0</string>
+    <string name="settings_license_pinyin4j">오프라인 중국어 병음 색인과 제목 자연 정렬. 프로젝트: https://github.com/belerweb/pinyin4j</string>
+    <string name="settings_license_nova">NovaX의 재생 기반과 파일 핵심은 Nova Video Player 오픈소스 프로젝트에서 나왔습니다. 원 프로젝트와 커뮤니티의 오랜 기여에 감사드립니다.</string>
+    <string name="settings_license_media3">android.media3는 디코딩, 트랙 선택, 자막 렌더링, 미디어 세션 기능을 제공하는 이 앱 재생 코어의 초석입니다.</string>
+    <string name="settings_license_libvlc">org.videolan.android:libvlc-all — RM/RMVB 소프트웨어 디코딩과 트랜스코딩/프레임 추출 재생 코어, 앱과 함께 배포됩니다. LGPL 2.1 요구에 따라 라이선스 전문과 소스코드 획득 방법을 완전히 제공합니다. 프로젝트: https://code.videolan.org/videolan/vlc-android</string>
+    <string name="settings_license_ffmpeg">FFmpeg(libavcodec/libavutil/swresample, n4.4.4를 libffmpegext.so에 정적 링크) — AC3/E-AC3/DTS/TrueHD 오디오 소프트웨어 디코딩, GPL 구성 요소 없이 LGPL 2.1 구성으로 빌드. LGPL 2.1 요구에 따라 라이선스 전문과 소스코드 획득 방법을 완전히 제공합니다. 프로젝트: https://ffmpeg.org</string>
+    <string name="settings_license_smbj">com.hierynomus:smbj — NAS 직접 읽기와 빠른 탐색을 위한 연결 재사용과 오프셋 읽기를 제공하는 SMB2/3 클라이언트 프로토콜 라이브러리.</string>
+    <string name="settings_license_sshj">com.hierynomus:sshj — SFTP 소스의 디렉터리 탐색과 랜덤 읽기 재생을 담당하는 SFTP 클라이언트 프로토콜 라이브러리(읽기 경로는 SMB 파이프라인 재사용). 프로젝트: https://github.com/hierynomus/sshj</string>
+    <string name="settings_license_eddsa">net.i2p.crypto:eddsa — sshj의 Ed25519 서명 알고리즘 전이 의존성.</string>
+    <string name="settings_license_bouncycastle">org.bouncycastle:bcprov-jdk18on — sshj 전이 의존성의 암호화 기반(SFTP 핸드셰이크와 키 교환). 프로젝트: https://www.bouncycastle.org</string>
+    <string name="settings_license_jcifs">eu.agno3.jcifs:jcifs-ng — 공유 열거(마법사 「공유 목록 가져오기」의 독립 단기 연결)에 쓰이는 SMB 클라이언트 구현, 앱과 함께 배포됩니다. LGPL 2.1 요구에 따라 라이선스 전문과 소스코드 획득 방법을 완전히 제공합니다. 프로젝트: https://github.com/AgNO3/jcifs-ng</string>
+    <string name="settings_license_slf4j">org.slf4j:slf4j-android — 로깅 퍼사드(SMB 프로토콜 스택 의존성). 프로젝트: https://www.slf4j.org</string>
+    <string name="settings_license_okhttp">com.squareup.okhttp3 — WebDAV와 네트워크 스트림 접근을 담당하는 HTTP 클라이언트. 프로젝트: https://github.com/square/okhttp</string>
+    <string name="settings_license_jupnp">org.jupnp:org.jupnp.android — DLNA/UPnP 기기 검색과 제어. 프로젝트: https://github.com/jupnp/jupnp</string>
+    <string name="settings_license_jetty">org.eclipse.jetty — 스크린캐스트 로컬 스트리밍 서버(jUPnP 스트림 전송/GENA 기반). 프로젝트: https://github.com/jetty/jetty.project</string>
+    <string name="settings_license_haze">dev.chrisbanes.haze(haze / haze-blur / haze-glass) — 리퀴드 글래스 소재 렌더링 라이브러리(흐림, 가장자리 굴절, 하이라이트, 2026-10 유리 UI 전환 전반에 사용). 프로젝트: https://github.com/chrisbanes/haze</string>
+    <string name="settings_license_stack">현대 안드로이드 개발 풀스택: 언어와 코루틴, AndroidX 기반 구성 요소(앱 홈/수명 주기/내비게이션), 선언형 UI와 아이콘(material-icons-extended), 키-값·관계형 영속성, 이미지 로딩.</string>
+</resources>
