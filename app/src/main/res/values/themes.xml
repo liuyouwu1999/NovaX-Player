@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- 2026-09-20 浅色模式改造：基准（values/）改为浅色首帧底色，深色移入 values-night。
+         仅影响冷启动首帧（Compose 接管前）；应用内以设置-界面「主题」偏好为准。 -->
+    <style name="Theme.NovaX" parent="android:Theme.Material.NoActionBar">
+        <item name="android:windowBackground">#FFF4F4F7</item>
+        <item name="android:statusBarColor">#FFF4F4F7</item>
+        <item name="android:navigationBarColor">#FFF4F4F7</item>
+        <item name="android:windowAnimationStyle">@style/NvWindowAnimation</item>
+    </style>
+
+    <style name="NvWindowAnimation">
+        <item name="android:activityOpenEnterAnimation">@anim/nv_open_enter</item>
+        <item name="android:activityOpenExitAnimation">@anim/nv_open_exit</item>
+        <item name="android:activityCloseEnterAnimation">@anim/nv_close_enter</item>
+        <item name="android:activityCloseExitAnimation">@anim/nv_close_exit</item>
+    </style>
+</resources>

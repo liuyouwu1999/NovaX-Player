@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    备份数据提取规则（android:dataExtractionRules，API 31+ 生效；API ≤30 见 full_backup_content.xml）。
+
+    2026-09-28 安全加固（审查 P3）：排除 Room 数据库与全部 DataStore。
+    取舍说明：
+    - 源表 password 列经 Android Keystore 加密，而 Keystore 密钥不跨设备/不进备份，
+      密文迁到新机也无法解密——迁过去只有废数据；
+    - 但同库/同偏好里的 host、端口、用户名、观看历史（含观看内容画像）与刮削器
+      TMDB key 均为明文，不应随云备份/换机迁移出设备（宁换机不迁移，重新配置源）。
+    cloud-backup 与 device-transfer 两域都排除，其余数据维持系统默认备份行为。
+-->
+<data-extraction-rules>
+
+    <cloud-backup>
+        <!-- Room 库（novax_media.db：源凭据/观看历史/刮削元数据；含 WAL/SHM/回滚日志伴生文件） -->
+        <exclude domain="database" path="novax_media.db" />
+        <exclude domain="database" path="novax_media.db-wal" />
+        <exclude domain="database" path="novax_media.db-shm" />
+        <exclude domain="database" path="novax_media.db-journal" />
+        <!-- DataStore 偏好（files/datastore/*.preferences_pb：播放器/文件页/刮削设置，
+             其中含 TMDB key 等不宜出设备的配置） -->
+        <exclude domain="file" path="datastore" />
+        <!-- E2-3（发版审查）：SFTP TOFU 指纹（host:port+SHA256）与崩溃日志（含源昵称/目录路径）
+             同属「不应出设备」口径（与文件头注释的取舍说明一致） -->
+        <exclude domain="file" path="sftp_known_hosts" />
+        <exclude domain="file" path="crash" />
+    </cloud-backup>
+
+    <device-transfer>
+        <exclude domain="database" path="novax_media.db" />
+        <exclude domain="database" path="novax_media.db-wal" />
+        <exclude domain="database" path="novax_media.db-shm" />
+        <exclude domain="database" path="novax_media.db-journal" />
+        <exclude domain="file" path="datastore" />
+        <exclude domain="file" path="sftp_known_hosts" />
+        <exclude domain="file" path="crash" />
+    </device-transfer>
+
+</data-extraction-rules>

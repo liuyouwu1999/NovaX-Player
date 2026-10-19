@@ -1,0 +1,290 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- files ドメイン（日本語） -->
+<resources>
+    <!-- 共通 -->
+    <string name="files_title">ファイル</string>
+    <string name="files_root">ルート</string>
+    <string name="files_cancel">キャンセル</string>
+    <string name="files_delete">削除</string>
+    <string name="files_retry">再試行</string>
+    <string name="files_reset">リセット</string>
+    <string name="files_next">次へ</string>
+    <string name="files_select_all">すべて選択</string>
+    <string name="files_continue">続行</string>
+    <string name="files_size_unknown">不明</string>
+    <string name="files_err_join">%1$s：%2$s</string>
+
+    <!-- ソース一覧 -->
+    <string name="files_add_source">ソースを追加</string>
+    <string name="files_cd_scan_lan">LAN をスキャン</string>
+    <string name="files_empty_sources_title">ソースがまだありません</string>
+    <string name="files_empty_sources_msg">LAN をスキャンしましたが、デバイスは見つかりませんでした。NAS を手動で追加できます。</string>
+    <string name="files_add_manually">手動で追加</string>
+    <string name="files_no_share_selected">共有未選択（閲覧時に自動選択）</string>
+    <string name="files_add_source_hint">NAS に接続（SMB / WebDAV / SFTP / Jellyfin）するか、端末内の動画を閲覧</string>
+    <string name="files_discovery_title">検出された LAN デバイス</string>
+    <string name="files_scanning_lan">LAN をスキャン中（SMB / WebDAV）…</string>
+    <string name="files_no_devices">デバイスが見つかりません。下でプロトコルを選んで手動で追加してください。</string>
+    <string name="files_sheet_edit_source">ソースを編集</string>
+    <string name="files_sheet_duplicate_source">ソースを複製</string>
+    <string name="files_sheet_delete_source">ソースを削除</string>
+    <string name="files_delete_source_confirm">ソース「%1$s」を削除しますか？</string>
+    <string name="files_delete_source_msg">接続設定のみを削除し、NAS 上のファイルは削除しません</string>
+    <string name="files_battery_title">バッテリー最適化の無視を許可しますか？</string>
+    <string name="files_battery_msg">一部の機種の省電力設定が NAS 再生を中断することがあります。NovaX がバッテリー最適化を無視することを許可することをおすすめします。</string>
+    <string name="files_go_settings">設定を開く</string>
+
+    <!-- ソースカードの状態 -->
+    <string name="files_state_connected">接続済み</string>
+    <string name="files_state_offline">オフライン</string>
+    <string name="files_state_failed">接続失敗</string>
+
+    <!-- プロトコル -->
+    <string name="files_protocol_smb">SMB</string>
+    <string name="files_protocol_webdav">WebDAV</string>
+    <string name="files_protocol_sftp">SFTP</string>
+    <string name="files_protocol_local">ローカル</string>
+    <string name="files_protocol_jellyfin">Jellyfin</string>
+
+    <!-- ファイルタイプ / フィルター -->
+    <string name="files_type_video">動画</string>
+    <string name="files_type_audio">音声</string>
+    <string name="files_type_image">画像</string>
+    <string name="files_type_subtitle">字幕</string>
+    <string name="files_type_doc">文書</string>
+    <string name="files_type_other">その他</string>
+    <string name="files_filter_none">なし</string>
+    <string name="files_filter_chip">フィルター中 · %1$s</string>
+    <string name="files_type_filter_title">タイプフィルター</string>
+    <plurals name="files_show_n_items">
+        <item quantity="other">%1$d件を表示</item>
+    </plurals>
+    <string name="files_filter_empty">フィルターに一致するファイルがありません</string>
+    <string name="files_filter_empty_hint">上の「フィルター中」チップをタップするとフィルターを解除できます</string>
+
+    <!-- 並び替え -->
+    <string name="files_sort_title">並び替え</string>
+    <string name="files_sort_name">名前（A–Z / ピンイン）</string>
+    <string name="files_sort_modified">更新日時（新 → 旧）</string>
+    <string name="files_sort_size">サイズ（大 → 小）</string>
+    <string name="files_sort_type">種類</string>
+    <string name="files_dirs_first">フォルダーを常に最上部に</string>
+
+    <!-- ディレクトリ内検索 -->
+    <string name="files_search_subs">サブディレクトリを含む</string>
+    <string name="files_search_scope">深さ ≤%1$d · 最大 %2$d件</string>
+    <string name="files_searching_subs">サブディレクトリを検索中…</string>
+    <string name="files_search_not_found">「%1$s」が見つかりません</string>
+    <string name="files_search_not_found_hint">キーワードを確認するか「サブディレクトリを含む」をオンにしてください</string>
+
+    <!-- ブラウザ状態 -->
+    <string name="files_browser_error_title">ディレクトリを読み取れません</string>
+    <string name="files_need_storage_title">ストレージ権限が必要</string>
+    <string name="files_need_storage_msg">ローカルストレージが未許可のため、ファイルを読み取れません</string>
+    <string name="files_grant_access">権限を許可</string>
+    <string name="files_dir_empty">このフォルダーは空です</string>
+    <string name="files_dir_empty_hint">一つ上の階層に戻るか、別のディレクトリを選択してください</string>
+
+    <!-- 複数選択バー -->
+    <string name="files_play_selected">選択を再生</string>
+    <string name="files_no_playable_video">選択項目に再生できる動画がありません</string>
+    <string name="files_add_favorite">お気に入りに追加</string>
+    <string name="files_remove_favorite">お気に入りから削除</string>
+    <string name="files_exclude_from_library">ライブラリから除外</string>
+    <string name="files_exclude_pick_dirs_first">除外するフォルダーを先に選択してください</string>
+    <string name="files_nas_delete_unsupported">NAS ソースの削除は今後のバージョンで対応予定です</string>
+    <string name="files_delete_pick_files_first">削除するファイルを先に選択してください</string>
+    <string name="files_open_with">別のアプリで開く</string>
+    <string name="files_open_with_single_only">ローカルの単一の非動画ファイルのみ対応しています</string>
+    <string name="files_deselect_all">すべて解除</string>
+
+    <!-- トップバー / アクセシビリティ -->
+    <string name="files_cd_filter_sort">フィルターと並び替え</string>
+    <string name="files_cd_search">検索</string>
+    <string name="files_cd_watched">視聴済み</string>
+
+    <!-- 削除 / 名前変更 / 情報ダイアログ -->
+    <plurals name="files_delete_n_confirm">
+        <item quantity="other">%1$d件のファイルを削除しますか？</item>
+    </plurals>
+    <string name="files_delete_selection_msg">選択したファイルをローカルストレージから削除します。元に戻せません</string>
+    <string name="files_delete_file_confirm">ファイル「%1$s」を削除しますか？</string>
+    <string name="files_delete_single_msg">このファイルをローカルストレージから削除します。元に戻せません</string>
+    <string name="files_rename">名前を変更</string>
+    <string name="files_new_name">新しいファイル名</string>
+    <string name="files_rename_failed_toast">名前変更に失敗：同じ名前が既に存在します</string>
+    <string name="files_delete_failed_toast">削除に失敗しました</string>
+    <string name="files_multi_select">複数選択</string>
+    <string name="files_show_info">情報を表示</string>
+    <string name="files_info_title">ファイル情報</string>
+    <string name="files_info_name">ファイル名</string>
+    <string name="files_info_path">パス</string>
+    <string name="files_info_size">サイズ</string>
+    <string name="files_unknown_ext">ファイル</string>
+    <string name="files_unknown_type_line">%1$sファイル · %2$s</string>
+    <string name="files_ext_fallback">動画</string>
+
+    <!-- 共有 / ダウンロード -->
+    <string name="files_no_app_for_type">このタイプを処理できるアプリが見つかりません</string>
+    <string name="files_open_failed">開けませんでした：%1$s</string>
+    <string name="files_downloading">ダウンロード中…</string>
+    <string name="files_download_progress">ダウンロード中… %1$d%%</string>
+    <string name="files_file_large">大きなファイル</string>
+    <string name="files_big_file_msg">このファイルは %1$s です。開く前にローカルキャッシュにダウンロードします</string>
+
+    <!-- キャスト / 視聴状態 -->
+    <string name="files_cast">キャスト</string>
+    <string name="files_mark_watched">視聴済みにする</string>
+    <string name="files_mark_unwatched">視聴済みを解除</string>
+    <string name="files_marked_watched_toast">視聴済みにしました</string>
+    <string name="files_marked_unwatched_toast">未視聴にしました</string>
+
+    <!-- お気に入りトースト -->
+    <string name="files_favorited_toast">お気に入りに追加しました</string>
+    <string name="files_unfavorited_toast">お気に入りから削除しました</string>
+    <string name="files_fav_failed">お気に入りに追加できませんでした。再試行してください。</string>
+    <string name="files_fav_all_dups">選択項目はすべて既にお気に入りにあります</string>
+    <plurals name="files_fav_added">
+        <item quantity="other">お気に入りに %1$d件を追加しました</item>
+    </plurals>
+
+    <!-- 選択削除（ローカル） -->
+    <plurals name="files_delete_failed_count">
+        <item quantity="other">%1$d件を削除できませんでした</item>
+    </plurals>
+
+    <!-- ライブラリ除外 -->
+    <string name="files_exclude_confirm_single">ライブラリから除外しますか？</string>
+    <string name="files_exclude_confirm_n">フォルダー%1$d件を除外しますか？</string>
+    <string name="files_exclude_confirm_msg">除外すると、これらのディレクトリ（サブディレクトリを含む）はインデックスされなくなり、既存の項目は削除されます。ディレクトリに入るといつでも再度収録できます。</string>
+    <string name="files_exclude">除外</string>
+    <string name="files_excluded_banner">このディレクトリはライブラリから除外中 · タップで再収録</string>
+    <string name="files_reincluded_toast">再収録しました。メディアインデックスを更新中…</string>
+    <string name="files_excluded_toast">除外しました。メディアインデックスを更新中…</string>
+
+    <!-- ウィザード: ステップとタイトル -->
+    <string name="files_wizard_edit_title">ソースを編集 · %1$s</string>
+    <string name="files_wizard_credentials_title">%1$s · アドレスと認証情報</string>
+    <string name="files_wizard_dirs_title">メディアディレクトリを選択（複数選択可）</string>
+    <string name="files_choose_protocol">プロトコルを選択</string>
+    <string name="files_local_storage">ローカルストレージ</string>
+    <string name="files_local_storage_desc">端末内ディレクトリの動画を読み取ります</string>
+
+    <!-- ウィザード: フォーム項目 -->
+    <string name="files_field_host_ip">ホスト（IP またはホスト名）</string>
+    <string name="files_field_host_domain">ホスト（IP またはドメイン）</string>
+    <string name="files_placeholder_host_domain">192.168.1.10 または nas.example.com</string>
+    <string name="files_field_port">ポート</string>
+    <string name="files_field_domain">ドメイン（任意）</string>
+    <string name="files_field_share">共有名</string>
+    <string name="files_field_share_placeholder">空欄で進入時に共有を自動一覧</string>
+    <string name="files_field_root_path">ルートパス（任意）</string>
+    <string name="files_https_subtitle_webdav">暗号化接続、既定ポートはスイッチに応じて 80↔443</string>
+    <string name="files_https_subtitle_jellyfin">暗号化接続、既定ポートはスイッチに応じて 8096↔443</string>
+    <string name="files_sftp_root_placeholder">空欄でホームディレクトリにログイン（例: /volume1/videos）</string>
+    <string name="files_field_server">サーバーアドレス</string>
+    <string name="files_field_nickname">ニックネーム（任意）</string>
+    <string name="files_nickname_placeholder">マイ NAS</string>
+    <string name="files_nickname_local_hint">フォルダー選択後に自動入力、未選択時は「マイフォン」</string>
+    <string name="files_anonymous">匿名アクセス</string>
+    <string name="files_field_account">アカウント</string>
+    <string name="files_field_password">パスワード</string>
+    <string name="files_testing_connection">%1$s への接続をテスト中…</string>
+    <string name="files_testing">テスト中…</string>
+
+    <!-- ウィザード: ローカルフォルダー選択 -->
+    <string name="files_go_up">上へ</string>
+    <string name="files_dir_selected_cd">このディレクトリを選択中</string>
+    <string name="files_dir_select_cd">このディレクトリを選択</string>
+    <string name="files_dir_unreadable_hint">このディレクトリを読み取れません（ストレージ権限未許可または無効なパス）。「上へ」をタップして別のディレクトリを選んでください</string>
+    <string name="files_no_subdirs">このディレクトリにサブフォルダーはありません</string>
+    <string name="files_current_selected_hint">現在のディレクトリを選択中です。下のボタンで接続をテストできます</string>
+    <string name="files_select_current_dir">現在のディレクトリを選択</string>
+
+    <!-- ウィザード: 共有 -->
+    <string name="files_share_list">共有リスト</string>
+    <string name="files_fetch_shares">共有リストを取得</string>
+    <string name="files_refetch_shares">再取得</string>
+    <string name="files_cd_checked">選択済み</string>
+
+    <!-- ウィザード: スキャンルートと保存 -->
+    <string name="files_scan_hint_none">ディレクトリ未選択のまま保存するとソース全体をスキャンします。行末の丸をタップすると指定ディレクトリのみスキャンします</string>
+    <plurals name="files_scan_hint_selected">
+        <item quantity="other">スキャンディレクトリ%1$d件を選択中（サブディレクトリを含む）</item>
+    </plurals>
+    <string name="files_http_warning">平文 HTTP + Basic 認証：パスワードは Base64 平文で送信され、同一ネットワーク上の誰でも傍受できます。https:// を推奨します</string>
+    <string name="files_wizard_dir_error_title">ディレクトリ読み取り失敗</string>
+    <string name="files_wizard_dir_empty_hint">一つ上の階層に戻るか、そのままソースを保存してください</string>
+        <string name="files_wizard_skip_scan">ファイル専用ソースとして保存（メディアライブラリに追加しない）</string>
+    <string name="files_saved_files_only_toast">ファイル専用ソースとして保存しました：メディアライブラリには登録されません</string>
+    <string name="files_scan_hint_disabled">このソースはファイル専用です（メディアライブラリ対象外）。ディレクトリをチェックして保存するとスキャンが再開します</string>
+    <string name="files_save_source_all">ソースを保存（ソース全体をスキャン）</string>
+    <plurals name="files_save_source_selected">
+        <item quantity="other">ソースを保存（選択した%1$d件のディレクトリをスキャン）</item>
+    </plurals>
+
+    <!-- ウィザード: 既定ニックネーム -->
+    <string name="files_nick_copy">%1$s のコピー</string>
+    <string name="files_default_nick_smb">SMB ソース</string>
+    <string name="files_default_nick_webdav">WebDAV ソース</string>
+    <string name="files_default_nick_sftp">SFTP ソース</string>
+    <string name="files_default_nick_local">マイフォン</string>
+
+    <!-- フォームバリデーション -->
+    <string name="files_form_host_req_title">ホストを入力してください</string>
+    <string name="files_form_host_req_msg">ホスト名または IP は空にできません</string>
+    <string name="files_form_dir_req_title">ディレクトリを入力してください</string>
+    <string name="files_form_dir_req_msg">ローカルルートディレクトリの絶対パスを入力してください</string>
+    <string name="files_form_path_invalid_title">無効なパス</string>
+    <string name="files_form_path_invalid_msg">/ で始まる絶対パスを入力してください</string>
+    <string name="files_form_user_req_title">アカウントを入力してください</string>
+    <string name="files_form_user_req_msg">Jellyfin はアカウントとパスワードでのログインが必要です。サーバーのユーザー名を入力してください</string>
+    <string name="files_form_pass_req_title">パスワードを入力してください</string>
+    <string name="files_form_pass_req_msg">パスワードは空にできません</string>
+    <string name="files_err_storage_perm_title">ストレージ権限が必要</string>
+    <string name="files_err_storage_perm_msg">ローカルソースには「すべてのファイルアクセス」の許可が必要です。システム設定で有効化してから再試行するか、ライブラリ方式で追加してください</string>
+    <string name="files_save_failed_title">保存失敗</string>
+    <string name="files_save_failed_msg">再試行してください。接続設定はまだ保存されていません</string>
+    <string name="files_index_started_toast">メディアインデックスの構築を開始しました</string>
+
+    <!-- 接続エラーマッピング: タイトル -->
+    <string name="files_err_credential_title">ユーザー名またはパスワードが違います</string>
+    <string name="files_err_pwd_expired_title">パスワードの有効期限切れ</string>
+    <string name="files_err_account_unavailable_title">アカウント利用不可</string>
+    <string name="files_err_no_access_title">アクセス権限なし</string>
+    <string name="files_err_path_missing_title">パスが見つかりません</string>
+    <string name="files_err_hostkey_title">ホストフィンガープリント検証</string>
+    <string name="files_err_refused_title">接続拒否</string>
+    <string name="files_err_dns_title">ホストを解決できません</string>
+    <string name="files_err_timeout_title">接続タイムアウト</string>
+    <string name="files_err_unreachable_title">ネットワーク到達不可</string>
+    <string name="files_err_dir_unreadable_title">ディレクトリを読み取れません</string>
+    <string name="files_err_share_missing_title">共有名なし</string>
+    <string name="files_err_generic_title">接続失敗</string>
+    <string name="files_err_generic_detail">%1$s</string>
+
+    <!-- 接続エラーマッピング: 詳細 -->
+    <string name="files_err_cred_smb_msg">SMB 認証に失敗しました。アカウント・パスワード・ドメイン設定を確認してください</string>
+    <string name="files_err_cred_webdav_msg">WebDAV 認証に失敗しました（HTTP 401）。アカウントとパスワードを確認してください</string>
+    <string name="files_err_cred_jellyfin_msg">Jellyfin 認証に失敗しました。ユーザー名とパスワードを確認してください</string>
+    <string name="files_err_cred_sftp_msg">SFTP 認証に失敗しました。アカウントとパスワードを確認してください（パスワード認証は NAS で有効化する必要があります）</string>
+    <string name="files_err_pwd_expired_msg">このアカウントのパスワードの有効期限が切れています。NAS で更新してから再試行してください</string>
+    <string name="files_err_account_unavailable_msg">アカウントが無効化またはロックされています。NAS でロック解除してから再試行してください</string>
+    <string name="files_err_no_access_msg">サーバーがアクセスを拒否しました。アカウントにその共有/ディレクトリの読み取り権限があるか確認してください</string>
+    <string name="files_err_no_access_403_msg">サーバーが 403 を返しました。アカウントの権限を確認してください</string>
+    <string name="files_err_path_missing_msg">サーバー上にそのディレクトリが見つかりません。移動・改名されたか、一時的にオフラインの可能性があります</string>
+    <string name="files_err_path_missing_with_msg">サーバー上にそのディレクトリが見つかりません。移動・改名されたか、一時的にオフラインの可能性があります：%1$s</string>
+    <string name="files_err_hostkey_tofu_msg">ホスト鍵のフィンガープリントが初回接続時と一致しません（中間者攻撃の可能性）。サーバーの変更が確実な場合は、このソースを削除して再追加すると信頼をリセットできます</string>
+    <string name="files_err_hostkey_ssh_msg">SSH ホスト鍵の検証に失敗しました。偽装ホストではなく対象の NAS に接続しているか確認してください</string>
+    <string name="files_err_refused_smb_msg">ホストが接続を拒否しました。IP とポートを確認してください（SMB の既定は 445、NAS で SMB サービスを有効化する必要があります）</string>
+    <string name="files_err_refused_sftp_msg">ホストが接続を拒否しました。IP とポートを確認してください（SFTP の既定は 22、NAS で SSH サービスを有効化する必要があります）</string>
+    <string name="files_err_refused_msg">ホストが接続を拒否しました。IP とポートを確認してください</string>
+    <string name="files_err_dns_msg">そのホスト名が見つかりません。アドレスの綴りを確認するか IP を使用してください</string>
+    <string name="files_err_timeout_msg">サーバーの応答がタイムアウトしました。ネットワークと NAS のファイアウォール設定を確認してください</string>
+    <string name="files_err_unreachable_msg">ホストにルーティングできません。スマホと NAS が同じ LAN にあるか確認してください</string>
+    <string name="files_err_dir_unreadable_msg">このディレクトリを読み取る権限がありません。ストレージ権限を許可するか、アプリがアクセスできるディレクトリを選択してください</string>
+    <string name="files_err_share_missing_msg">SMB ソースに共有名が入力されていません</string>
+
+    <!-- アクセシビリティ -->
+    <string name="files_cd_toggle_password">パスワード表示の切り替え</string>
+</resources>

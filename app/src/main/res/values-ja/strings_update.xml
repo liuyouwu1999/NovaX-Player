@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- update domain (Japanese) — Task 1 -->
+<resources>
+    <string name="update_check_row_title">更新を確認</string>
+    <string name="update_auto_check_row_title">自動アップデート確認</string>
+    <string name="update_row_current">現在のバージョン %1$s</string>
+    <string name="update_row_up_to_date">最新バージョンです</string>
+    <string name="update_check_failed">確認に失敗：ネットワーク利用不可または GitHub に接続できません</string>
+    <string name="update_rate_limited">確認が集中しています。しばらくしてから再試行してください</string>
+    <string name="update_dialog_new_version">新しいバージョン %1$s</string>
+    <string name="update_btn_install">今すぐダウンロードしてインストール</string>
+    <string name="update_btn_browser">ブラウザでダウンロード</string>
+        <!-- 2026-10-26 方案1：忽略此版本（自动检查对同 tag 静默，新版本恢复提醒） -->
+    <string name="update_btn_ignore_version">バージョン無視</string>
+    <string name="update_btn_later">後で</string>
+    <string name="update_btn_copy_link">ダウンロードリンクをコピー</string>
+    <string name="update_link_copied">ダウンロードリンクをコピーしました</string>
+    <string name="update_changelog_truncated">更新ログは省略されています</string>
+    <string name="update_view_full_notes">更新の詳細を見る</string>
+    <string name="update_open_project_page">プロジェクトページを開く</string>
+    <string name="update_dl_notif_title">NovaX アップデートをダウンロード中</string>
+    <string name="update_dl_progress">%1$d%% ダウンロード済み</string>
+    <string name="update_download_failed">ダウンロードに失敗しました。再試行するかブラウザをご利用ください</string>
+    <string name="update_verify_failed">整合性チェックに失敗したためファイルを削除しました。ブラウザでダウンロードしてください</string>
+    <string name="update_cannot_verify">チェックサムを取得できないためアプリ内インストールは無効です</string>
+    <string name="update_need_perm_title">「不明なアプリのインストール」権限が必要</string>
+    <string name="update_need_perm_body">ダウンロードした更新パッケージをシステムのインストーラーに渡すためだけに使用します。拒否してもブラウザからの手動インストールは可能です。</string>
+    <string name="update_btn_grant">権限を許可</string>
+    <string name="update_btn_cancel">キャンセル</string>
+</resources>
