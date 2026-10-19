@@ -1,0 +1,74 @@
+# ---- Android / Gradle 构建产物 ----
+build/
+.gradle/
+.kotlin/
+local.properties
+*.apk
+*.aab
+*.ap_
+*.dex
+*.class
+captures/
+.externalNativeBuild/
+.cxx/
+
+# ---- 签名密钥：绝不入库（丢失=永久断更） ----
+/keystore.properties
+/*.keystore
+/*.jks
+
+# ---- IDE ----
+.idea/
+*.iml
+.vscode/
+
+# ---- 运行时抓取物 / 会话临时区 ----
+.shots/
+.tmp/
+*.log
+
+# ---- AI 协作会话产物（对话记录/变更文档/测试证据，永不入库） ----
+.superpowers/
+/.superpowers/*-shots/
+/.superpowers/sdd/
+AUDIT-*.md
+__pycache__/
+/*.png
+/*.jpg
+/*.jpeg
+/*.mp4
+/*.mkv
+/*.ts
+/*.db
+/*.json
+/*.txt
+/*.py
+/*.ps1
+/*.pdf
+
+# ---- FFmpeg 扩展 jni 联接目录（native 源码/产物不入库；静态库与公开头文件例外见下方异常规则） ----
+# 头文件（libavcodec/libavutil/libswresample 的 .h，含 configure 生成 avconfig.h）入库是
+# 「干净检出可构建」的一半：ffmpeg_jni.cc 编译期 #include 只认仓库内路径，junction 里的
+# native 构建树新克隆不存在。
+# 坑（实证）：仅放行目录（!…/libavcodec/）会把 junction 内整个 FFmpeg 源码树（.c/Makefile）
+# 翻成 untracked——必须先重新忽略目录内容、再只放行 *.h；且目录级放行不可省
+# （父目录被忽略时 git 不下潜，子级放行失效）。
+media3-ffmpeg-ext/src/main/jni/ffmpeg/*
+!media3-ffmpeg-ext/src/main/jni/ffmpeg/android-libs/
+!media3-ffmpeg-ext/src/main/jni/ffmpeg/libavcodec/
+!media3-ffmpeg-ext/src/main/jni/ffmpeg/libavutil/
+!media3-ffmpeg-ext/src/main/jni/ffmpeg/libswresample/
+media3-ffmpeg-ext/src/main/jni/ffmpeg/libavcodec/*
+!media3-ffmpeg-ext/src/main/jni/ffmpeg/libavcodec/*.h
+media3-ffmpeg-ext/src/main/jni/ffmpeg/libavutil/*
+!media3-ffmpeg-ext/src/main/jni/ffmpeg/libavutil/*.h
+media3-ffmpeg-ext/src/main/jni/ffmpeg/libswresample/*
+!media3-ffmpeg-ext/src/main/jni/ffmpeg/libswresample/*.h
+
+# ---- OS ----
+Thumbs.db
+.DS_Store
+desktop.ini
+
+# ---- 本地发版产物(归档目录,不入库) ----
+/_release/

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- C9：FileProvider 路径（未知类型外发 / 文本「完整打开」）：覆盖 cache 与 files 全目录 -->
+<paths>
+    <cache-path name="cache" path="." />
+    <files-path name="files" path="." />
+    <!-- 检查更新（spec §2.5）：DownloadManager 落盘的待装更新包（getExternalFilesDir/update/）
+         经 FileProvider content URI 交系统安装器（UpdateDownloader.installIntent） -->
+    <external-files-path name="update" path="update/" />
+</paths>

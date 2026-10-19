@@ -1,0 +1,224 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- settings 域（zh-rCN）：全部收代碼原句（逐字平移，不藉機改寫） -->
+<resources>
+    <!-- 通用 / 入口頁 -->
+    <string name="settings_title">設定</string>
+    <string name="settings_group_playback">播放器</string>
+    <string name="settings_group_subtitle">字幕</string>
+    <string name="settings_group_audio">音訊</string>
+    <string name="settings_group_network">網路 / NAS</string>
+    <string name="settings_group_library">媒體庫</string>
+    <string name="settings_group_ui">介面</string>
+    <string name="settings_group_privacy">隱私與資料</string>
+    <string name="settings_group_about">關於</string>
+    <string name="settings_auto">自動</string>
+    <string name="settings_encoding_auto">自動</string>
+    <string name="settings_follow_file">跟隨檔案</string>
+    <string name="settings_columns_count">%1$d 列</string>
+    <string name="settings_columns_adaptive">自適應</string>
+    <string name="settings_tab_home">首頁</string>
+    <string name="settings_tab_files">檔案</string>
+    <string name="settings_tab_library">媒體庫</string>
+    <string name="settings_tab_search">搜索</string>
+    <string name="settings_tab_settings">設定</string>
+    <string name="settings_state_on">開</string>
+    <string name="settings_state_off">關</string>
+
+    <!-- 入口頁值摘要 -->
+    <string name="settings_summary_playback">預設 %1$s · 長按 %2$dx · 雙擊 %3$ds</string>
+    <string name="settings_speed_remember_short">記憶</string>
+    <string name="settings_summary_subtitle">%1$s · %2$s編碼</string>
+    <string name="settings_summary_audio">%1$s · %2$s</string>
+    <string name="settings_pitch_preserve">變速不變調</string>
+    <string name="settings_pitch_varies">變速變調</string>
+    <string name="settings_summary_network">逾時 %1$ds · 塊 %2$s</string>
+    <string name="settings_summary_library">自動索引 %1$s · 刮削 %2$s</string>
+    <string name="settings_summary_ui">%1$s · 啟動進%2$s</string>
+    <string name="settings_history_count">%1$d 條觀看記錄</string>
+
+    <!-- 播放器組 -->
+    <string name="settings_default_speed">預設倍速</string>
+    <string name="settings_speed_fixed">固定 1x</string>
+    <string name="settings_speed_remember">記憶上次</string>
+    <string name="settings_long_press_seek">長按快進</string>
+    <string name="settings_long_press_seek_desc">按住螢幕右半屏倍速播放，鬆開恢復</string>
+    <string name="settings_long_press_speed">長按倍速值</string>
+    <string name="settings_left_slowmo">左半屏慢放</string>
+    <string name="settings_left_slowmo_desc">按住螢幕左半屏 0.5x 慢放</string>
+    <string name="settings_half_lock">半鎖模式</string>
+    <string name="settings_half_lock_desc">點一下=半鎖（手勢仍可用），再點=全鎖</string>
+    <string name="settings_double_tap_seconds">快進快退秒數</string>
+    <string name="settings_double_tap_seconds_desc">雙擊畫面兩側與底欄按鈕的步長</string>
+    <string name="settings_swipe_seek_step" formatted="false">滑動快進步長（整屏%，預設10）</string>
+    <string name="settings_precise_seek">精確跳轉</string>
+    <string name="settings_precise_seek_desc">逐幀對齊字幕用，起播略慢</string>
+    <string name="settings_av_offset">音畫偏移（下次播放生效）</string>
+    <string name="settings_av_offset_desc">聲音比畫面晚選負值；聲音先響選正值</string>
+    <string name="settings_buffer_level">網路預讀緩衝（下次播放生效）</string>
+    <string name="settings_buffer_low">低</string>
+    <string name="settings_buffer_medium">中</string>
+    <string name="settings_buffer_high">高</string>
+    <string name="settings_buffer_level_desc">預讀時長：低 15s · 中 預設 · 高 120s</string>
+    <string name="settings_mute_above_2x">3x 及以上自動靜音</string>
+    <string name="settings_mute_above_2x_desc">長按 3x 與倍速選單 3x 檔期間靜音</string>
+    <string name="settings_decoder_policy">解碼器策略</string>
+    <string name="settings_decoder_policy_desc">硬解優先，失敗自動回退</string>
+    <string name="settings_resume_on_open">開啟時續播記憶位置</string>
+    <string name="settings_auto_next">自動連播下一集</string>
+    <string name="settings_auto_next_desc">資料夾內播完自動播下一集</string>
+    <string name="settings_auto_orient_switch">切集自動定向</string>
+    <string name="settings_auto_orient_switch_desc">切換上一集/下一集時，按影片比例自動切換橫向/直向</string>
+    <string name="settings_subtitle_size">字幕字號</string>
+    <string name="settings_size_small">小</string>
+    <string name="settings_size_standard">標準</string>
+    <string name="settings_size_large">大</string>
+    <string name="settings_subtitle_size_desc">軟字幕（內嵌/外掛）顯示字號</string>
+    <string name="settings_pip_auto">退背景自動小窗</string>
+    <string name="settings_pip_auto_desc">播放中回到桌面自動縮為畫中畫小窗</string>
+    <string name="settings_volume_boost">音量增益</string>
+    <string name="settings_volume_boost_desc" formatted="false">軟體放大音量；200% 大音源可能破音</string>
+    <string name="settings_passthrough_toggle">杜比/AC3 直通輸出</string>
+    <string name="settings_passthrough_disabled_desc">已固定 PCM 解碼（倍速音畫同步保障）；位流直通暫停開放</string>
+    <string name="settings_passthrough_unsupported_short">（本機亦不支援直通）</string>
+    <string name="settings_passthrough_capability">設備直通能力</string>
+    <string name="settings_passthrough_unsupported">本機不支援位流直通（將 PCM 解碼輸出）</string>
+    <string name="settings_passthrough_supported">本機支援：%1$s</string>
+    <string name="settings_passthrough_probe_failed">探測失敗（預設跟隨系統）</string>
+    <string name="settings_passthrough_eac3">E-AC-3（杜比數字+）</string>
+    <string name="settings_metered_remind">流量播放提醒</string>
+    <string name="settings_metered_every">每次</string>
+    <string name="settings_metered_once">僅一次</string>
+    <string name="settings_metered_never">不提醒</string>
+    <string name="settings_metered_remind_desc">流量下起播/切集/自動連播/通知切集/投放遠端片源前確認；僅一次 = 每次開啟應用後確認一次，本會話內不再詢問</string>
+    <string name="settings_background_play">背景播放</string>
+    <string name="settings_background_play_desc">開 = 退背景/息屏繼續播放，通知欄與鎖屏可控；關 = 退背景自動暫停</string>
+    <string name="settings_rmvb_perf">RMVB 性能模式（跳幀提速）</string>
+    <string name="settings_rmvb_perf_desc">RM/RMVB 卡頓時開啟換流暢，輕微畫質代價；下次進 RMVB 播放頁生效</string>
+
+    <!-- 字幕組 -->
+    <string name="settings_sub_auto_load">自動載入同名字幕</string>
+    <string name="settings_sub_auto_load_desc">播放時自動掛載同目錄同名外掛字幕</string>
+    <string name="settings_sub_language">首選語言</string>
+    <string name="settings_sub_encoding">預設編碼</string>
+    <string name="settings_sub_encoding_desc">外掛字幕亂碼時切換</string>
+    <string name="settings_subtitle_size_delay">字幕大小 / 延遲</string>
+    <string name="settings_subtitle_size_delay_desc">字號在「設定 → 播放器」；延遲在播放器「字幕」選單</string>
+    <string name="settings_sub_offset_step">字幕延遲步進</string>
+    <string name="settings_sub_offset_step_desc">播放器「字幕 → 字幕延遲」單次 ± 的步長</string>
+
+    <!-- 音訊組 -->
+    <string name="settings_audio_language">首選音軌語言</string>
+    <string name="settings_audio_language_desc">多音軌影片優先選取語言</string>
+    <string name="settings_preserve_pitch_desc">倍速播放時保持原音調</string>
+
+    <!-- 網路 / NAS 組 -->
+    <string name="settings_connect_timeout">連線逾時</string>
+    <string name="settings_connect_timeout_desc">網路流連線/讀取逾時，慢 NAS 調大</string>
+    <string name="settings_smb_block">SMB 讀取塊大小</string>
+    <string name="settings_smb_block_desc">單塊越大 NAS 往返越少；老 NAS/高丟包環境可調小；預設 4MB</string>
+    <string name="settings_smb_prefetch">SMB 並發預讀</string>
+    <string name="settings_smb_prefetch_desc">提前讀取下一塊，播放更順滑；極慢 NAS 可關</string>
+    <string name="settings_thumb_metered">流量網路下也生成封面</string>
+    <string name="settings_thumb_metered_desc">開 = 行動網路/計費網路也自動抽影片封面(每張有 32MB 讀取上限,消耗流量)</string>
+    <string name="settings_lan_discovery">區域網發現</string>
+    <string name="settings_lan_discovery_desc">檔案頁發現區自動掃描（關閉省電）</string>
+
+    <!-- 介面組 -->
+    <string name="settings_theme">主題</string>
+    <string name="settings_theme_dark">深色</string>
+    <string name="settings_theme_light">淺色</string>
+    <string name="settings_theme_system">跟隨系統</string>
+    <!-- Task 13 應用內語言開關（行副標題顯示當前值；語言自名標籤白名單字面量不翻譯） -->
+    <string name="settings_ui_language">語言</string>
+    <string name="settings_ui_language_auto">跟隨系統</string>
+    <string name="settings_poster_columns">海報牆列數</string>
+    <string name="settings_poster_columns_desc">媒體庫網格列數</string>
+    <string name="settings_show_file_size">列表顯示檔案大小</string>
+    <string name="settings_show_file_size_desc">檔案列表副標題顯示大小段</string>
+    <string name="settings_back_exit">返回鍵直接退出</string>
+    <string name="settings_back_exit_desc">關 = Tab 根按返回需 2s 內再按一次確認退出</string>
+    <string name="settings_start_tab">啟動頁</string>
+
+    <!-- 隱私與資料組 -->
+    <string name="settings_cache_calculating">計算中…</string>
+    <string name="settings_loading">載入中…</string>
+    <string name="settings_watch_history">觀看紀錄</string>
+    <string name="settings_record_count">%1$d 條記錄</string>
+    <string name="settings_clear_cache">清除快取</string>
+    <string name="settings_clear_cache_confirm_message">清除 %1$s 快取？不影響觀看紀錄與已收藏內容。</string>
+    <string name="settings_clear_action">清除</string>
+    <string name="settings_cache_cleared">已清除 %1$s MB</string>
+    <string name="settings_reset_all">重置所有設定</string>
+    <string name="settings_reset_all_message">將把全部設定還原為預設值；觀看紀錄與收藏保留。</string>
+    <string name="settings_reset_action">重置</string>
+    <string name="settings_reset_done">已重置</string>
+
+    <!-- 關於組 / 贊助彈窗 / 崩潰日誌 -->
+    <string name="settings_version">版本</string>
+    <string name="settings_author">作者</string>
+    <string name="settings_email">信箱</string>
+    <string name="settings_donate">贊助作者</string>
+    <string name="settings_donate_qr_cd">微信贊助收款碼</string>
+    <string name="settings_donate_caption">微信掃一掃，請作者喝杯茶</string>
+    <string name="settings_close">關閉</string>
+    <string name="settings_save_to_gallery">儲存到相簿</string>
+    <string name="settings_qr_saved">已儲存到相簿</string>
+    <string name="settings_save_failed">儲存失敗：%1$s</string>
+    <string name="settings_qr_no_permission">未授權存儲權限，無法儲存</string>
+    <string name="settings_error_media_store">MediaStore 寫入失敗</string>
+    <string name="settings_error_output_stream">輸出流開啟失敗</string>
+    <string name="settings_privacy_policy">隱私政策</string>
+    <string name="settings_user_agreement">使用者協議</string>
+    <!-- 根包觸點（MainActivity，i18n Task 8） -->
+    <string name="settings_privacy_declined_exit">未同意隱私政策與使用者協議，應用已退出</string>
+    <string name="settings_press_back_again_exit">再按一次退出</string>
+    <string name="settings_open_licenses">開源致謝</string>
+    <string name="settings_crash_log">崩潰日誌</string>
+    <string name="settings_crash_none">暫無崩潰記錄</string>
+    <string name="settings_crash_share">分享崩潰日誌</string>
+    <string name="settings_crash_file">日誌：%1$s</string>
+    <string name="settings_phase2_toast">該功能將在後續版本提供</string>
+
+    <!-- 媒體庫組 -->
+    <string name="settings_scrape_progress">刮削中 %1$d/%2$d</string>
+    <string name="settings_scrape_done">已完成 %1$d 項</string>
+    <string name="settings_lib_auto_scan">自動掃描新源</string>
+    <string name="settings_lib_auto_scan_desc">添加源成功後自動掃描建立索引</string>
+    <string name="settings_rescan_library">重新掃描媒體庫</string>
+    <string name="settings_scanning">掃描中…</string>
+    <string name="settings_tmdb_scrape">TMDB 刮削</string>
+    <string name="settings_lib_scrape_global">啟用刮削（TMDB）</string>
+    <string name="settings_lib_scrape_global_desc">掃描完成後自動為新條目匹配海報與簡介</string>
+    <string name="settings_key_not_set">未配置</string>
+    <string name="settings_tmdb_key_desc">刮削依賴 v3 Key，未配置時不聯網刮削</string>
+    <string name="settings_scrape_now">立即刮削全部已啟用源</string>
+    <string name="settings_per_source_scrape">各源刮削開關</string>
+    <string name="settings_no_sources">暫無媒體源，到「檔案」頁添加後可按源控制刮削</string>
+    <string name="settings_source_scrape">%1$s 使用刮削</string>
+    <string name="settings_source_scrape_desc">總開關開啟時對該源生效</string>
+    <string name="settings_key_placeholder">32 位十六進位字符串</string>
+    <string name="settings_key_help">在 themoviedb.org 免費註冊後於「帳戶設定 → API」獲取；僅儲存在本機。</string>
+    <string name="settings_save">儲存</string>
+    <string name="settings_cancel">取消</string>
+
+    <!-- 開源致謝頁 -->
+    <string name="settings_licenses_header">NovaX 基於以下優秀的開源項目構建，謹此致謝——</string>
+    <string name="settings_licenses_footer">各項目完整協議文本見 https://www.apache.org/licenses/LICENSE-2.0 等官方源。\nNovaX 站在這些巨人的肩膀上 —— 感謝開源社區。</string>
+    <string name="settings_license_stack_name">Kotlin 2.2.20 / Coroutines 1.10.2 / AndroidX（Core 1.17.0 · Lifecycle 2.9.4 · Activity Compose 1.11.0 · Navigation Compose 2.9.5） / Jetpack Compose（BOM 2026.09.00，含 Material Icons） / DataStore 1.1.7 / Room 2.8.2 / Coil 3.3.0</string>
+    <string name="settings_license_pinyin4j">離線中文拼音索引與標題自然排序。項目：https://github.com/belerweb/pinyin4j</string>
+    <string name="settings_license_nova">NovaX 的播放底座與檔案核心源自 Nova Video Player 開源項目，感謝原項目及社區的長期貢獻。</string>
+    <string name="settings_license_media3">android.media3 提供解碼、軌道選擇、字幕渲染與媒體會話能力，是本應用播放內核的基石。</string>
+    <string name="settings_license_libvlc">org.videolan.android:libvlc-all —— RM/RMVB 軟解與轉碼抽幀播放內核，隨應用分發。按 LGPL 2.1 要求完整提供協議文本與源碼獲取方式。項目：https://code.videolan.org/videolan/vlc-android</string>
+    <string name="settings_license_ffmpeg">FFmpeg（libavcodec/libavutil/swresample，n4.4.4 靜態編入 libffmpegext.so）—— AC3/E-AC3/DTS/TrueHD 音訊軟解，LGPL 2.1 配置構建（未啟用任何 GPL 組件），按 LGPL 2.1 要求完整提供協議文本與源碼獲取方式。項目：https://ffmpeg.org</string>
+    <string name="settings_license_smbj">com.hierynomus:smbj —— SMB2/3 客戶端協議庫，為 NAS 直讀與快速拖曳提供連線復用與偏移讀取能力。</string>
+    <string name="settings_license_sshj">com.hierynomus:sshj —— SFTP 客戶端協議庫，承載 SFTP 源的目錄瀏覽與隨機讀播放（讀路徑復用 SMB 管線）。項目：https://github.com/hierynomus/sshj</string>
+    <string name="settings_license_eddsa">net.i2p.crypto:eddsa —— sshj 的 Ed25519 籤名算法傳遞依賴。</string>
+    <string name="settings_license_bouncycastle">org.bouncycastle:bcprov-jdk18on —— sshj 傳遞依賴的加密算法底座（SFTP 握手與密鑰交換）。項目：https://www.bouncycastle.org</string>
+    <string name="settings_license_jcifs">eu.agno3.jcifs:jcifs-ng —— SMB 客戶端實現，用於共享枚舉（嚮導「獲取共享列表」獨立短連線），隨應用分發。按 LGPL 2.1 要求完整提供協議文本與源碼獲取方式。項目：https://github.com/AgNO3/jcifs-ng</string>
+    <string name="settings_license_slf4j">org.slf4j:slf4j-android —— 日誌門面（SMB 協議棧依賴）。項目：https://www.slf4j.org</string>
+    <string name="settings_license_okhttp">com.squareup.okhttp3 —— HTTP 客戶端，承載 WebDAV 與網路流存取。項目：https://github.com/square/okhttp</string>
+    <string name="settings_license_jupnp">org.jupnp:org.jupnp.android —— DLNA/UPnP 設備發現與控制。項目：https://github.com/jupnp/jupnp</string>
+    <string name="settings_license_jetty">org.eclipse.jetty —— 投放本地流伺服器（jUPnP 流傳輸/GENA 底層）。項目：https://github.com/jetty/jetty.project</string>
+    <string name="settings_license_haze">dev.chrisbanes.haze（haze / haze-blur / haze-glass）—— 液態玻璃材質渲染庫（模糊、邊緣折射與高光，2026-10 介面玻璃化全程使用）。項目：https://github.com/chrisbanes/haze</string>
+    <string name="settings_license_stack">現代安卓開發全棧：語言與協程、AndroidX 基礎組件（應用首頁/生命周期/導航）、聲明式 UI 與圖示（material-icons-extended）、鍵值與關係型持久化、圖片載入。</string>
+</resources>

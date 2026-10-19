@@ -1,0 +1,278 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- player 域（简体中文，原句平移） -->
+<resources>
+    <!-- 共用 -->
+    <string name="player_video">视频</string>
+    <string name="player_back">返回</string>
+    <string name="player_retry">重试</string>
+    <string name="player_reset">重置</string>
+    <string name="player_unknown">未知</string>
+    <string name="player_cd_close">关闭</string>
+
+    <!-- PlayerActivity：入口/路由 Toast 与错误 -->
+    <string name="player_err_unrecognized">无法识别要打开的文件</string>
+    <string name="player_err_open_title">无法打开视频</string>
+    <string name="player_err_switch_failed">切换失败：%1$s</string>
+    <string name="player_quality_switch_failed">切换清晰度失败：%1$s</string>
+    <string name="player_err_source_missing">视频源不存在或已被删除（id=%1$d）</string>
+    <string name="player_switch_cancelled_toast">已取消切集（计量网络）</string>
+    <string name="player_queue_first">已是文件夹内第一个</string>
+    <string name="player_queue_last">已是文件夹内最后一个</string>
+    <string name="player_pip_version_toast">画中画需要 Android 8.0 以上</string>
+    <string name="player_pip_fail_toast">画中画进入失败</string>
+    <string name="player_soft_route_toast">无法硬解%1$s，已切换软解</string>
+    <string name="player_pgs_subtitle_toast">不支持 PGS 字幕，可外挂 srt/ass</string>
+
+    <!-- PlayerScreen：画面比例 / 方向模式 -->
+    <string name="player_aspect_fit">适应屏幕</string>
+    <string name="player_aspect_fill">填充裁剪</string>
+    <string name="player_aspect_16_9">16:9</string>
+    <string name="player_aspect_4_3">4:3</string>
+    <string name="player_orientation_landscape">横屏</string>
+    <string name="player_orientation_portrait">竖屏</string>
+    <string name="player_orientation_auto">自动·重力</string>
+    <string name="player_orientation_toast">方向：%1$s</string>
+    <string name="player_loading">加载中…</string>
+    <string name="player_mirror_on">画面镜像:开</string>
+    <string name="player_mirror_off">画面镜像:关</string>
+
+    <!-- PlayerScreen：播放 Toast -->
+    <string name="player_reconnected_toast">网络已恢复，正在自动重连…</string>
+    <string name="player_next_up_toast">即将播放下一集</string>
+    <string name="player_io_retry_toast">网络读取中断，正在自动重试…</string>
+    <string name="player_sleep_fired_toast">睡眠定时到，已暂停</string>
+    <string name="player_audio_unsupported_toast">不支持 %1$s 音轨，已切换软解</string>
+    <string name="player_speed_locked_toast">倍速已锁定，长按下滑取消</string>
+    <string name="player_speed_unlocked_toast">倍速锁定已取消</string>
+    <string name="player_cast_unsupported_toast">当前视频无法投屏</string>
+    <string name="player_unseekable_toast">片源限制，不支持进度跳转</string>
+    <string name="player_sleep_off_toast">睡眠定时已关闭</string>
+    <string name="player_sleep_in_min">将在 %1$d 分钟后暂停</string>
+    <string name="player_loop_a_set">循环起点 A 已设为 %1$s</string>
+    <string name="player_loop_b_invalid">B 点需在 A 点之后（当前进度 %1$s）</string>
+    <string name="player_loop_active_toast">AB 循环已生效 %1$s → %2$s</string>
+    <string name="player_loop_cleared_toast">AB 循环已清除</string>
+    <string name="player_subtitle_reloaded_toast">字幕已按新编码重新挂载</string>
+
+    <!-- PlayerScreen：续播横幅 / 浮层 -->
+    <string name="player_resume_banner">上次看到 %1$s</string>
+    <string name="player_resume_jump">跳转</string>
+    <string name="player_no_subtitle_banner">未找到字幕 · 点击顶部 CC 可手动加载</string>
+    <string name="player_reset_picture">还原画面</string>
+    <string name="player_slowmo_suffix">" 慢放"</string>
+    <string name="player_cd_speed_locked">倍速已锁定</string>
+    <string name="player_auto_reconnect_hint">网络恢复后将自动重连（最多 3 次）</string>
+
+    <!-- PlayerScreen：锁定 -->
+    <string name="player_half_lock_toast">半锁已开：长按角标完全锁定</string>
+    <string name="player_locked_toast">已锁定，双击锁图标解锁</string>
+    <string name="player_full_lock_toast">已完全锁定</string>
+    <string name="player_lock_hint_toast">双击解锁 · 长按完全锁定</string>
+    <string name="player_cd_lock_badge">半锁角标：双击解锁，长按完全锁定</string>
+    <string name="player_lock_hint">已锁定 · 双击锁图标解锁</string>
+    <string name="player_half_lock_hint">半锁中 · 手势可用，双击锁图标解锁</string>
+
+    <!-- PlayerScreen：错误态 -->
+    <string name="player_err_play_title">无法播放</string>
+    <string name="player_fallback_play">用软解内核（libVLC）播放</string>
+    <string name="player_err_io_retried">网络读取中断，已自动重试</string>
+    <string name="player_err_nas_disconnected">NAS 连接中断，请检查网络</string>
+    <string name="player_err_cleartext">视频源为 HTTP 明文地址，系统已禁止明文传输</string>
+    <string name="player_err_http_status">视频源返回错误（HTTP 403/404 等），请确认地址仍有效</string>
+    <string name="player_err_path">文件路径无法访问，请检查源配置</string>
+    <string name="player_err_container">文件容器解析失败</string>
+    <string name="player_err_decoder_unsupported">该视频编码此设备硬解不支持</string>
+    <string name="player_err_generic">播放出错（%1$s），请重试</string>
+    <string name="player_dv_note">本机无法播放该片源：设备没有杜比视界解码器，而此片是杜比视界 Profile 5（不带 HDR10 兼容层，没有可回退的画面层），因此只有声音、没有画面。可用「软解内核（libVLC）重试」强制解码基础层画面（无杜比校色，色彩会偏绿），或改用 HDR10 / SDR / 杜比视界 Profile 8 片源</string>
+    <string name="player_no_decoder_note">本机没有任何解码器可以解码该视频轨（编码：%1$s），因此只有声音、没有画面。请改用其他编码的片源</string>
+
+    <!-- PlayerControls：顶栏 contentDescription -->
+    <string name="player_cd_orientation">方向切换</string>
+    <string name="player_cd_mirror">画面镜像</string>
+    <string name="player_cd_rotate">画面旋转</string>
+    <string name="player_cd_pip">画中画</string>
+    <string name="player_cd_cast">投屏</string>
+    <string name="player_cd_lock">锁定</string>
+
+    <!-- PlayerControls：底栏 -->
+    <string name="player_prev_episode">上集</string>
+    <string name="player_play_pause">播放/暂停</string>
+    <string name="player_next_episode">下集</string>
+    <string name="player_cd_prev">上一个</string>
+    <string name="player_cd_prev_none">无上一个（文件夹队列起点）</string>
+    <string name="player_cd_next">下一个</string>
+    <string name="player_cd_next_none">无下一个（文件夹队列末尾）</string>
+    <string name="player_speed">倍速</string>
+    <string name="player_speed_current">倍速（当前 %1$s）</string>
+    <string name="player_cd_play">播放</string>
+    <string name="player_cd_pause">暂停</string>
+    <string name="player_cd_rewind_sec">快退%1$d秒</string>
+    <string name="player_cd_forward_sec">快进%1$d秒</string>
+    <string name="player_live">%1$s / 直播</string>
+    <string name="player_brightness_off">已关闭亮度</string>
+
+    <!-- PlayerSheets：面板标题 -->
+    <string name="player_sheet_subtitles">字幕</string>
+    <string name="player_sheet_audio">音轨</string>
+    <string name="player_sheet_speed">播放速度</string>
+    <string name="player_sheet_aspect">画面比例</string>
+    <string name="player_sheet_quality">清晰度</string>
+    <string name="player_info_title">视频信息</string>
+    <string name="player_sheet_more">更多</string>
+
+    <!-- PlayerSheets：字幕面板 -->
+    <string name="player_subtitles_off">关闭字幕</string>
+    <string name="player_embedded_subtitles">内嵌字幕</string>
+    <string name="player_no_subtitles">未找到字幕</string>
+    <string name="player_subtitle_track">字幕轨 %1$s</string>
+    <string name="player_sidecar_subtitles">同目录字幕文件</string>
+    <string name="player_external_sub_encoding">外挂字幕编码</string>
+    <string name="player_encoding_auto_detect">自动探测</string>
+    <string name="player_subtitle_delay">字幕延迟</string>
+    <string name="player_delay_none">无偏移</string>
+    <string name="player_delay_later">字幕延后 %1$s 秒</string>
+    <string name="player_delay_earlier">字幕提前 %1$s 秒</string>
+    <string name="player_same_name_badge">同名</string>
+    <string name="player_lang_not_loadable">" · 暂不支持加载"</string>
+    <string name="player_pick_subtitle">选择字幕</string>
+    <string name="player_pick_subtitle_msg">同目录找到 %1$d 个字幕文件，请选择要加载的字幕</string>
+    <string name="player_no_subtitle_load">不加载字幕</string>
+    <string name="player_lang_same_as_video">与视频同名</string>
+    <string name="player_lang_sidecar">同目录字幕</string>
+
+    <!-- PlayerSheets：语言显示名 -->
+    <string name="player_lang_zh_cn">简体中文</string>
+    <string name="player_lang_zh_tw">繁体中文</string>
+    <string name="player_lang_zh_hk">粤语</string>
+    <string name="player_lang_zh">中文</string>
+    <string name="player_lang_en">英文</string>
+    <string name="player_lang_ja">日文</string>
+    <string name="player_lang_ko">韩文</string>
+
+    <!-- PlayerSheets：音轨面板 -->
+    <string name="player_audio_track_default">音轨</string>
+    <string name="player_no_audio_info">无音轨信息</string>
+
+    <!-- PlayerSheets：倍速面板 -->
+    <string name="player_speed_auto_mute">（自动静音）</string>
+    <string name="player_speed_fine_tune">细调（0.1x 步进，0.1~5.0）</string>
+
+    <!-- PlayerSheets：清晰度面板 -->
+    <string name="player_quality_jellyfin_only">仅 Jellyfin 源支持清晰度切换</string>
+    <string name="player_quality_original_bitrate">原画（源码率约 %1$sM）</string>
+    <string name="player_quality_auto_effective">自动（当前生效：%1$s）</string>
+    <string name="player_quality_auto_hint">自动（起播原画，卡顿自动降档）</string>
+
+    <!-- PlayerSheets：更多面板 -->
+    <string name="player_ab_loop_section">AB 循环</string>
+    <string name="player_set_loop_a">把当前进度设为循环起点 A</string>
+    <string name="player_set_loop_b">把当前进度设为循环终点 B</string>
+    <string name="player_clear_loop_active">清除循环（%1$s → %2$s 循环播放中）</string>
+    <string name="player_sleep_section">睡眠定时</string>
+    <string name="player_sleep_off">关闭</string>
+    <string name="player_sleep_15">15 分钟</string>
+    <string name="player_sleep_30">30 分钟</string>
+    <string name="player_sleep_60">60 分钟</string>
+    <string name="player_sleep_remaining">%1$s · 剩余 %2$d 分钟</string>
+
+    <!-- PlayerSheets：信息面板 -->
+    <string name="player_info_section_video">视频</string>
+    <string name="player_info_file">文件</string>
+    <string name="player_info_codec">编码</string>
+    <string name="player_info_resolution">分辨率</string>
+    <string name="player_info_frame_rate">帧率</string>
+    <string name="player_info_bitrate">码率</string>
+    <string name="player_info_dynamic_range">动态范围</string>
+    <string name="player_info_section_audio">音频</string>
+    <string name="player_info_channels">声道</string>
+    <string name="player_info_sample_rate">采样率</string>
+    <string name="player_info_section_tracks">轨道</string>
+    <string name="player_info_audio_tracks">音轨数</string>
+    <string name="player_info_text_tracks">字幕轨数</string>
+
+    <!-- Task 7：RmvbPlayerActivity（RMVB 兜底页） -->
+    <string name="player_proxy_vpn_toast">检测到代理，请关闭 VPN 后重试</string>
+    <string name="player_metered_paused_toast">已切到计量网络，播放已暂停</string>
+    <string name="player_err_switch_target_gone">切集目标已不存在</string>
+    <string name="player_err_missing_url">缺少播放地址</string>
+    <string name="player_err_source_gone">视频源不存在或已被删除</string>
+    <string name="player_err_local_missing">本地文件不存在: %1$s</string>
+    <string name="player_err_size_unknown">无法获取文件大小（源不可达或目录列表失败），暂无法兜底播放</string>
+    <string name="player_err_surface_timeout">播放画面初始化超时</string>
+    <string name="player_rotation_toast">画面旋转：%1$d°</string>
+    <string name="player_toggle_on">开</string>
+    <string name="player_toggle_off">关</string>
+    <string name="player_tail_decode_restart">片尾数据无法解码，从头播放</string>
+    <string name="player_err_vlc_decode">libVLC 无法解码该文件（容器或编码损坏/不支持）</string>
+    <string name="player_err_stalled">播放卡住：数据长时间未到达</string>
+    <string name="player_resumed_toast">已从上次位置继续播放</string>
+    <string name="player_rmvb_no_subtitles">未检测到字幕轨 · 本地视频可在同目录放同名 .srt</string>
+    <string name="player_sub_track_num">字幕 %1$s</string>
+    <string name="player_rmvb_no_audio">未检测到可用音轨</string>
+    <string name="player_audio_track_num">音轨 %1$s</string>
+    <string name="player_rmvb_info_file">文件：%1$s</string>
+    <string name="player_rmvb_info_title_line">标题：%1$s</string>
+    <string name="player_rmvb_info_duration">时长：%1$s</string>
+    <string name="player_rmvb_info_aspect">画面比例：%1$s</string>
+    <string name="player_rmvb_info_speed">播放速度：%1$s</string>
+    <string name="player_rmvb_info_audio_count">音轨数：%1$d</string>
+    <string name="player_rmvb_info_queue">队列：第 %1$d/%2$d 个</string>
+    <string name="player_rmvb_aspect_fit">适应</string>
+    <string name="player_rmvb_aspect_fit_screen">适用屏幕</string>
+    <string name="player_rmvb_aspect_fill">填充</string>
+    <string name="player_aspect_toast">画面比例：%1$s</string>
+    <string name="player_cd_aspect_current">画面比例（当前 %1$s）</string>
+    <string name="player_cd_mirror_current">画面镜像（当前 %1$s）</string>
+    <string name="player_cd_rotate_current">画面旋转（当前 %1$d°）</string>
+    <string name="player_cd_more_rmvb">更多（AB 循环/睡眠定时）</string>
+    <string name="player_seek_preview">%1$s（松手跳转）</string>
+    <string name="player_loop_b_after_a">B 点需在 A 点之后</string>
+
+    <!-- Task 7：PlaybackService Toast -->
+    <string name="player_metered_quality_paused_toast">计量网络已暂停切换清晰度</string>
+    <string name="player_adjacent_soft_route_toast">相邻剧集需软解内核播放，请在应用内切换</string>
+    <string name="player_metered_autoswitch_paused_toast">计量网络已暂停自动切集</string>
+    <string name="player_skipped_soft_items_toast">已跳过 %1$d 个需软解的条目：%2$s</string>
+    <string name="player_switched_to_toast">已切换：%1$s</string>
+    <string name="player_err_check_videourl">switchQuality 不得改写 videoUrl（novax:// 逻辑键，三处 URL 相等性守卫依赖）</string>
+    <string name="player_unknown_error">未知错误</string>
+    <string name="player_transcode_unavailable_toast">转码不可用，已回退原画</string>
+    <string name="player_original_best_toast">原画已是对该档位的最佳画质</string>
+
+    <!-- Task 7：NvQualityTier 档位名（清晰度面板行） -->
+    <string name="player_quality_tier_original">原画</string>
+    <string name="player_quality_tier_20m">20M</string>
+    <string name="player_quality_tier_10m">10M</string>
+    <string name="player_quality_tier_4m">4M</string>
+    <string name="player_quality_tier_2m">2M</string>
+    <string name="player_quality_tier_auto">自动</string>
+    <!-- Task 9: 视频信息面板标签（text 缝：组合期 stringResource 注入） -->
+    <string name="player_dv_label">Dolby Vision（杜比视界）</string>
+    <string name="player_dv_profile_fmt">Dolby Vision（杜比视界 Profile %1$d）</string>
+    <string name="player_info_pixel_aspect_fmt">%1$d×%2$d（像素比 %3$s）</string>
+    <string name="player_ch_mono">单声道 1.0</string>
+    <string name="player_ch_stereo">立体声 2.0</string>
+    <string name="player_ch_surround51">5.1 环绕声</string>
+    <string name="player_ch_surround71">7.1 环绕声</string>
+    <string name="player_ch_count_fmt">%1$d 声道</string>
+    <string name="player_dv_note_p5">本机无杜比视界解码器，Profile 5 没有 HDR10 兼容层，画面必然无法正确显示（有声音无图像属预期）——请改用 Profile 8 片源或 SDR/HDR10 片源</string>
+    <string name="player_dv_note_p47_fmt">本机无杜比视界解码器，Profile %1$d 为双层杜比视界，需要蓝光机/电视端解码——手机端播放会出现有声音无画面</string>
+    <string name="player_dv_note_p8">本机无杜比视界解码器，Profile 8 带 HDR10 兼容层，本应回退到 HDR10 正常出画；若此片仍黑屏请把本条信息反馈（属播放器需修的问题）</string>
+    <!-- Task 9: 音轨 mime 展示名（audioMimeLabel；展示与软路由协议值拆分） -->
+    <string name="player_codec_unknown">未知编码</string>
+    <string name="player_codec_eac3_joc">E-AC-3 JOC（杜比全景声）</string>
+    <string name="player_codec_eac3">E-AC-3（杜比数字+）</string>
+    <string name="player_codec_ac3">AC-3（杜比数字）</string>
+    <!-- Task 9: 软路由记忆「杜比视界画面」展示名（协议值已改中性 token） -->
+    <string name="player_soft_route_reason_dv">杜比视界画面</string>
+    <!-- Task 9: 降级 seek 提示（提取器只发信号，文案由 Activity 渲染） -->
+    <string name="player_fallback_seek_toast">无跳转索引，已启用估算定位</string>
+    <!-- Task 9: Jellyfin 内嵌字幕轨展示名（UI 侧拼装） -->
+    <string name="player_sub_embedded_prefix">[内嵌] %1$s</string>
+    <string name="player_sub_embedded_track">字幕%1$d</string>
+    <!-- Task 9: 外发兜底名（NvExternalOpen） -->
+    <string name="player_unknown_file">未知文件</string>
+    <!-- Task 9: RMVB 代理上游失败原因（kind+detail 拆分，代理只发 token） -->
+    <string name="player_rmvb_err_upstream_connect">无法连接视频源：%1$s</string>
+    <string name="player_rmvb_err_upstream_interrupted">网络连接中断：%1$s</string>
+</resources>
