@@ -1,0 +1,319 @@
+# ============================================================================
+# NovaX 中文残留门禁白名单（配套 LocalizationResidueGateTest）
+# ============================================================================
+# 行格式（与测试匹配语义一致）：
+#   相对路径.kt            → 该 .kt 文件整文件豁免
+#   相对路径.kt :: 子串    → 该文件中「行原文 contains 子串」的行豁免
+# 维护规则：
+#   1. 每条豁免必须带缘由注释（# 行，紧邻该条上方）；无注释的批量豁免不允许。
+#   2. 门禁扫描范围：ui/ player/ data/ + 根包；行首 // /* * 注释行与行首 Log.x
+#      调用行测试已自动跳过，无需登记。android.util.Log.x、accessLog( 及多行
+#      Log 调用的续行不在自动跳过范围，须逐行登记。
+#   3. 白名单只减不增：新增中文先问「用户可见吗」——可见 → 资源化（strings*.xml
+#      四语）；不可见 → 按下方 A-G 类别登记并写明缘由。
+#   4. 已知检测面局限：三引号 raw string 跨行内容不检测（现库 raw string 无中文）；
+#      未来引入含中文 raw string 须整文件豁免并在此声明。
+# 类别总览：
+#   A Log/trace 诊断（只进 logcat/trace 文件）
+#   B 异常链/连接错误原文（只进 logcat 与兜底 detail；用户可见文案由上层按结构化
+#     kind 归类为本地化 UiMessage —— i18n Task 8 既定口径）
+#   C 协议串/内容解析（解析用户媒体内容、兼容旧持久化数据，非 UI 文案）
+#   D 播放决策诊断串（Decision.reason 仅测试/日志消费，UI 只取 action/target）
+#   E 语言自名标签（中文/English/日本語 显示自身名称，不翻译）
+#   F Mock/演示内容（演示数据专有名词）
+#   G 行尾注释（代码行带 // 尾注，门禁不剥离行尾注释；注释中文不进 UI）
+# ============================================================================
+
+# ---------- A. Log/trace 诊断（android.util.Log.x / accessLog / 多行 Log 续行） ----------
+
+# A1 Log.w：手动添加 DLNA 渲染器失败——描述 XML 拉取失败（网络/超时），只进 logcat
+data/cast/CastDiscovery.kt :: 手动添加失败：描述 XML 拉取失败
+# A1 Log.w：手动添加失败——描述不含可用 AVTransport controlURL，只进 logcat
+data/cast/CastDiscovery.kt :: 描述不含可用 AVTransport
+# A2 Log.w：设备 controlURL 按 URLBase/LOCATION 绝对化失败不入列，只进 logcat
+data/cast/CastDiscovery.kt :: 无法按 URLBase/LOCATION 绝对化
+
+# A3 Log.w 续行：片源大小未知（入口/库元数据/源stat 均未取得）按未知大小投屏
+data/cast/CastSession.kt :: 片源大小未知（入口/库元数据/源stat
+# A3 Log.w 续行：同上诊断的 DIDL/Content-Length 细节行
+data/cast/CastSession.kt :: DIDL 无 @size、流无 Content-Length
+# A4 Log.i 续行：流服务器出流地址（含字幕地址）诊断
+data/cast/CastSession.kt :: 出流地址
+# A5 Log.i 续行：渲染器就绪/就绪等待未确认（超时/代际过期）状态诊断
+data/cast/CastSession.kt :: 渲染器就绪
+# A6 Log.w：cast() 失败异常诊断（simpleName+message 入 logcat）
+data/cast/CastSession.kt :: cast() 失败
+# A7 Log.w 续行：动作撞 701（渲染器装载中）退避重试诊断
+data/cast/CastSession.kt :: 撞 701（Transition not available
+# A7 Log.w 续行：同上诊断的退避时长/次数细节行
+data/cast/CastSession.kt :: ms 后重试 #
+
+# A8 checkNotNull 崩溃消息（:258/:259/:420/:487 四处同文，初始化时序编程错误诊断）
+data/cast/CastSessionHolder.kt :: CastSessionHolder 未初始化
+# A9 Log.i 续行：cast 入口参数（设备/媒体/路径）诊断
+data/cast/CastSessionHolder.kt :: cast 入口: device=
+# A10 Log.w：字幕列举超时，跳过自动字幕继续投屏（只进 logcat）
+data/cast/CastSessionHolder.kt :: 字幕列举超时
+# A10 Log.w：字幕列举失败，跳过自动字幕继续投屏（只进 logcat）
+data/cast/CastSessionHolder.kt :: 字幕列举失败
+# A11 Log.d：自动字幕命中结果诊断
+data/cast/CastSessionHolder.kt :: 自动字幕: $sub
+# A12 Log.w：cast 预处理链异常诊断
+data/cast/CastSessionHolder.kt :: cast 预处理链异常
+# A13 Log.d：片源大小（来源=入口）诊断
+data/cast/CastSessionHolder.kt :: 片源大小: ${media.sizeBytes}B
+# A13 Log.w：库元数据大小回查失败诊断
+data/cast/CastSessionHolder.kt :: 库元数据大小回查失败
+# A13 Log.i：片源大小回填诊断（:381/:394 两行同文）
+data/cast/CastSessionHolder.kt :: 片源大小回填
+# A13 Log.w：源 stat 超时按未知大小继续投屏诊断
+data/cast/CastSessionHolder.kt :: 源 stat 超时
+# A13 Log.w：片源大小三个来源均无，DIDL 省略 @size 诊断
+data/cast/CastSessionHolder.kt :: 片源大小未知（入口/库元数据/源stat 均无
+# A14 Log.d：片源预检 OK 诊断
+data/cast/CastSessionHolder.kt :: 片源预检 OK
+# A14 Log.d：DV 嗅探完成结果诊断
+data/cast/CastSessionHolder.kt :: DV 嗅探完成
+# A15 Log.w：片源预处理失败（remote 标记）汇总诊断
+data/cast/CastSessionHolder.kt :: 片源预处理失败
+# A15 Log.w：片源预处理超时（读停滞）诊断
+data/cast/CastSessionHolder.kt :: 片源预处理超时
+# A15 Log.w：投屏预处理失败（取子消息）汇总诊断
+data/cast/CastSessionHolder.kt :: 投屏预处理失败
+
+# A16 accessLog 续行：流服务器 accept 失败重试诊断
+data/cast/NvCastStreamServer.kt :: stream-srv: accept 失败
+# A16 accessLog 续行：同上诊断的重试间隔/端口细节行
+data/cast/NvCastStreamServer.kt :: 50ms 后重试
+# A16 accessLog：超并发拒单回 503 诊断
+data/cast/NvCastStreamServer.kt :: 超并发拒绝
+# A16 Log.d 续行：连接结束（传输中断/源流打开失败）诊断
+data/cast/NvCastStreamServer.kt :: stream-srv: 连接结束
+
+# A17 Log.d：resolveJellyfinStream AUTO 起播原画（设计行为，未尝试转码）
+player/EpisodeMediaKit.kt :: AUTO 起播原画
+# A17 Log.i 续行：档位≥源码率原画直连诊断
+player/EpisodeMediaKit.kt :: 档位≥源码率
+# A17 Log.w：转码不可用回退原画诊断
+player/EpisodeMediaKit.kt :: 转码不可用 -> 回退原画
+# A17 Log.d：AUTO 兜底原画（设计行为）异常诊断
+player/EpisodeMediaKit.kt :: AUTO 兜底原画
+# A17 Log.w：resolve 失败原画兜底异常诊断
+player/EpisodeMediaKit.kt :: failed -> 原画兜底
+
+# A18 NvQSwitchTrace.mark：画质切换 trace 打点（仅 trace 文件/logcat，不进 UI）
+player/PlayerActivity.kt :: NvQSwitchTrace.mark
+# A19 Log.w 续行：video surface 几何丢失（解码器换档/重配）诊断
+player/PlayerScreen.kt :: video geometry LOST
+# A20 onFailure lambda 内 Log.w：跳转电池优化设置失败（行首非 Log. 不自动跳过）
+ui/files/FilesViewModel.kt :: 跳转电池优化设置失败
+
+# ---------- B. 异常链/连接错误原文（Task 8 口径：上层结构化归类 UiMessage，原文只进 logcat/detail） ----------
+
+# B1 error()：未支持的 UPnP 服务类型（编程错误防御，崩溃诊断）
+data/cast/UpnpControl.kt :: 未支持的投屏服务类型
+# B2 ActionException：UPnP 动作未合成（jUPnP 协议错误通道）
+data/cast/UpnpControl.kt :: 未合成的动作
+
+# B3 httpErrorMessage 401：诊断原文（JellyfinApiTest 锁定中文；用户可见文案由上层按 kind 归类 UiMessage）
+data/jellyfin/JellyfinApi.kt :: "用户名或密码错误"
+# B3 httpErrorMessage 403：同上口径
+data/jellyfin/JellyfinApi.kt :: "没有访问权限"
+# B3 httpErrorMessage 404：同上口径
+data/jellyfin/JellyfinApi.kt :: 服务器上找不到该内容
+# B3 httpErrorMessage 5xx：同上口径
+data/jellyfin/JellyfinApi.kt :: 服务器内部错误
+# B3 httpErrorMessage 兜底：同上口径（带 HTTP 码）
+data/jellyfin/JellyfinApi.kt :: "Jellyfin 服务器返回
+
+# B4 toIo 包装诊断原文：连接失败（只进异常链）
+data/jellyfin/JellyfinClient.kt :: toIo(e, "连接
+# B4 toIo 包装诊断原文：列目录失败（只进异常链）
+data/jellyfin/JellyfinClient.kt :: toIo(e, "列目录
+# B4 toIo 包装诊断原文：登录失败（:215/:246/:644/:682 四行同文）
+data/jellyfin/JellyfinClient.kt :: "登录 ${source.nickname}"
+# B5 IOException：Jellyfin 目录索引缺失（只进异常链）
+data/jellyfin/JellyfinClient.kt :: Jellyfin 目录索引缺失
+# B5 IOException：目录条目超过上限（防御，只进异常链）
+data/jellyfin/JellyfinClient.kt :: 目录条目超过上限
+# B5 IOException：目录不存在（只进异常链）
+data/jellyfin/JellyfinClient.kt :: Jellyfin 上找不到目录
+# B5 IOException：响应异常请确认地址（上层已有本地化归类）
+data/jellyfin/JellyfinClient.kt :: 响应异常，请确认服务器地址正确
+# B6 IOException：未登录防御（:611/:657 两行同文，只进异常链）
+data/jellyfin/JellyfinClient.kt :: Jellyfin 未登录
+
+# B7 IOException：本地源文件不存在（只进异常链）
+data/NvSourceRepository.kt :: 本地文件不存在
+# B8 NvConnectException(DIR_UNREADABLE) detail（上层按 kind 出本地化文案）
+data/NvSourceRepository.kt :: 目录不可读
+# B9 require：路径越出源根（安全防御，崩溃诊断）
+data/NvSourceRepository.kt :: 路径越出源根
+
+# B10 DataSource 防御 IOException：非法读取位置（:75/:102 两行同文）
+data/playback/NvDataSource.kt :: 非法读取位置
+# B10 DataSource 防御 IOException：file URI 无路径
+data/playback/NvDataSource.kt :: file URI 无路径
+# B10 DataSource 防御 IOException：本地文件不存在
+data/playback/NvDataSource.kt :: 本地文件不存在
+# B10 DataSource 生命周期防御：read 前未 open
+data/playback/NvDataSource.kt :: read 前未 open
+# B10 DataSource 防御 IOException：流提前结束
+data/playback/NvDataSource.kt :: 流在已知长度前提前结束
+
+# B11 降级 seek：重同步未找到 Cluster 边界（只进异常链）
+data/playback/NvFallbackSeekExtractor.kt :: 重同步未找到 Cluster 边界
+# B11 seekMap 生命周期防御：init 前到达（崩溃诊断）
+data/playback/NvFallbackSeekExtractor.kt :: seekMap 在 init 前到达
+
+# B12 require：SFTP 源根不是目录（只进异常链）
+data/sftp/SftpClient.kt :: 源根不是目录
+# B12 requireNotNull：known-hosts 未初始化防御（崩溃诊断）
+data/sftp/SftpClient.kt :: known-hosts 未初始化
+# B13 check：known-hosts 原子写失败（崩溃诊断）
+data/sftp/SftpKnownHosts.kt :: known-hosts 写入失败
+# B13 主机密钥指纹不一致中间人告警（异常链原文，上层有本地化归类）
+data/sftp/SftpKnownHosts.kt :: 主机密钥指纹与首次连接时不一致
+
+# B14 mapToIo detail：openRead 失败（只进异常链）
+data/smb/SmbClient.kt :: openRead 失败
+# B14 NvConnectException(SHARE_NOT_CONFIGURED) detail（源码注释明示「中文诊断原文保留（白名单）」）
+data/smb/SmbClient.kt :: SMB 源未配置共享名
+# B14 mapToIo detail：SMB 操作失败（只进异常链）
+data/smb/SmbClient.kt :: SMB 操作失败
+# B14 mapShareError 友好句：只进 IOException 原文，上层 mapConnectError 按 kind 归类本地化文案
+data/smb/SmbClient.kt :: SMB 认证失败：账号或密码错误
+# B14 mapShareError 友好句：同上口径（ACCESS_DENIED）
+data/smb/SmbClient.kt :: 服务器拒绝枚举共享
+# B14 mapShareError 友好句：同上口径（refused）
+data/smb/SmbClient.kt :: 连接被拒绝：请检查 IP 与端口
+# B14 mapShareError 友好句：同上口径（UnknownHost）
+data/smb/SmbClient.kt :: 无法解析主机：找不到
+# B14 mapShareError 友好句：同上口径（timeout）
+data/smb/SmbClient.kt :: 连接超时：服务器响应超时
+# B14 mapShareError 友好句：同上口径（unreachable）
+data/smb/SmbClient.kt :: 网络不可达：无法路由到主机
+# B14 mapShareError 兜底句：同上口径
+data/smb/SmbClient.kt :: 共享列表获取失败
+# B15 IOException：SMB 随机读失败（只进异常链）
+data/smb/SmbRandomReadStream.kt :: SMB READ 失败
+# B16 FileNotFoundException：源配置不可达（只进异常链）
+data/smb/SmbShareRoot.kt :: 文件路径无法访问
+# B17 error()：缩略图帧提取失败（降级链防御，崩溃诊断）
+data/thumb/Thumbnailer.kt :: 未取得视频帧
+
+# B18 IllegalArgumentException：Digest 挑战缺少 realm/nonce（协议防御）
+data/webdav/DigestAuth.kt :: Digest 挑战缺少 realm/nonce
+# B18 require：不支持的 Digest 算法（协议防御）
+data/webdav/DigestAuth.kt :: 不支持的 Digest 算法
+# B19 IOException：不支持摘要算法（throw 首行，上层结构化归类）
+data/webdav/DigestAuthInterceptor.kt :: 服务器要求不支持的 Digest 认证算法
+# B19 IOException 续行：同上诊断的整改指引细节行
+data/webdav/DigestAuthInterceptor.kt :: 把摘要算法改为 MD5 后重试
+
+# B20 IOException：PROPFIND 失败（:61/:77 两行同文，只进异常链）
+data/webdav/WebDavClient.kt :: WebDAV PROPFIND 失败
+# B20 IOException：空响应体（:79/:133 两行同文，只进异常链）
+data/webdav/WebDavClient.kt :: WebDAV 空响应体
+# B20 IOException：PROPFIND 返回非 Multi-Status（只进异常链）
+data/webdav/WebDavClient.kt :: 返回非 Multi-Status 响应
+# B20 IOException：416 Range 不满足（只进异常链）
+data/webdav/WebDavClient.kt :: Range 不满足
+# B20 IOException：GET 失败（只进异常链）
+data/webdav/WebDavClient.kt :: WebDAV GET 失败
+# B20 IOException：源未配置主机（只进异常链）
+data/webdav/WebDavClient.kt :: WebDAV 源未配置主机
+# B20 IOException：服务器不支持 Range 且流短于 offset（只进异常链）
+data/webdav/WebDavClient.kt :: 服务器不支持 Range 且流短于
+
+# B21 requireNotNull：VLC 引擎未启动（生命周期防御，崩溃诊断）
+player/NvVlcEngine.kt :: NvVlcEngine 未启动
+# B21 IOException：无法打开内容 URI（只进异常链）
+player/NvVlcEngine.kt :: 无法打开内容 URI
+# B22 IOException：字幕下载失败（runCatching 吞掉降级，原文仅异常链）
+player/SubtitleCharset.kt :: 字幕下载失败
+# B23 NvTmdbAuthException detail（用户可见句已资源化 data_scrape_key_invalid，HTTP 细节留异常链）
+data/scrape/NvTmdbClient.kt :: TMDB API Key 无效或已失效
+
+# ---------- C. 协议串/内容解析（解析用户媒体内容/兼容旧持久化数据，非 UI 文案） ----------
+
+# C1 集数识别正则：第 N 集/话/期（解析用户文件与目录名，非 UI）
+data/scanner/ScanRules.kt :: Regex("第[0-9一二三四五六七八九十百零两]+[集话期]")
+# C2 中文目录名 → MediaKind.MOVIE 分类关键词（解析用户 NAS 目录名）
+data/scanner/ScanRules.kt :: "电影", "影片"
+# C2 中文目录名 → MediaKind.EPISODE 分类关键词（解析用户 NAS 目录名）
+data/scanner/ScanRules.kt :: "电视剧", "剧集"
+# C3 TMDB 片名清洗：中文集数发布标签正则（解析用户文件名）
+data/scrape/NvTmdbNameCleaner.kt :: Regex("第\\s*\\d{1,4}\\s*[集话期]
+# C3 TMDB 片名清洗：中文发布标签关键词（国语/中字/蓝光等，解析用户文件名）
+data/scrape/NvTmdbNameCleaner.kt :: "国语", "中字"
+# C4 RMVB 标题集数提取正则（解析用户文件名）
+player/RmvbPlayerActivity.kt :: Regex("第\\s*(\\d{1,3})\\s*集")
+# C5 字幕文件名集数正则（解析用户字幕文件名）
+player/SubtitleMatcher.kt :: cnEpisodeRegex
+# C6 软路由旧版中文协议值「音轨」前缀（升级兼容识别，永不新写；新值为英文 token）
+player/PlayerPrefs.kt :: LEGACY_REASON_AUDIO_PREFIX
+# C6 软路由旧版中文协议值「杜比视界画面」（升级兼容识别，读侧继续生效路由）
+player/PlayerPrefs.kt :: LEGACY_REASON_DV
+# C7 首字母分组键「数」（内部协议值；两个显示点已资源化 misc_section_digit，Task 9 fix1）
+ui/components/AlphabetSidebar.kt :: SECTION_LABEL_DIGIT
+
+# ---------- D. 播放决策诊断串（Decision.reason 仅测试/日志消费，UI 只取 action/target） ----------
+
+# D1 Decision.reason：单次缓冲超阈值（仅测试/日志消费）
+player/NvAdaptivePolicy.kt :: 单次缓冲超
+# D1 Decision.reason：窗口内缓冲次数（仅测试/日志消费）
+player/NvAdaptivePolicy.kt :: s 内缓冲
+# D1 Decision.reason：连续无缓冲恢复（仅测试/日志消费）
+player/NvAdaptivePolicy.kt :: 连续 ${cfg.restoreAfterMs / 1000}s 无缓冲
+# D2 Decision.reason：长缓冲降档（仅测试/日志消费）
+player/NvQualityAutoPolicy.kt :: 长缓冲
+# D2 Decision.reason：稳定播放升档（仅测试/日志消费）
+player/NvQualityAutoPolicy.kt :: 稳定 ${cfg.upgradeAfterStableMs
+
+# ---------- E. 语言自名标签（语言选择器显示语言自身名称，不翻译） ----------
+
+# E1 语言列表选项自名标签（:469/:528 两行同构，zh 选项显示「中文」）
+ui/settings/SettingsGroups.kt :: to "中文"
+# E2 语言徽标映射自名标签（:124/:134 两行同构，zh 徽标显示「中文」）
+ui/settings/SettingsScreen.kt :: "zh" -> "中文"
+
+# ---------- F. Mock/演示内容 ----------
+
+# F1 MockMediaRepository 整文件豁免：首页演示数据（片名/来源/路径均为演示专有名词，协议明定整文件豁免）
+data/MockMediaRepository.kt
+# F2 演示 fixture：CastMember 主演名（《星际穿越》演示专有名词）
+ui/detail/DetailViewModel.kt :: 马修·麦康纳
+# F2 演示 fixture：CastMember 主演名（同上）
+ui/detail/DetailViewModel.kt :: 安妮·海瑟薇
+# F2 演示 fixture：CastMember 主演名（同上）
+ui/detail/DetailViewModel.kt :: 杰西卡·查斯坦
+# F3 演示 fixture：虚构剧集分集标题（「第N集」生成式，m4）
+ui/detail/DetailViewModel.kt :: mockEp(it, 1, "第${it}集"
+# F3 演示 fixture：虚构剧集分集标题（「感染纪元」，m5）
+ui/detail/DetailViewModel.kt :: 感染纪元
+# F3 演示 fixture：虚构剧集分集标题（「夜之国度」，m8）
+ui/detail/DetailViewModel.kt :: 夜之国度 · 第
+# F3 演示 fixture：虚构剧集分集标题（「将军」，m10）
+ui/detail/DetailViewModel.kt :: 将军 · 第
+# F3 演示 fixture：虚构剧集分集标题（「熊家餐馆」，m12）
+ui/detail/DetailViewModel.kt :: 熊家餐馆 S2
+# F4 演示 fixture：分集占位简介（演示内容，非界面框架文案）
+ui/detail/DetailViewModel.kt :: 本集简介占位
+
+# ---------- G. 行尾注释（代码行带 // 尾注，门禁不剥离行尾注释；注释中文不进 UI） ----------
+
+# G1 行尾注释：入库时间字段说明（「最近添加」排序键）
+data/db/MediaItemEntity.kt :: 重扫不重置
+# G1 行尾注释：路径回退分支说明（「..」丢弃规则）
+data/NvFileEntry.kt :: 已到根：多余的
+# G1 行尾注释：扫描截断说明（「已消失」对账规则）
+data/scanner/MediaScanner.kt :: 不能当"已消失"删
+# G1 行尾注释：badge 参数说明（「新剧集」「已看」示例）
+ui/components/PosterCard.kt :: 角标文案
+# G1 行尾注释：breadcrumb 字段说明（相对源根语义）
+ui/files/FilesViewModel.kt :: 相对源根，不含
+# G2 行尾注释：details 字段说明（「详细信息」折叠区）
+ui/detail/DetailViewModel.kt :: "详细信息"折叠区
+# G2 行尾注释：chasingLine 字段说明（「看到 S2E3」示例）
+ui/detail/DetailViewModel.kt :: 看到 S2E3

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- notify 域（简体中文，原句平移）——后台媒体通知文案（PlaybackService） -->
+<resources>
+    <!-- 通知栏媒体卡片副文字（artist 行）的队列进度；PlaybackService 以 applicationContext.getString 构造 -->
+    <string name="notify_queue_subtitle">第%1$d集 · 共%2$d集</string>
+</resources>

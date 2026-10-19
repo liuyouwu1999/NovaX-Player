@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- notify ドメイン（日本語）— バックグラウンドメディア通知文面（PlaybackService） -->
+<resources>
+    <!-- 通知メディアカードのサブテキスト（artist 行）のキュー進捗表示。PlaybackService で applicationContext.getString により構築 -->
+    <string name="notify_queue_subtitle">第%1$d話 ・全%2$d話</string>
+</resources>

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 进入二级 Activity（播放器/RMVB/查看器）：放大淡入 92%→100%，250ms。
+     Compose 侧同语言是 NvMotion.CurveDecelerate，XML 用框架 decelerate_cubic 最近似。
+     注意：SurfaceView/BLAST 在 API 26-30 老真机上窗口缩放可能与视频层差 1-2 帧（画面先跳），
+     模拟器/新机看不出，属系统限制非缺陷。 -->
+<set xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shareInterpolator="true">
+    <alpha
+        android:fromAlpha="0.0"
+        android:toAlpha="1.0"
+        android:duration="250"
+        android:interpolator="@android:interpolator/decelerate_cubic" />
+    <scale
+        android:fromXScale="0.92"
+        android:toXScale="1.0"
+        android:fromYScale="0.92"
+        android:toYScale="1.0"
+        android:pivotX="50%"
+        android:pivotY="50%"
+        android:duration="250"
+        android:interpolator="@android:interpolator/decelerate_cubic" />
+</set>

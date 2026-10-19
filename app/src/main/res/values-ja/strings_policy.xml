@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- policy ドメイン（日本語）：プライバシーポリシー＋利用規約＋初回起動同意ダイアログ。用語集＋です・ます体（文）/体言止め（ラベル） -->
+<resources>
+    <!-- ドキュメントタイトル（ポリシー画面のトップバー） -->
+    <string name="policy_doc_privacy">プライバシーポリシー</string>
+    <string name="policy_doc_agreement">利用規約</string>
+    <!-- ヘッダー行と言語に関する注記（全言語で表示） -->
+    <string name="policy_meta_updated_version">最終更新：%1$s · バージョン %2$d</string>
+    <string name="policy_lang_disclaimer">中国語以外の訳文は参考であり、簡体字中国語版が優先します。</string>
+    <!-- 初回起動同意ダイアログ（spec §1.4） -->
+    <string name="policy_consent_title">プライバシーポリシーと利用規約</string>
+    <string name="policy_consent_body">NovaX をご利用いただきありがとうございます。開発者は本アプリを通じて一切の個人情報を収集しません。統計/広告/レポート用のコンポーネントはなく、視聴履歴や NAS 認証情報などのすべてのデータはユーザーの端末にのみ保存されます。スクレイピングやネットワークソース機能を使用する際、リクエストは端末からユーザーが設定したサーバーへ直接送信されます（詳細は全文をご覧ください）。</string>
+    <string name="policy_consent_view_full">プライバシーポリシーと利用規約の全文を表示</string>
+    <string name="policy_consent_agree">同意して続行</string>
+    <string name="policy_consent_decline">同意しない</string>
+
+    <!-- プライバシーポリシー（9 節 29 段落、キー policy_p{N}_t / policy_p{N}_p{M}） -->
+    <string name="policy_p1_t">1. 概要</string>
+    <string name="policy_p1_p1">NovaX（以下「本アプリ」）はローカルおよびローカルネットワーク向けの動画再生ツールです。開発者は本アプリを通じて一切の個人情報を収集しません。統計・広告・プッシュ・クラッシュレポート系のサードパーティ SDK は組み込まず、端末識別子・位置情報・連絡先などを含め一切の情報を収集せず、開発者はサーバーを一切持たないため、ユーザーのデータを読み取ることもできません。</string>
+    <string name="policy_p1_p2">本アプリに組み込まれたオープンソースコンポーネント（再生エンジン、ネットワークライブラリなど）はローカル機能としてのみ動作し、その提供元にユーザーの個人情報を送信することはありません。</string>
+    <string name="policy_p2_t">2. 端末にのみ保存されるデータ</string>
+    <string name="policy_p2_p1">視聴履歴・お気に入り・メディアライブラリのインデックス・設定、およびユーザーが設定した NAS アカウントとパスワードは、すべて本アプリのプライベートディレクトリにのみ保存されます（アカウントとパスワードは Android Keystore で暗号化して保存）。これらのデータはアップロードされず、本アプリをアンインストールするとすべて削除されます。</string>
+    <string name="policy_p2_p2">開発者は上記のデータにアクセスできません。本アプリにはテレメトリやレポート用の経路もありません。</string>
+    <string name="policy_p3_t">3. ユーザーが設定するネットワーク機能</string>
+    <string name="policy_p3_p1">本アプリのネットワークリクエストは、すべてユーザーの端末からユーザーが設定した対象へ直接送信され、開発者の中継を一切経由しません:</string>
+    <string name="policy_p3_p2">· SMB / WebDAV / SFTP / Jellyfin ソース:入力したサーバーに接続します。認証情報は端末内にのみ保存されます。</string>
+    <string name="policy_p3_p3">· TMDB スクレイピング（任意機能）:自身で登録して入力した API Key により、ポスターと映像メタデータのリクエストは端末から api.themoviedb.org と image.tmdb.org へ直接送信されます（相手のサーバーにはユーザーの IP アドレスが見えます）。</string>
+    <string name="policy_p3_p4">· キャスト: LAN 内へ機器検出と制御コマンドを送信します。キャスト中、本アプリは LAN 内のランダムなアドレスでテレビに再生ストリームを提供します（LAN 内限定、キャスト停止で直ちに終了）。</string>
+    <string name="policy_p3_p5">· ネットワーク直接再生（直リンク）:開いたアドレスへ直接接続します。</string>
+    <string name="policy_p3_p6">· 更新確認：アプリ起動時（オフにできるオプション）または「更新を確認」をタップしたとき、端末から GitHub の公開 API（api.github.com）へ直接アクセスして最新リリースを取得し、更新パッケージは GitHub の配信サーバーからダウンロードします。この過程でユーザーデータは送信されません。</string>
+    <string name="policy_p4_t">4. 平文通信に関する注意</string>
+    <string name="policy_p4_p1">本アプリは http プロトコルの NAS および直リンクソースに対応しています（家庭用 NAS の多くは https を提供しません）。平文プロトコルの使用時は、伝送内容（アカウント・パスワードや再生内容を含む）が同一ネットワーク内の第三者に傍受される可能性があります。SFTP/SMB の暗号化強度はサーバーの設定によります。信頼できるネットワークで使用するか、暗号化されたプロトコルを優先してください。</string>
+    <string name="policy_p5_t">5. 権限一覧と用途</string>
+    <string name="policy_p5_p1">本アプリは合計 14 個の権限を宣言しています（うち 2 個は旧システム互換用）。用途と拒否した場合の影響は以下のとおりです:</string>
+    <string name="policy_p5_p2">1. ネットワーク（INTERNET）:ネットワーク再生、NAS ソース接続、スクレイピング、キャスト。拒否するとネットワーク機能が使用できません（ローカル再生には影響しません）。</string>
+    <string name="policy_p5_p3">2. ネットワーク状態（ACCESS_NETWORK_STATE）:従量制ネットワークを識別して通信量に関する注意を提供します。拒否するとこの注意は機能しなくなります。</string>
+    <string name="policy_p5_p4">3. Wi-Fi 状態（ACCESS_WIFI_STATE）:キャスト機器の検出。拒否するとキャスト機器の検出に影響します。</string>
+    <string name="policy_p5_p5">4. Wi-Fi マルチキャスト（CHANGE_WIFI_MULTICAST_STATE）:DLNA 機器検出プロトコルに必要です。拒否するとテレビを検出できません。</string>
+    <string name="policy_p5_p6">5. 通知（POST_NOTIFICATIONS、Android 13+）:バックグラウンド再生の通知バー操作。拒否するとバックグラウンド再生の通知が表示されません。</string>
+    <string name="policy_p5_p7">6. 起動ロック（WAKE_LOCK）:バックグラウンド再生が中断されないように維持します。</string>
+    <string name="policy_p5_p8">7-8. フォアグラウンドサービス（FOREGROUND_SERVICE / FOREGROUND_SERVICE_MEDIA_PLAYBACK）:バックグラウンド再生サービス。</string>
+    <string name="policy_p5_p9">9. すべてのファイルへのアクセス（MANAGE_EXTERNAL_STORAGE）:RMVB などの非標準形式とその字幕の再生には、ファイル全体の可視性が必要です。この権限はシステム設定で手動で許可した場合にのみ有効になり、許可しなくても一般的な形式は再生できます（システムメディアライブラリの経路を利用）。</string>
+    <string name="policy_p5_p10">10. 動画メディアの読み取り（READ_MEDIA_VIDEO、Android 13+）:メディアライブラリ内の動画をスキャンして再生します。拒否するとライブラリの動画をスキャンできません（「すべてのファイルへのアクセス」を許可するか、外部の「他のアプリで開く」から利用できます）。</string>
+    <string name="policy_p5_p11">11. ストレージの読み取り（READ_EXTERNAL_STORAGE、Android 12L 以下のみ）:旧システムでのメディア読み取り。拒否すると旧システムでメディアライブラリのスキャンができなくなります。</string>
+    <string name="policy_p5_p12">12. ストレージへの書き込み（WRITE_EXTERNAL_STORAGE、Android 9 以下のみ）:旧システムで投げ銭 QR コードをギャラリーに保存します。拒否すると投げ銭コードを保存できません（他の機能には影響しません）。</string>
+    <string name="policy_p5_p13">13. バッテリー最適化の除外（REQUEST_IGNORE_BATTERY_OPTIMIZATIONS）:Samsung などの強力なバックグラウンド制御が NAS の長時間接続を切断することがあります。1 回のみ要求し、拒否できます。</string>
+    <string name="policy_p5_p14">14. 不明なアプリのインストール（REQUEST_INSTALL_PACKAGES）：アップデートダイアログで「今すぐダウンロードしてインストール」をタップしたときのみ、ダウンロードした更新パッケージをシステムのインストーラーに渡すために使用します。拒否してもアプリ内ワンタップ更新が無効になるだけで、ブラウザから APK を入手して手動インストールできます。</string>
+    <string name="policy_p6_t">6. システムバックアップ</string>
+    <string name="policy_p6_p1">本アプリは、メディアデータベース（NAS 認証情報と視聴履歴を含む）およびすべての設定を、Android のクラウドバックアップと機種変更時の移行対象から除外しています。SFTP ホスト指紋ファイルとローカルのクラッシュログも同様に除外します。機種変更後はソースを再追加する必要があります。</string>
+    <string name="policy_p7_t">7. 未成年者</string>
+    <string name="policy_p7_p1">本アプリは（未成年者を含め）一切の情報を収集せず、年齢制限も設けていません。保護者はシステム標準のスクリーンタイム管理ツールで利用を管理できます。</string>
+    <string name="policy_p8_t">8. ポリシーの変更</string>
+    <string name="policy_p8_p1">本ポリシーにはバージョン番号と更新日があります。収集範囲や権限の用途に重大な変更があった場合は、次回起動時に再度同意を求める通知を表示します。過去のバージョンはリリースページで確認できます。</string>
+    <string name="policy_p9_t">9. お問い合わせ</string>
+    <string name="policy_p9_p1">本ポリシーに関するご質問・訂正・削除のご請求は（開発者はユーザーのデータを一切保持していません）、liuyouwu1999@163.com までご連絡ください。合理的な期間内に返信します。</string>
+
+    <!-- 利用規約（8 節 8 段落、キー policy_ua{N}_t / policy_ua{N}_p{M}） -->
+    <string name="policy_ua1_t">1. 規約の受諾</string>
+    <string name="policy_ua1_p1">NovaX（以下「本アプリ」）をダウンロード、インストール、または使用することで、本規約を読み、同意したものとみなされます。同意しない場合は、終了して本アプリをアンインストールしてください。</string>
+    <string name="policy_ua2_t">2. 現状有姿での提供</string>
+    <string name="policy_ua2_p1">本アプリは個人開発者による無料の作品であり、現状有姿で提供されます。開発者は、すべての端末・すべてのファイル形式・すべてのネットワーク環境で欠陥なく動作することも、継続的な更新も保証しません。投げ銭は自発的な支援であり、サービス契約を構成しません。</string>
+    <string name="policy_ua3_t">3. コンテンツの責任</string>
+    <string name="policy_ua3_p1">本アプリはローカルおよび LAN 内ファイルの再生機能のみを提供し、コンテンツの提供・保存・推薦は一切行いません。本アプリで再生するコンテンツの出所と合法性はユーザー自身の責任であり、法令や他人の権利に違反するコンテンツを配布・表示するために本アプリを使用してはなりません。</string>
+    <string name="policy_ua4_t">4. 知的財産権</string>
+    <string name="policy_ua4_p1">本アプリの画面とコードの著作権は開発者に帰属します。依存するオープンソースコンポーネントの著作権は各権利者に帰属し、謝辞の一覧はアプリ内「設定-アプリについて-オープンソースライセンス」をご覧ください。NovaX の名称とアイコンの無断使用は禁じます。</string>
+    <string name="policy_ua5_t">5. サードパーティサービス</string>
+    <string name="policy_ua5_p1">キャスト、NAS 接続、TMDB スクレイピングなどの機能は、ユーザーが自身で設定したサードパーティの機器やサービスに依存しており、その可用性と安全性は各提供元の責任です。サードパーティサービスの変更による機能の無効化は、開発者の契約違反にあたりません。</string>
+    <string name="policy_ua6_t">6. 免責および責任の上限</string>
+    <string name="policy_ua6_p1">法律で認められる最大の範囲で、開発者は本アプリの使用または使用不能により生じた直接・間接の損失について責任を負いません。コンテンツの再生や転送をめぐる紛争の責任はユーザー自身が負うものとします。</string>
+    <string name="policy_ua7_t">7. 規約の変更</string>
+    <string name="policy_ua7_p1">本規約はプライバシーポリシーとともにバージョン管理され、重大な変更は次回起動時に再度通知されます。変更後も継続使用した場合、変更後の規約に同意したものとみなします。</string>
+    <string name="policy_ua8_t">8. 連絡先</string>
+    <string name="policy_ua8_p1">連絡先メール:liuyouwu1999@163.com。</string>
+</resources>
