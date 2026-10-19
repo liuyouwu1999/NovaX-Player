@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Task 9: misc domain — remaining user-visible strings outside settled domains
+     (ui/cast, ui/viewers, shared ui/components). zh values mirror the original
+     code literals verbatim; en/ko/ja follow the plan glossary and style rules. -->
+<resources>
+    <!-- CastSheets: device picker -->
+    <string name="misc_cast_title">Cast to TV</string>
+    <string name="misc_cast_none_title">No TVs found</string>
+    <string name="misc_cast_none_desc">Make sure the TV and phone are on the same Wi-Fi, and enable DLNA/screen mirroring on the TV</string>
+    <string name="misc_cast_scanning">Scanning…</string>
+    <string name="misc_cast_connecting">Connecting to %1$s…</string>
+    <string name="misc_cast_control_addr">Control address: %1$s</string>
+    <string name="misc_cast_manual_add">Manual add</string>
+    <string name="misc_cast_manual_hint">Descriptor XML URL http://…/desc.xml</string>
+    <string name="misc_cast_add_and_cast">Add and cast</string>
+    <string name="misc_cast_add_failed">Add failed: invalid address or not a renderer</string>
+    <string name="misc_cast_unknown_device">Unknown device</string>
+    <!-- CastSheets: remote panel -->
+    <string name="misc_cast_ended">Casting ended</string>
+    <string name="misc_cast_rewind_30s">Rewind 30 seconds</string>
+    <string name="misc_cast_play">Play</string>
+    <string name="misc_cast_pause">Pause</string>
+    <string name="misc_cast_next_episode">Next episode</string>
+    <string name="misc_cast_volume">Volume</string>
+    <string name="misc_cast_disconnect">Disconnect</string>
+    <string name="misc_cast_pull_back">Play on this device</string>
+    <string name="misc_cast_active_with">Casting · %1$s</string>
+    <string name="misc_cast_connecting_with">Connecting · %1$s</string>
+    <!-- AlphabetSidebar (library side bar; key "数" stays an internal grouping token) -->
+    <string name="misc_section_digit">0-9</string>
+    <!-- MediaPosterCard -->
+    <string name="misc_stop_scan">Stop scanning</string>
+    <!-- NvMeteredDialog -->
+    <string name="misc_metered_title">Playing over mobile data</string>
+    <string name="misc_metered_body">You\'re on mobile data; continuing will consume data traffic. Unconfirmed playback is only available on Wi-Fi.</string>
+    <string name="misc_metered_dont_ask">Don\'t ask on mobile data</string>
+    <string name="misc_metered_continue">Continue playing</string>
+    <string name="misc_cancel">Cancel</string>
+    <!-- PosterCard -->
+    <string name="misc_more">More</string>
+    <!-- Selection -->
+    <string name="misc_sel_remove">Remove %1$s</string>
+    <string name="misc_sel_clear_all">Clear all</string>
+    <string name="misc_sel_search_hint">Search current folder</string>
+    <string name="misc_sel_exit_search">Exit search</string>
+    <string name="misc_sel_clear">Clear</string>
+    <string name="misc_sel_exit_multi">Exit multi-select</string>
+    <plurals name="misc_sel_selected_count">
+        <item quantity="one">%1$d item selected</item>
+        <item quantity="other">%1$d items selected</item>
+    </plurals>
+    <string name="misc_sel_select_all">Select all</string>
+    <string name="misc_sel_invert">Invert</string>
+    <!-- Sheets -->
+    <string name="misc_confirm">Confirm</string>
+    <string name="misc_close">Close</string>
+    <!-- States -->
+    <string name="misc_load_failed">Load failed</string>
+    <string name="misc_retry">Retry</string>
+    <!-- TopBar -->
+    <string name="misc_back">Back</string>
+    <!-- Settings: phase-2 badge -->
+    <string name="misc_phase2">Phase 2</string>
+    <!-- ImageViewerScreen -->
+    <string name="misc_img_needs_android9">This format requires Android 9+</string>
+    <string name="misc_img_heic_fail">This system can\'t decode HEIC images</string>
+    <string name="misc_open_with">Open with another app</string>
+    <string name="misc_unknown_size">Unknown</string>
+    <!-- PdfViewerScreen -->
+    <string name="misc_pdf_missing">File missing or unreadable</string>
+    <string name="misc_pdf_cannot_open">Can\'t open this PDF</string>
+    <string name="misc_pdf_encrypted">PDF is encrypted</string>
+    <string name="misc_pdf_no_password">Password unlock isn\'t supported yet</string>
+    <string name="misc_pdf_no_pages">This PDF contains no pages</string>
+    <string name="misc_pdf_goto_page">Jump to page</string>
+    <string name="misc_pdf_goto">Go</string>
+    <string name="misc_pdf_dl_title">Download first, then open</string>
+    <string name="misc_pdf_dl_msg">This file is %1$s; it will be downloaded to the local cache before opening</string>
+    <string name="misc_pdf_dl_confirm">Download and open</string>
+    <string name="misc_pdf_page_n">Page %1$d</string>
+    <string name="misc_pdf_preparing">Preparing download…</string>
+    <!-- TextViewerScreen -->
+    <string name="misc_text_read_failed">Read failed</string>
+    <string name="misc_text_binary">This file is binary and can\'t be previewed as text</string>
+    <string name="misc_text_empty">This file is empty</string>
+    <string name="misc_text_encoding">Encoding</string>
+    <string name="misc_text_mono">Monospace</string>
+    <string name="misc_text_wrap">Auto wrap</string>
+    <string name="misc_text_choose_encoding">Choose encoding</string>
+    <string name="misc_text_reloaded">Reloaded as %1$s</string>
+    <string name="misc_text_truncated">Large file: showing only the first %1$d KB</string>
+    <string name="misc_text_open_full">Open in full</string>
+    <!-- ViewerActivity / ViewerFiles -->
+    <string name="misc_viewer_default_title">File</string>
+    <string name="misc_viewer_missing_args">Can\'t open file (missing parameters)</string>
+    <string name="misc_viewer_bad_uri">Can\'t parse file address</string>
+    <string name="misc_viewer_no_handler">No app found that can handle this type</string>
+    <string name="misc_viewer_open_failed">Open failed: %1$s</string>
+    <string name="misc_viewer_source_missing">File source doesn\'t exist or was deleted (id=%1$d)</string>
+    <string name="misc_viewer_uri_unparsed">Can\'t parse file address: %1$s</string>
+</resources>

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- notify 도메인(한국어) — 백그라운드 미디어 알림 문구(PlaybackService) -->
+<resources>
+    <!-- 알림 미디어 카드 부제목(artist 행)의 대기열 진행 표시; PlaybackService에서 applicationContext.getString으로 구성 -->
+    <string name="notify_queue_subtitle">%1$d화 · 총 %2$d화</string>
+</resources>

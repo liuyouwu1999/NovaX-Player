@@ -1,0 +1,278 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- player 도메인 (한국어) -->
+<resources>
+    <!-- 공용 -->
+    <string name="player_video">동영상</string>
+    <string name="player_back">뒤로</string>
+    <string name="player_retry">다시 시도</string>
+    <string name="player_reset">초기화</string>
+    <string name="player_unknown">알 수 없음</string>
+    <string name="player_cd_close">닫기</string>
+
+    <!-- PlayerActivity: 진입/라우팅 토스트 및 오류 -->
+    <string name="player_err_unrecognized">열 파일을 인식할 수 없습니다</string>
+    <string name="player_err_open_title">동영상을 열 수 없습니다</string>
+    <string name="player_err_switch_failed">전환 실패: %1$s</string>
+    <string name="player_quality_switch_failed">화질 전환 실패: %1$s</string>
+    <string name="player_err_source_missing">동영상 소스가 없거나 삭제되었습니다(id=%1$d)</string>
+    <string name="player_switch_cancelled_toast">에피소드 전환이 취소되었습니다(종량제 네트워크)</string>
+    <string name="player_queue_first">이미 폴더의 첫 번째 항목입니다</string>
+    <string name="player_queue_last">이미 폴더의 마지막 항목입니다</string>
+    <string name="player_pip_version_toast">화면 속 화면은 Android 8.0 이상이 필요합니다</string>
+    <string name="player_pip_fail_toast">화면 속 화면에 진입하지 못했습니다</string>
+    <string name="player_soft_route_toast">%1$s 하드웨어 디코딩이 불가하여 소프트웨어 디코딩으로 전환했습니다</string>
+    <string name="player_pgs_subtitle_toast">PGS 자막은 지원되지 않습니다. srt/ass 외장 자막을 로드할 수 있습니다</string>
+
+    <!-- PlayerScreen: 화면 비율/방향 모드 -->
+    <string name="player_aspect_fit">화면 맞춤</string>
+    <string name="player_aspect_fill">채우기(자르기)</string>
+    <string name="player_aspect_16_9">16:9</string>
+    <string name="player_aspect_4_3">4:3</string>
+    <string name="player_orientation_landscape">가로</string>
+    <string name="player_orientation_portrait">세로</string>
+    <string name="player_orientation_auto">자동·중력</string>
+    <string name="player_orientation_toast">방향: %1$s</string>
+    <string name="player_loading">로드 중…</string>
+    <string name="player_mirror_on">화면 좌우 반전: 켬</string>
+    <string name="player_mirror_off">화면 좌우 반전: 끔</string>
+
+    <!-- PlayerScreen: 재생 토스트 -->
+    <string name="player_reconnected_toast">네트워크가 복구되어 자동으로 다시 연결 중…</string>
+    <string name="player_next_up_toast">다음 에피소드를 재생합니다</string>
+    <string name="player_io_retry_toast">네트워크 읽기가 중단되어 자동으로 재시도 중…</string>
+    <string name="player_sleep_fired_toast">수면 타이머 시간이 되어 일시정지했습니다</string>
+    <string name="player_audio_unsupported_toast">%1$s 오디오 트랙은 지원되지 않아 소프트웨어 디코딩으로 전환했습니다</string>
+    <string name="player_speed_locked_toast">배속이 잠겼습니다. 길게 누른 뒤 아래로 스와이프하면 해제됩니다</string>
+    <string name="player_speed_unlocked_toast">배속 잠금이 해제되었습니다</string>
+    <string name="player_cast_unsupported_toast">현재 동영상은 캐스팅할 수 없습니다</string>
+    <string name="player_unseekable_toast">소스 제한으로 시크를 지원하지 않습니다</string>
+    <string name="player_sleep_off_toast">수면 타이머가 꺼졌습니다</string>
+    <string name="player_sleep_in_min">%1$d분 후 일시정지합니다</string>
+    <string name="player_loop_a_set">루프 시작점 A를 %1$s(으)로 설정했습니다</string>
+    <string name="player_loop_b_invalid">B 지점은 A 지점 이후여야 합니다(현재 위치 %1$s)</string>
+    <string name="player_loop_active_toast">AB 루프가 활성화됨 %1$s → %2$s</string>
+    <string name="player_loop_cleared_toast">AB 루프가 삭제되었습니다</string>
+    <string name="player_subtitle_reloaded_toast">자막이 새 인코딩으로 다시 마운트되었습니다</string>
+
+    <!-- PlayerScreen: 이어보기 배너/오버레이 -->
+    <string name="player_resume_banner">지난 시청: %1$s</string>
+    <string name="player_resume_jump">이동</string>
+    <string name="player_no_subtitle_banner">자막을 찾지 못했습니다 · 상단 CC를 누르면 수동으로 로드할 수 있습니다</string>
+    <string name="player_reset_picture">화면 초기화</string>
+    <string name="player_slowmo_suffix">" 슬로우"</string>
+    <string name="player_cd_speed_locked">배속 잠김</string>
+    <string name="player_auto_reconnect_hint">네트워크가 복구되면 자동으로 다시 연결됩니다(최대 3회)</string>
+
+    <!-- PlayerScreen: 잠금 -->
+    <string name="player_half_lock_toast">반잠금 켜짐: 배지를 길게 누르면 완전 잠금</string>
+    <string name="player_locked_toast">잠겼습니다. 잠금 아이콘을 두 번 탭하면 해제됩니다</string>
+    <string name="player_full_lock_toast">완전히 잠겼습니다</string>
+    <string name="player_lock_hint_toast">두 번 탭하여 해제 · 길게 눌러 완전 잠금</string>
+    <string name="player_cd_lock_badge">잠금 배지: 두 번 탭하여 해제, 길게 눌러 완전 잠금</string>
+    <string name="player_lock_hint">잠김 · 잠금 아이콘을 두 번 탭하여 해제</string>
+    <string name="player_half_lock_hint">반잠금 · 제스처 사용 가능, 잠금 아이콘을 두 번 탭하여 해제</string>
+
+    <!-- PlayerScreen: 오류 상태 -->
+    <string name="player_err_play_title">재생할 수 없습니다</string>
+    <string name="player_fallback_play">소프트웨어 코어(libVLC)로 재생</string>
+    <string name="player_err_io_retried">네트워크 읽기가 중단되었습니다. 자동 재시도했음</string>
+    <string name="player_err_nas_disconnected">NAS 연결이 끊겼습니다. 네트워크를 확인하세요</string>
+    <string name="player_err_cleartext">동영상 소스가 HTTP 평문 주소이며 시스템이 평문 전송을 차단했습니다</string>
+    <string name="player_err_http_status">동영상 소스가 오류를 반환했습니다(HTTP 403/404 등). 주소가 유효한지 확인하세요</string>
+    <string name="player_err_path">파일 경로에 접근할 수 없습니다. 소스 설정을 확인하세요</string>
+    <string name="player_err_container">파일 컨테이너 파싱 실패</string>
+    <string name="player_err_decoder_unsupported">이 기기의 하드웨어 디코더는 해당 동영상 코덱을 지원하지 않습니다</string>
+    <string name="player_err_generic">재생 오류(%1$s). 다시 시도하세요</string>
+    <string name="player_dv_note">이 기기에서는 이 소스를 재생할 수 없습니다: 기기에 돌비비전 디코더가 없고 이 파일은 돌비비전 Profile 5(HDR10 호환 레이어가 없어 폴백 화면 레이어가 없음)이므로 소리만 나고 화면이 나오지 않습니다. \'소프트웨어 코어(libVLC)로 재생\'을 사용해 베이스 레이어 화면을 강제 디코딩하거나(돌비 색상 매핑 없음, 색이 녹색으로 보일 수 있음), HDR10 / SDR / 돌비비전 Profile 8 소스로 바꿔주세요.</string>
+    <string name="player_no_decoder_note">이 기기에는 해당 동영상 트랙을 디코딩할 디코더가 없어(코덱: %1$s) 소리만 나고 화면이 나오지 않습니다. 다른 코덱의 소스로 바꿔주세요.</string>
+
+    <!-- PlayerControls: 상단 바 콘텐츠 설명 -->
+    <string name="player_cd_orientation">방향 전환</string>
+    <string name="player_cd_mirror">화면 좌우 반전</string>
+    <string name="player_cd_rotate">화면 회전</string>
+    <string name="player_cd_pip">화면 속 화면</string>
+    <string name="player_cd_cast">캐스트</string>
+    <string name="player_cd_lock">잠금</string>
+
+    <!-- PlayerControls: 하단 바 -->
+    <string name="player_prev_episode">이전 에피소드</string>
+    <string name="player_play_pause">재생/일시정지</string>
+    <string name="player_next_episode">다음 에피소드</string>
+    <string name="player_cd_prev">이전</string>
+    <string name="player_cd_prev_none">이전 항목 없음(폴더 대기열 처음)</string>
+    <string name="player_cd_next">다음</string>
+    <string name="player_cd_next_none">다음 항목 없음(폴더 대기열 끝)</string>
+    <string name="player_speed">배속</string>
+    <string name="player_speed_current">배속(현재 %1$s)</string>
+    <string name="player_cd_play">재생</string>
+    <string name="player_cd_pause">일시정지</string>
+    <string name="player_cd_rewind_sec">%1$d초 되감기</string>
+    <string name="player_cd_forward_sec">%1$d초 빨리 감기</string>
+    <string name="player_live">%1$s / 라이브</string>
+    <string name="player_brightness_off">밝기 꺼짐</string>
+
+    <!-- PlayerSheets: 시트 제목 -->
+    <string name="player_sheet_subtitles">자막</string>
+    <string name="player_sheet_audio">오디오</string>
+    <string name="player_sheet_speed">재생 속도</string>
+    <string name="player_sheet_aspect">화면 비율</string>
+    <string name="player_sheet_quality">화질</string>
+    <string name="player_info_title">동영상 정보</string>
+    <string name="player_sheet_more">더보기</string>
+
+    <!-- PlayerSheets: 자막 시트 -->
+    <string name="player_subtitles_off">자막 끄기</string>
+    <string name="player_embedded_subtitles">내장 자막</string>
+    <string name="player_no_subtitles">자막을 찾지 못했습니다</string>
+    <string name="player_subtitle_track">자막 트랙 %1$s</string>
+    <string name="player_sidecar_subtitles">같은 폴더의 자막 파일</string>
+    <string name="player_external_sub_encoding">외장 자막 인코딩</string>
+    <string name="player_encoding_auto_detect">자동 감지</string>
+    <string name="player_subtitle_delay">자막 지연</string>
+    <string name="player_delay_none">오프셋 없음</string>
+    <string name="player_delay_later">자막 %1$s초 지연</string>
+    <string name="player_delay_earlier">자막 %1$s초 앞당김</string>
+    <string name="player_same_name_badge">동일 이름</string>
+    <string name="player_lang_not_loadable">" · 아직 로드 지원 안 함"</string>
+    <string name="player_pick_subtitle">자막 선택</string>
+    <string name="player_pick_subtitle_msg">같은 폴더에서 자막 파일 %1$d개를 찾았습니다. 로드할 자막을 선택하세요</string>
+    <string name="player_no_subtitle_load">자막을 로드하지 않음</string>
+    <string name="player_lang_same_as_video">동영상과 같은 이름</string>
+    <string name="player_lang_sidecar">같은 폴더의 자막</string>
+
+    <!-- PlayerSheets: 언어 표시명 -->
+    <string name="player_lang_zh_cn">중국어(간체)</string>
+    <string name="player_lang_zh_tw">중국어(번체)</string>
+    <string name="player_lang_zh_hk">광둥어</string>
+    <string name="player_lang_zh">중국어</string>
+    <string name="player_lang_en">영어</string>
+    <string name="player_lang_ja">일본어</string>
+    <string name="player_lang_ko">한국어</string>
+
+    <!-- PlayerSheets: 오디오 시트 -->
+    <string name="player_audio_track_default">오디오 트랙</string>
+    <string name="player_no_audio_info">오디오 트랙 정보 없음</string>
+
+    <!-- PlayerSheets: 배속 시트 -->
+    <string name="player_speed_auto_mute">(자동 음소거)</string>
+    <string name="player_speed_fine_tune">미세 조정(0.1x 단위, 0.1~5.0)</string>
+
+    <!-- PlayerSheets: 화질 시트 -->
+    <string name="player_quality_jellyfin_only">화질 전환은 Jellyfin 소스만 지원합니다</string>
+    <string name="player_quality_original_bitrate">원본(소스 비트레이트 약 %1$sM)</string>
+    <string name="player_quality_auto_effective">자동(현재 적용: %1$s)</string>
+    <string name="player_quality_auto_hint">자동(원본으로 시작, 버퍼링 시 자동 강등)</string>
+
+    <!-- PlayerSheets: 더보기 시트 -->
+    <string name="player_ab_loop_section">AB 루프</string>
+    <string name="player_set_loop_a">현재 위치를 루프 시작점 A로 설정</string>
+    <string name="player_set_loop_b">현재 위치를 루프 끝점 B로 설정</string>
+    <string name="player_clear_loop_active">루프 삭제(%1$s → %2$s 반복 재생 중)</string>
+    <string name="player_sleep_section">수면 타이머</string>
+    <string name="player_sleep_off">끄기</string>
+    <string name="player_sleep_15">15분</string>
+    <string name="player_sleep_30">30분</string>
+    <string name="player_sleep_60">60분</string>
+    <string name="player_sleep_remaining">%1$s · %2$d분 남음</string>
+
+    <!-- PlayerSheets: 정보 시트 -->
+    <string name="player_info_section_video">동영상</string>
+    <string name="player_info_file">파일</string>
+    <string name="player_info_codec">코덱</string>
+    <string name="player_info_resolution">해상도</string>
+    <string name="player_info_frame_rate">프레임 레이트</string>
+    <string name="player_info_bitrate">비트레이트</string>
+    <string name="player_info_dynamic_range">다이내믹 레인지</string>
+    <string name="player_info_section_audio">오디오</string>
+    <string name="player_info_channels">채널</string>
+    <string name="player_info_sample_rate">샘플 레이트</string>
+    <string name="player_info_section_tracks">트랙</string>
+    <string name="player_info_audio_tracks">오디오 트랙 수</string>
+    <string name="player_info_text_tracks">자막 트랙 수</string>
+
+    <!-- Task 7: RmvbPlayerActivity(RMVB 폴백 페이지) -->
+    <string name="player_proxy_vpn_toast">프록시가 감지되었습니다. VPN을 끄고 다시 시도하세요</string>
+    <string name="player_metered_paused_toast">종량제 네트워크로 전환되어 재생이 일시정지되었습니다</string>
+    <string name="player_err_switch_target_gone">전환할 에피소드가 더 이상 없습니다</string>
+    <string name="player_err_missing_url">재생 주소가 없습니다</string>
+    <string name="player_err_source_gone">동영상 소스가 없거나 삭제되었습니다</string>
+    <string name="player_err_local_missing">로컬 파일을 찾을 수 없음: %1$s</string>
+    <string name="player_err_size_unknown">파일 크기를 가져올 수 없습니다(소스에 접근할 수 없거나 목록 조회 실패). 폴백 재생을 할 수 없습니다</string>
+    <string name="player_err_surface_timeout">재생 화면 초기화가 시간 초과되었습니다</string>
+    <string name="player_rotation_toast">화면 회전: %1$d°</string>
+    <string name="player_toggle_on">켬</string>
+    <string name="player_toggle_off">끔</string>
+    <string name="player_tail_decode_restart">파일 끝 데이터를 디코딩할 수 없어 처음부터 다시 재생합니다</string>
+    <string name="player_err_vlc_decode">libVLC에서 이 파일을 디코딩할 수 없습니다(컨테이너 또는 인코딩 손상/미지원)</string>
+    <string name="player_err_stalled">재생이 멈췄습니다: 데이터가 오랫동안 도착하지 않습니다</string>
+    <string name="player_resumed_toast">마지막 위치에서 이어서 재생했습니다</string>
+    <string name="player_rmvb_no_subtitles">자막 트랙을 찾지 못했습니다 · 로컬 동영상은 같은 폴더에 같은 이름의 .srt를 두면 로드할 수 있습니다</string>
+    <string name="player_sub_track_num">자막 %1$s</string>
+    <string name="player_rmvb_no_audio">사용 가능한 오디오 트랙을 찾지 못했습니다</string>
+    <string name="player_audio_track_num">오디오 트랙 %1$s</string>
+    <string name="player_rmvb_info_file">파일: %1$s</string>
+    <string name="player_rmvb_info_title_line">제목: %1$s</string>
+    <string name="player_rmvb_info_duration">재생 시간: %1$s</string>
+    <string name="player_rmvb_info_aspect">화면 비율: %1$s</string>
+    <string name="player_rmvb_info_speed">재생 속도: %1$s</string>
+    <string name="player_rmvb_info_audio_count">오디오 트랙 수: %1$d</string>
+    <string name="player_rmvb_info_queue">대기열: %2$d개 중 %1$d번째</string>
+    <string name="player_rmvb_aspect_fit">맞춤</string>
+    <string name="player_rmvb_aspect_fit_screen">화면에 맞춤</string>
+    <string name="player_rmvb_aspect_fill">채우기</string>
+    <string name="player_aspect_toast">화면 비율: %1$s</string>
+    <string name="player_cd_aspect_current">화면 비율(현재 %1$s)</string>
+    <string name="player_cd_mirror_current">화면 좌우 반전(현재 %1$s)</string>
+    <string name="player_cd_rotate_current">화면 회전(현재 %1$d°)</string>
+    <string name="player_cd_more_rmvb">더보기(AB 루프/수면 타이머)</string>
+    <string name="player_seek_preview">%1$s(손을 떼면 이동)</string>
+    <string name="player_loop_b_after_a">B 지점은 A 지점 이후여야 합니다</string>
+
+    <!-- Task 7: PlaybackService 토스트 -->
+    <string name="player_metered_quality_paused_toast">종량제 네트워크로 화질 전환이 일시정지되었습니다</string>
+    <string name="player_adjacent_soft_route_toast">인접 에피소드는 소프트웨어 코어로 재생해야 합니다. 앱에서 전환하세요</string>
+    <string name="player_metered_autoswitch_paused_toast">종량제 네트워크로 자동 에피소드 전환이 일시정지되었습니다</string>
+    <string name="player_skipped_soft_items_toast">소프트웨어 디코딩이 필요한 항목 %1$d개를 건너뛰었습니다: %2$s</string>
+    <string name="player_switched_to_toast">전환됨: %1$s</string>
+    <string name="player_err_check_videourl">switchQuality는 videoUrl을 다시 쓸 수 없습니다(novax:// 논리 키, 세 곳의 URL 동등성 가드가 의존)</string>
+    <string name="player_unknown_error">알 수 없는 오류</string>
+    <string name="player_transcode_unavailable_toast">트랜스코딩을 사용할 수 없어 원본 화질로 되돌렸습니다</string>
+    <string name="player_original_best_toast">원본이 이미 해당 화질 단계에서 최상의 화질입니다</string>
+
+    <!-- Task 7: NvQualityTier 등록 라벨(화질 시트 행) -->
+    <string name="player_quality_tier_original">원본</string>
+    <string name="player_quality_tier_20m">20M</string>
+    <string name="player_quality_tier_10m">10M</string>
+    <string name="player_quality_tier_4m">4M</string>
+    <string name="player_quality_tier_2m">2M</string>
+    <string name="player_quality_tier_auto">자동</string>
+    <!-- Task 9: 영상 정보 팔마를 레이블 -->
+    <string name="player_dv_label">Dolby Vision(돌비비전)</string>
+    <string name="player_dv_profile_fmt">Dolby Vision(프로필 %1$d)</string>
+    <string name="player_info_pixel_aspect_fmt">%1$d×%2$d(화소비 %3$s)</string>
+    <string name="player_ch_mono">모노 1.0</string>
+    <string name="player_ch_stereo">스테레오 2.0</string>
+    <string name="player_ch_surround51">5.1 서라운드</string>
+    <string name="player_ch_surround71">7.1 서라운드</string>
+    <string name="player_ch_count_fmt">채널 %1$d개</string>
+    <string name="player_dv_note_p5">이 기기에는 돌비비전 디코더가 없으며, Profile 5는 HDR10 호환 레이어가 없어 화면이 올바르게 표시되지 않습니다(소리만 나는 것이 정상). Profile 8 또는 SDR/HDR10 소스를 사용하세요.</string>
+    <string name="player_dv_note_p47_fmt">이 기기에는 돌비비전 디코더가 없으며, Profile %1$d는 블루레이 플레이어나 TV 쪽 디코딩이 필요한 듀얼 레이어 돌비비전입니다. 휴대폰에서 재생하면 소리만 나고 화면이 나지 않습니다.</string>
+    <string name="player_dv_note_p8">이 기기에는 돌비비전 디코더가 없지만, Profile 8은 HDR10 호환 레이어가 있어 원래 HDR10으로 폴백해 정상 재생됩니다. 이 파일이 여전히 검은 화면이라면 이 메시지를 피드백으로 보내 주세요(플레이어 결함).</string>
+    <!-- Task 9: 오디오 mime 표시명 -->
+    <string name="player_codec_unknown">알 수 없는 코덱</string>
+    <string name="player_codec_eac3_joc">E-AC-3 JOC(돌비 애트모스)</string>
+    <string name="player_codec_eac3">E-AC-3(돌비 디지털 플러스)</string>
+    <string name="player_codec_ac3">AC-3(돌비 디지털)</string>
+    <!-- Task 9: 소프트 라우팅 기억 표시명 -->
+    <string name="player_soft_route_reason_dv">돌비비전 영상</string>
+    <!-- Task 9: 폴백 시크 알림 -->
+    <string name="player_fallback_seek_toast">시크 인덱스가 없어 추정 위치 탐색을 사용합니다</string>
+    <!-- Task 9: Jellyfin 내장 자막 트랙 표시명 -->
+    <string name="player_sub_embedded_prefix">[내장] %1$s</string>
+    <string name="player_sub_embedded_track">자막 %1$d</string>
+    <!-- Task 9: 외부 열기 폴백 이름 -->
+    <string name="player_unknown_file">알 수 없는 파일</string>
+    <!-- Task 9: RMVB 프록시 업스트림 실패 원인 -->
+    <string name="player_rmvb_err_upstream_connect">비디오 소스에 연결할 수 없습니다: %1$s</string>
+    <string name="player_rmvb_err_upstream_interrupted">네트워크 연결이 끊겤습니다: %1$s</string>
+</resources>
