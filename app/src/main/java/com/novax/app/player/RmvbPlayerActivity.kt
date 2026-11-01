@@ -123,7 +123,6 @@ import com.novax.app.data.NvPaths
 import com.novax.app.data.playback.NvUri
 import com.novax.app.data.privacy.NvPrivacyRedactor
 import com.novax.app.ui.components.NvPlayerPopup
-import com.novax.app.ui.viewers.NvFileRouter
 import com.novax.app.ui.components.NvSlider
 import com.novax.app.ui.components.NvMotion
 import com.novax.app.ui.components.NvPrimaryButton
@@ -135,6 +134,7 @@ import com.novax.app.ui.glass.nvGlassSource
 import com.novax.app.ui.glass.nvGlassSurface
 import com.novax.app.ui.theme.NvColors
 import com.novax.app.ui.theme.NovaXTheme
+import com.novax.app.ui.viewers.NvFileRouter
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
