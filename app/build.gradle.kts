@@ -18,15 +18,22 @@ val keystoreProps = Properties().apply {
 // 方案数学性质由 ReleaseVersionSchemeTest 锁定（跨日严格单调、2147 年内不溢出）。
 // 注意：AGP 9 新 Variant API 已无 per-output 重命名能力（javap 实证），产物名维持 AGP 默认，
 // 对外分发命名在归档时手工完成（docs/RELEASE.md §3）。
-// v1.0.0.12 发包：nvReleaseDate=20261101、nvReleaseIndex=0（当日第 1 版，基础码 2026110100）。
-// 内容 = 修复：长按倍速生效瞬间画面黑闪 1~2 帧——倍速胶囊 scaleIn/scaleOut 缩放出场动画
-// 连累 SurfaceView 逐帧位置事务在动画头几帧被以「缩放归零、pivot=胶囊中心」退化值重提交
-// （三星真机 release/dev 双构建录屏取证必现；对照实验去缩放后零退化事务）。改纯淡入淡出，
-// 胶囊观感几乎无差；RMVB 播放器同款胶囊同批修复。
-// 历史：v1.0.0.11=202610301x（划卡停播撤通知修复）；v1.0.0.10=202610300x（大图库目录点图闪退修复）。
-val nvVersionName = "1.0.0.12"
+// v1.0.0.13 发包：nvReleaseDate=20261101、nvReleaseIndex=1（当日第 2 版，基础码 2026110110）。
+// 内容 = 修复：老编码 AVI「只出声没画面、零提示」（用户 NAS 实测 + 模拟器/JVM 双重复现）——
+// ① media3 默认嗅探序列 Mp3Extractor（14 位）在 AviExtractor（15 位）之前，其嗅探器在 AVI 的
+//   movi 数据里搜到疑似 MP3 帧同步即误嗅接管整个文件：只输出纯音频轨 + ConstantBitrateSeeker
+//   瞎算假时长（实例 504ms），视频轨整个不存在。修复 = AviExtractor 提位到链首（其 sniff 只认
+//   RIFF….AVI 魔数，非 AVI 零影响）；② 视频轨缺失/整组未选中（无解码器形态）→ 驻留窗判定后
+//   自动转专用播放器（libVLC 软解）+ 按文件写软路由记忆（video_track，读侧同 DV 继续生效）；
+//   顺带撤销 non-DV 未选中视频的「死胡同错误弹窗」（连软解按钮都没有的黑屏报错页）。
+// 新增 = 兜底页切集路由回主播放器（用户需求「硬解视频用硬解播放」）：目标非兜底扩展名且无
+//   有效软路由记忆 → 提示「已切换到默认播放器」后整队交回主播放器；计量/隐私锁由主播放器
+//   闸门接手（与文件页点开同一语义）。
+// 历史：v1.0.0.12=202611010x（长按倍速黑闪修复）；v1.0.0.11=202610301x（划卡停播撤通知修复）；
+// v1.0.0.10=202610300x（大图库目录点图闪退修复）。
+val nvVersionName = "1.0.0.13"
 val nvReleaseDate = 20261101
-val nvReleaseIndex = 0
+val nvReleaseIndex = 1
 val nvVersionBase: Int = run {
     // T11 评审移交：双守卫 + long 运算。Int 直乘在日期误改（多打一位/改超 21474836 年）时
     // 会静默回绕，require 拦不住；先升 long 再校验，配置期即炸而非产出错版号。
