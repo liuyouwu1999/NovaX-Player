@@ -375,6 +375,16 @@ class LibraryViewModel(app: Application) : AndroidViewModel(app) {
         }
     }
 
+    /** 封面文件丢失自检（2026-11-01 显示时点检）：数据层权威判定后 reset+request 走正常认领 */
+    fun verifyThumbLost(mediaItemId: Long) {
+        viewModelScope.launch {
+            runCatching { NvThumbHolder.verifyThumbLost(context, mediaItemId) }
+                .onFailure {
+                    android.util.Log.w("NvThumb", "verifyThumbLost failed id=$mediaItemId", it)
+                }
+        }
+    }
+
     // ── 播放（C12 §4.4/§4.5：一期文件级库直达播放，续播由 PlayerActivity 按历史键自理）──
     fun playUrlOf(item: MediaItemEntity): String {
         val source = cachedSources.firstOrNull { it.id == item.sourceId }

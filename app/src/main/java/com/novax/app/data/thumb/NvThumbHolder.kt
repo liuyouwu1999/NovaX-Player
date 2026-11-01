@@ -33,6 +33,9 @@ object NvThumbHolder {
     @Volatile
     private var thumbnailer: Thumbnailer? = null
 
+    @Volatile
+    private var thumbLostVerifier: ThumbLostVerifier? = null
+
     /** §1a:「流量网络也出封面」开关的进程级快照;偏好 Flow 收集刷入。
      *  不走 playerPrefsSnapshot()——其缓存只在写偏好/播放器启动时填充,文件浏览路径
      *  永不加热,新进程直奔文件夹会读不到已保存的开关(冷缓存洞) */
@@ -86,7 +89,29 @@ object NvThumbHolder {
         // NAS 离线会把待抽行全部烧成永久 FAILED（重扫不重置），mp4/mkv 无任何恢复通道。
         // 默认网络 onAvailable 是边沿触发（含注册时的当次回调），配 2min 防抖防切换风暴。
         registerNetworkRecovery(appContext, scanDao, t, isThumbNetworkAllowed)
+        // 2026-11-01 封面文件丢失自检：显示时点检 DONE 行缩略图文件是否真的还在
+        // （cacheDir 被系统/管家清掉后 DB 仍记 DONE → 永久静默占位，全工程此前无自愈通道）。
+        // request 复用同一 Thumbnailer 通道——隐私锁/蜂窝推迟/并发预算等闸门原样生效；
+        // 隐私判定与 requestThumb 同口径（null=未初始化=放行，verifier 内还有同款双保险）。
+        thumbLostVerifier = ThumbLostVerifier(
+            findById = { id -> dao.findById(id) },
+            resetThumb = { id -> dao.resetThumb(id) },
+            request = { id -> t.requestThumb(id) },
+            fileExists = { path -> java.io.File(path).exists() },
+            privacyBlocked = { sourceId, path ->
+                val p = com.novax.app.data.privacy.NvPrivacyAccess.get(appContext)
+                p != null && !p.startAllowed(sourceId, path)
+            },
+        )
         return t
+    }
+
+    /** 封面文件丢失自检入口（显示时点检；UI 侧 stat 只是廉价门铃，权威判定在 verifier）。
+     *  未初始化时静默 no-op（与 thumbNetworkAllowed 同保守口径）。 */
+    suspend fun verifyThumbLost(context: Context, mediaItemId: Long) {
+        get(context)
+        val v = thumbLostVerifier ?: return
+        kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) { v.verify(mediaItemId) }
     }
 
     private fun registerNetworkRecovery(

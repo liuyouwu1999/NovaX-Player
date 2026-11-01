@@ -938,6 +938,13 @@ class FilesViewModel(
         }
     }
 
+    /** 封面文件丢失自检（2026-11-01 显示时点检，复审 P1-3：只挂副作用流，权威判定在数据层） */
+    fun verifyThumbLost(mediaItemId: Long) {
+        viewModelScope.launch(Dispatchers.IO) {
+            runCatching { com.novax.app.data.thumb.NvThumbHolder.verifyThumbLost(appContext, mediaItemId) }
+        }
+    }
+
     /**
      * 2026-09-27 用户需求：进文件夹即把本目录全部视频的封面入队——不再等用户滚到可见行
      * 才逐个触发。库内行走置顶档 [com.novax.app.data.thumb.ThumbPriority.RANK_FOLDER_BOOST]，

@@ -54,6 +54,7 @@ fun NvMediaPosterCard(
     progress: Float? = null,
     badge: String? = null,
     onNeedThumb: (() -> Unit)? = null,
+    onThumbVerify: (() -> Unit)? = null,
     onLongClick: (() -> Unit)? = null,
 ) {
     // 可见项触发（C12 §3.8）：NONE 且无路径时请求抽帧；key 带状态避免重组风暴，
@@ -65,6 +66,13 @@ fun NvMediaPosterCard(
             // 2026-09-21 审计 P3：原 Log.w 每卡一条（release 全保留、快速滚动刷屏）→ Log.d
             android.util.Log.d("NvThumb", "card needThumb fire: state=$thumbState")
             onNeedThumb?.invoke()
+        } else if (thumbState == ThumbState.DONE && thumbnailPath != null &&
+            !java.io.File(thumbnailPath).exists()
+        ) {
+            // 2026-11-01 封面文件丢失自检（复审 P1-1）：此处 stat 只是廉价门铃——显示路径
+            // 可能是 TMDB 刮削海报（调用方 scrape-first 混用）；权威判定在数据层
+            // ThumbLostVerifier（重读 DB 行、只认 thumbnailPath），误触发在其内部自然消解
+            onThumbVerify?.invoke()
         }
     }
     when {

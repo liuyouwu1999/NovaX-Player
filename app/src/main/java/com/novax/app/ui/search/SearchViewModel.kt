@@ -220,6 +220,13 @@ class SearchViewModel(app: Application) : AndroidViewModel(app) {
         }
     }
 
+    /** 封面文件丢失自检（2026-11-01 显示时点检）：数据层权威判定后 reset+request 走正常认领 */
+    fun verifyThumbLost(mediaItemId: Long) {
+        viewModelScope.launch {
+            runCatching { NvThumbHolder.verifyThumbLost(context, mediaItemId) }
+        }
+    }
+
     /** 命中点击 → 播放地址：LOCAL 源 = 本地绝对路径，其余 = novax://<id><encoded path>
      *  （与 NvPlaybackLauncher 同构，保证历史/续播键一致，C12 §5.2 文件命中直达播放） */
     fun playUrlOf(item: MediaItemEntity): String {

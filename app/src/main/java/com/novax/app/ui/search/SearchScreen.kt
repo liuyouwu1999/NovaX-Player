@@ -284,6 +284,7 @@ private fun EmptyContent(state: SearchViewModel.UiState, viewModel: SearchViewMo
                     thumbnailPath = item.thumbnailPath,
                     thumbState = runCatching { ThumbState.valueOf(item.thumbState) }.getOrDefault(ThumbState.NONE),
                     onNeedThumb = { viewModel.needThumb(item.id) },
+                    onThumbVerify = { viewModel.verifyThumbLost(item.id) },
                     onClick = { playHit(context, viewModel, item) },
                 )
             }
@@ -404,6 +405,7 @@ private fun ResultContent(
                             { expandedGroups = expandedGroups + SearchFilter.MOVIE }
                         } else null,
                         onNeedThumb = viewModel::needThumb,
+                        onThumbVerify = viewModel::verifyThumbLost,
                         onItemClick = { playHit(context, viewModel, it) },
                     )
                 }
@@ -469,6 +471,7 @@ private fun MediaPosterStrip(
     items: List<MediaItemEntity>,
     onMore: (() -> Unit)?,
     onNeedThumb: (Long) -> Unit,
+    onThumbVerify: (Long) -> Unit,
     onItemClick: (MediaItemEntity) -> Unit,
 ) {
     Column {
@@ -482,6 +485,7 @@ private fun MediaPosterStrip(
                     thumbnailPath = item.thumbnailPath,
                     thumbState = runCatching { ThumbState.valueOf(item.thumbState) }.getOrDefault(ThumbState.NONE),
                     onNeedThumb = { onNeedThumb(item.id) },
+                    onThumbVerify = { onThumbVerify(item.id) },
                     onClick = { onItemClick(item) },
                 )
             }

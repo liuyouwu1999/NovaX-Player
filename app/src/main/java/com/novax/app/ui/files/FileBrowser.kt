@@ -511,6 +511,13 @@ internal fun FileBrowserScreen(
                                                     m == null -> vm.ensureBrowserThumb(state.sourceId, raw.path, raw.size)
                                                     m.thumbnailPath == null || m.thumbState != com.novax.app.data.db.ThumbState.DONE.name ->
                                                         vm.requestThumbFor(m.id)
+                                                    // 2026-11-01 封面文件丢失自检（复审 P1-3：挂副作用流，严禁进上方
+                                                    // combine 值变换——H-9 同型位点）：DONE 但文件已被清 → 数据层
+                                                    // ThumbLostVerifier 重读 DB 行权威判定后 reset+request
+                                                    m.thumbState == com.novax.app.data.db.ThumbState.DONE.name &&
+                                                        m.thumbnailPath != null &&
+                                                        !java.io.File(m.thumbnailPath).exists() ->
+                                                        vm.verifyThumbLost(m.id)
                                                 }
                                             }
                                         }

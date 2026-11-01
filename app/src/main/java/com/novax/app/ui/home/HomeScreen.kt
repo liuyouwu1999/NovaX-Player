@@ -228,6 +228,7 @@ fun HomeScreen(
                                     badge = resolutionBadge(item.width, item.height),
                                     onClick = { playMediaItem(context, vm, item) },
                                     onNeedThumb = { vm.needThumb(item.id) },
+                                    onThumbVerify = { vm.verifyThumbLost(item.id) },
                                     onLongClick = { sheetItem = item },
                                     modifier = Modifier.width(110.dp),
                                 )

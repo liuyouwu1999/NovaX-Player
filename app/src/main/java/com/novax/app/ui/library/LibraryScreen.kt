@@ -891,6 +891,7 @@ private fun MediaCard(state: LibraryUiState, row: MediaItemWithWatch, viewModel:
         },
         badge = if (LibraryViewModel.isWatched(row)) stringResource(R.string.lib_watched) else null,
         onNeedThumb = { viewModel.needThumb(row.item.id) },
+        onThumbVerify = { viewModel.verifyThumbLost(row.item.id) },
         onClick = { playItem(context, viewModel, row) },
         onLongClick = { viewModel.showItemSheet(row) },
     )
@@ -945,6 +946,7 @@ private fun LibraryListView(
                     thumbnailPath = row.item.scrapePosterPath?.takeIf { it.isNotBlank() } ?: row.item.thumbnailPath,
                     thumbState = runCatching { ThumbState.valueOf(row.item.thumbState) }.getOrDefault(ThumbState.NONE),
                     onNeedThumb = { viewModel.needThumb(row.item.id) },
+                    onThumbVerify = { viewModel.verifyThumbLost(row.item.id) },
                     onClick = { playItem(context, viewModel, row) },
                     onLongClick = { viewModel.showItemSheet(row) },
                     modifier = Modifier.width(56.dp),

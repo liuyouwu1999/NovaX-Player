@@ -245,6 +245,13 @@ class HomeViewModel(private val appContext: Context) : ViewModel() {
         }
     }
 
+    /** 封面文件丢失自检（2026-11-01 显示时点检）：数据层权威判定后 reset+request 走正常认领 */
+    fun verifyThumbLost(mediaItemId: Long) {
+        viewModelScope.launch {
+            runCatching { NvThumbHolder.verifyThumbLost(appContext, mediaItemId) }
+        }
+    }
+
     // ── 继续观看长按菜单 ──
 
     /** 「从继续观看移除」：标记看完（positionMs=durationMs），退出 <95% 续播窗口。
