@@ -5,7 +5,7 @@ import org.junit.Test
 
 /**
  * E4-4（发版审查）：versionCode 方案数学性质锁定。
- * 公式（与 app/build.gradle.kts 中 nvReleaseBase 注释同步维护，任一侧改动须同步另一侧）：
+ * 公式（与 app/build.gradle.kts 中 nvVersionBase 注释同步维护，任一侧改动须同步另一侧）：
  *   base = 发版日YYYYMMDD × 100 + 同日序号 n × 10   （n=0 为当日首版，n ∈ 0..9）
  *   code = base + ABI 偏移（arm64-v8a=1, armeabi-v7a=2, x86_64=3）
  */

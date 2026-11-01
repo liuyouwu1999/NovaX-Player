@@ -1243,6 +1243,11 @@ internal fun NvBreadcrumb(path: List<String>, onSelect: (Int) -> Unit) {
     }
 }
 
+// 2026-11-01 审核 P2：解码器工厂提为顶层单例——BitmapFactoryDecoder.Factory 非 data class
+// （无值相等），内联在请求里会因重组每次新建实例、打掉 ImageRequest 相等性（命中内存缓存
+// 时代价极小，纯卫生）；提出来后请求相等性稳定。GIF 静态锁定语义见 NvFileRow 用例处注释。
+private val NvRowStaticDecodeFactory = coil3.decode.BitmapFactoryDecoder.Factory()
+
 // 文件行：文件夹行 / 视频文件行（名称 + 大小 + 类型 badge；缩略图命中 media_items 时显示真帧，C12 §3.8）
 // C5 二期：多选态行首勾选圈 + 选中底色 Primary 8%；搜索命中词高亮；子目录命中次行相对路径
 @Composable
@@ -1327,7 +1332,7 @@ internal fun NvFileRow(
                             // 2026-11-01 GIF 动画上线（coil-gif 全局注册）后文件页仍保持定格首帧
                             // （用户拍板：只在查看器动）。显式锁 BitmapFactory 解码器：GIF 只解
                             // 首帧；其余格式该解码器本就是默认链兜底，行为与此前逐字节一致。
-                            .decoderFactory(coil3.decode.BitmapFactoryDecoder.Factory())
+                            .decoderFactory(NvRowStaticDecodeFactory)
                             .build(),
                         contentDescription = null,
                         modifier = Modifier.fillMaxSize(),
