@@ -154,7 +154,6 @@ import com.novax.app.data.cast.CastSessionHolder
 import com.novax.app.data.db.SourceType
 import com.novax.app.data.privacy.NvPrivacyRedactor
 import com.novax.app.ui.cast.NvCastDeviceSheet
-import com.novax.app.ui.viewers.NvFileRouter
 import com.novax.app.ui.cast.NvCastMeteredDialogHost
 import com.novax.app.ui.cast.rememberNvCastGateState
 import com.novax.app.ui.components.NvBannerKind
@@ -173,6 +172,7 @@ import com.novax.app.ui.components.text
 import com.novax.app.ui.glass.NvGlassChip
 import com.novax.app.ui.glass.nvGlassSource
 import com.novax.app.ui.theme.NvColors
+import com.novax.app.ui.viewers.NvFileRouter
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeoutOrNull
@@ -1102,9 +1102,18 @@ fun PlayerScreen(
             // false）。DV 编码仍走既有错误+软解按钮流（不在此触发，行为不变）。
             if (errorMessage == null && !videoSwitchDone && onFallbackRetry != null) {
                 val url = playUrl
-                if (videoMissing &&
-                    (videoMissingMime == null || !videoMissingMime.contains("dolby-vision", ignoreCase = true)) &&
-                    url != null && NvFileRouter.extensionOf(url) in NvFileRouter.VIDEO_EXTS
+                val ext = url?.let { NvFileRouter.extensionOf(it) }
+                // 审核 P1-1（2026-11-01）：两种缺失形态分开设门——
+                // ①组**存在但整组未选中**（mime 非 null）：任何视频扩展名都转（无解码器形态，
+                //   判据明确）；②组**不存在**（mime null）：仅 avi 转——AVI 解封装器对未知
+                //   fourcc 是静默丢轨（本次实证），而其他容器（mkv/ts/mp4…）丢轨极少见，
+                //   「无视频组」基本就是真纯音频内容（音频 rip 装视频壳），基线行为是静默播
+                //   音频，不该踢去兜底页+写记忆（记忆会让通知栏切集跳过该文件，二次伤害）。
+                val shapeAbsent = videoMissing && videoMissingMime == null
+                val shapeUnselected = videoMissing && videoMissingMime != null
+                val dvMime = videoMissingMime?.contains("dolby-vision", ignoreCase = true) == true
+                if ((shapeUnselected && !dvMime || shapeAbsent && ext == "avi") &&
+                    url != null && ext in NvFileRouter.VIDEO_EXTS
                 ) {
                     videoMissingStreak++
                     if (videoMissingStreak >= VIDEO_MISSING_STREAK_TICKS) {

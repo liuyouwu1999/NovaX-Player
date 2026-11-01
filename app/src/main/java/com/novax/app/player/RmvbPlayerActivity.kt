@@ -123,6 +123,7 @@ import com.novax.app.data.NvPaths
 import com.novax.app.data.playback.NvUri
 import com.novax.app.data.privacy.NvPrivacyRedactor
 import com.novax.app.ui.components.NvPlayerPopup
+import com.novax.app.ui.viewers.NvFileRouter
 import com.novax.app.ui.components.NvSlider
 import com.novax.app.ui.components.NvMotion
 import com.novax.app.ui.components.NvPrimaryButton
@@ -1529,7 +1530,7 @@ class RmvbPlayerActivity : ComponentActivity() {
             // 2026-11-01 方案二（用户需求：硬解视频用硬解播放）：目标主播放器可承载 → 路由回
             // 主播放器，不落兜底内核。置于计量闸之前——计量判定交主播放器起播闸门重做（与
             // 文件页点开同一语义），隐私锁同样由主播放器闸门接手（锁定集→解锁面板，不放播）。
-            if (routeBackToMainIfNeeded(target, entry)) return@launch
+            if (routeBackToMainIfNeeded(entry)) return@launch
             // 2026-09-28 审计 P0-2：换集（含播完自动连播，同径）= 新的一次起播，计量网络按
             // 目标重判；2026-10-11 三档化——「仅提醒一次」档会话内不重复拦截（spec §3），
             // Wi-Fi 开局后切蜂窝的自动连播此前会静默整集拉流的防护仍由「每次重判」保留。
@@ -1551,11 +1552,19 @@ class RmvbPlayerActivity : ComponentActivity() {
      * 当前集进度先落库（与 [applyQueueSwitch] 手动切集同口径）。
      * 通知栏/后台播放条的切集不经此路径（PlaybackService 既有跳过逻辑不变）。
      */
-    private suspend fun routeBackToMainIfNeeded(target: Int, entry: Pair<String, String>): Boolean {
-        if (!shouldRouteBackToMain(entry.first, softRouteMemoryReason(playerPrefsSnapshot(), entry.first))) {
-            return false
-        }
-        Log.w("NvPerf", "route back to main player (hardware decode): ${entry.first}")
+    private suspend fun routeBackToMainIfNeeded(entry: Pair<String, String>): Boolean {
+        // 审核 P1-2（2026-11-01）：直读 DataStore 而非 playerPrefsSnapshot()——记忆写入端
+        // （PlayerActivity.onFallbackRetry）不刷 prefsCache，读缓存会拿到陈旧值：同会话内刚
+        // 被记忆的文件查无记忆 → 主↔兜底反复弹跳。与 PlaybackService.softRouteOf 同口径
+        // （该处注释明确踩过同一坑并已改直读）。
+        val reason = playerPrefsStore.data.first()[
+            androidx.datastore.preferences.core.stringPreferencesKey(SOFT_ROUTE_KEY_PREFIX + entry.first)]
+        if (!shouldRouteBackToMain(entry.first, reason)) return false
+        // 审核 P2-6：W 级日志不带完整 URL/文件名（对齐本文件日志口径），只报扩展名
+        Log.w(
+            "NvPerf",
+            "route back to main player (hardware decode): ext=${NvFileRouter.extensionOf(entry.first)}",
+        )
         flushHistory()
         toast(getString(R.string.player_route_back_toast))
         val queueId = PlayerPlaylistHolder.put(queue.map { it.first to it.second })
@@ -3197,15 +3206,11 @@ class RmvbPlayerActivity : ComponentActivity() {
          * → 主播放器可承载（硬解），交回。音轨类记忆读侧已退役（FFmpeg 音频扩展后必然可解），
          * 不阻止回路由——函数内自过滤，调用方传原始记忆值也不会误判（纵深防御）。
          * 其余记忆（video_track/DV）命中的目标继续留在兜底内核（记忆语义：这台设备带不动）。
+         * 记忆读取在 routeBackToMainIfNeeded 直读 DataStore（审核 P1-2：prefsCache 陈旧）。
          */
         fun shouldRouteBackToMain(url: String, softRouteReason: String?): Boolean =
             !isFallbackTarget(url) &&
                 (softRouteReason == null || isSoftRouteAudioReason(softRouteReason))
-
-        /** 读目标 URL 的有效软路由记忆（音轨类读侧忽略，与 PlaybackService.softRouteOf 同口径） */
-        fun softRouteMemoryReason(prefs: androidx.datastore.preferences.core.Preferences?, url: String): String? =
-            prefs?.get(androidx.datastore.preferences.core.stringPreferencesKey(SOFT_ROUTE_KEY_PREFIX + url))
-                ?.takeUnless { isSoftRouteAudioReason(it) }
 
         /** 卡死确认阈值（2026-10-13「卡了再出」）：播放中位置连续不动超过此时长才弹层；
          * 须大于自愈型抖动的典型重连耗时容忍与正常 seek 缓冲，小于用户可忍受的僵死 */

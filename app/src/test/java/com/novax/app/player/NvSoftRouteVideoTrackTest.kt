@@ -1,10 +1,7 @@
 package com.novax.app.player
 
-import androidx.datastore.preferences.core.preferencesOf
-import androidx.datastore.preferences.core.stringPreferencesKey
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
-import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
@@ -102,31 +99,5 @@ class NvSoftRouteVideoTrackTest {
         assertTrue(RmvbPlayerActivity.shouldRouteBackToMain("file:///sdcard/x.mp4 ", null))
         assertTrue(RmvbPlayerActivity.shouldRouteBackToMain("novax://1/dir/a.avi?token=x", null))
         assertFalse(RmvbPlayerActivity.shouldRouteBackToMain("novax://1/dir/b.rmvb?token=x", null))
-    }
-
-    // ---------------- softRouteMemoryReason：读侧过滤 ----------------
-
-    @Test
-    fun `记忆读取过滤音轨类保留视频与杜比类`() {
-        val prefs = preferencesOf(
-            stringPreferencesKey(SOFT_ROUTE_KEY_PREFIX + "http://nas/avidef.avi") to SOFT_ROUTE_REASON_VIDEO,
-            stringPreferencesKey(SOFT_ROUTE_KEY_PREFIX + "http://nas/dv.mkv") to SOFT_ROUTE_REASON_DV,
-            stringPreferencesKey(SOFT_ROUTE_KEY_PREFIX + "http://nas/audio.mkv") to SOFT_ROUTE_REASON_AUDIO,
-        )
-        assertEquals(
-            SOFT_ROUTE_REASON_VIDEO,
-            RmvbPlayerActivity.softRouteMemoryReason(prefs, "http://nas/avidef.avi"),
-        )
-        assertEquals(
-            SOFT_ROUTE_REASON_DV,
-            RmvbPlayerActivity.softRouteMemoryReason(prefs, "http://nas/dv.mkv"),
-        )
-        assertNull(
-            RmvbPlayerActivity.softRouteMemoryReason(prefs, "http://nas/audio.mkv"),
-        )
-        assertNull(
-            RmvbPlayerActivity.softRouteMemoryReason(prefs, "http://nas/none.mp4"),
-        )
-        assertNull(RmvbPlayerActivity.softRouteMemoryReason(null, "http://nas/x.mp4"))
     }
 }
