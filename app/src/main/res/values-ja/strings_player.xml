@@ -265,6 +265,9 @@
     <string name="player_codec_ac3">AC-3（ドルビーデジタル）</string>
     <!-- Task 9: ソフトルート記憶の表示名 -->
     <string name="player_soft_route_reason_dv">ドルビービジョン映像</string>
+    <string name="player_soft_route_reason_video">映像コーデックが古い形式</string>
+    <string name="player_video_unsupported_toast">この映像は本機でデコードできないため、専用プレーヤーに切り替えました</string>
+    <string name="player_route_back_toast">デフォルトのプレーヤーに切り替えました</string>
     <!-- Task 9: フォールバックシーク トースト -->
     <string name="player_fallback_seek_toast">シークインデックスがないため推定位置探査を使用します</string>
     <!-- Task 9: Jellyfin 内蔵字幕トラックの表示名 -->

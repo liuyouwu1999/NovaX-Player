@@ -244,6 +244,12 @@ const val SOFT_ROUTE_REASON_AUDIO = "audio_track"
 /** 软路由协议值（Task 9③）：杜比视界画面本机无解码器（继续生效） */
 const val SOFT_ROUTE_REASON_DV = "dolby_vision"
 
+/**
+ * 软路由协议值（2026-11-01 v1.0.0.13）：视频轨缺失/未被选中（老编码无硬解路径，真机 NAS 老
+ * AVI「只出声没画面、零提示」案例）——转 libVLC 软解兜底（继续生效，同 DV 类）。
+ */
+const val SOFT_ROUTE_REASON_VIDEO = "video_track"
+
 /** 旧版本写入的中文协议值（升级兼容识别，永不新写）：音轨类前缀 */
 private const val LEGACY_REASON_AUDIO_PREFIX = "音轨"
 
@@ -257,6 +263,9 @@ fun isSoftRouteAudioReason(reason: String): Boolean =
 /** 读侧判别：该路由记忆是否属杜比视界画面类（继续生效；旧中文值与新 token 均认） */
 fun isSoftRouteDolbyVisionReason(reason: String): Boolean =
     reason == SOFT_ROUTE_REASON_DV || reason == LEGACY_REASON_DV
+
+/** 读侧判别：该路由记忆是否属视频轨缺失类（2026-11-01 新增，继续生效；无旧值兼容需求） */
+fun isSoftRouteVideoReason(reason: String): Boolean = reason == SOFT_ROUTE_REASON_VIDEO
 
 /** 2026-09-29 迁移标记：novax_softroute_* 的音轨类记录 + 已删 mime 集合只清一次 */
 val KEY_SOFT_ROUTE_MIGRATED_FFAUDIO = booleanPreferencesKey("novax_softroute_migrated_ffaudio")

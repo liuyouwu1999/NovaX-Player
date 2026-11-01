@@ -56,7 +56,7 @@ object NvMediaSourceBuilder {
     }
 
     /**
-     * 提取器工厂（2026-09-30 坏索引 MKV 降级 seek；2026-10-03 扩 MP4 分片）：
+     * 提取器工厂（2026-09-30 坏索引 MKV 降级 seek；2026-10-03 扩 MP4 分片；2026-11-01 AVI 提位）：
      * 保持 DefaultExtractorsFactory 的默认嗅探顺序，MatroskaExtractor 包 Matroska 规格、
      * Mp4Extractor（media3 默认族中 MP4 含分片 fMP4 都由它处理）包 MP4 规格（'moof' 锚点）——
      * 有索引片源 / 其他容器在包装器内零行为变化，仅 Unseekable+长度已知时激活降级。
@@ -75,21 +75,42 @@ object NvMediaSourceBuilder {
 
     internal fun wrapWithFallbackSeek(
         extractors: Array<androidx.media3.extractor.Extractor>,
-    ): Array<androidx.media3.extractor.Extractor> = extractors.map { extractor ->
-        when (extractor) {
-            is androidx.media3.extractor.mkv.MatroskaExtractor ->
-                NvFallbackSeekExtractor(extractor, NvFallbackSeekExtractor.ResyncSpec.MATROSKA)
-            // 2026-10-03 真机实测补口：media3 1.8.0 默认序列中 FragmentedMp4Extractor 排在
-            // Mp4Extractor 之前且默认只包了后者——分片 MP4（无 sidx 的下载/转存片源）嗅探
-            // 先命中 FragmentedMp4Extractor，完全绕过降级管线 → 进度条依旧「源限制」拒绝
-            //（模拟器 factory 组成日志实证：Flv,…,FragmentedMp4Extractor,NvFallbackSeek…）
-            is androidx.media3.extractor.mp4.FragmentedMp4Extractor ->
-                NvFallbackSeekExtractor(extractor, NvFallbackSeekExtractor.ResyncSpec.MP4)
-            is androidx.media3.extractor.mp4.Mp4Extractor ->
-                NvFallbackSeekExtractor(extractor, NvFallbackSeekExtractor.ResyncSpec.MP4)
-            else -> extractor
+    ): Array<androidx.media3.extractor.Extractor> {
+        val wrapped = extractors.map { extractor ->
+            when (extractor) {
+                is androidx.media3.extractor.mkv.MatroskaExtractor ->
+                    NvFallbackSeekExtractor(extractor, NvFallbackSeekExtractor.ResyncSpec.MATROSKA)
+                // 2026-10-03 真机实测补口：media3 1.8.0 默认序列中 FragmentedMp4Extractor 排在
+                // Mp4Extractor 之前且默认只包了后者——分片 MP4（无 sidx 的下载/转存片源）嗅探
+                // 先命中 FragmentedMp4Extractor，完全绕过降级管线 → 进度条依旧「源限制」拒绝
+                //（模拟器 factory 组成日志实证：Flv,…,FragmentedMp4Extractor,NvFallbackSeek…）
+                is androidx.media3.extractor.mp4.FragmentedMp4Extractor ->
+                    NvFallbackSeekExtractor(extractor, NvFallbackSeekExtractor.ResyncSpec.MP4)
+                is androidx.media3.extractor.mp4.Mp4Extractor ->
+                    NvFallbackSeekExtractor(extractor, NvFallbackSeekExtractor.ResyncSpec.MP4)
+                else -> extractor
+            }
         }
-    }.toTypedArray()
+        return prioritizeAvi(wrapped).toTypedArray()
+    }
+
+    /**
+     * AVI 提位（2026-11-01 v1.0.0.13，纯函数可单测）：把链中的 [androidx.media3.extractor.avi.AviExtractor]
+     * 移到最前。根因（真机 NAS 老 AVI「只出声没画面零提示」+ 模拟器/JVM 双重复现）：默认序列
+     * Mp3Extractor（第 14 位）在 AviExtractor（第 15 位）之前，其嗅探器会在 AVI 的 movi 数据里
+     * 搜到疑似 MP3 帧同步即**误嗅接管整个文件**——只输出纯音频轨 + ConstantBitrateSeeker 瞎算
+     * 假时长（实例 504ms），视频轨整个不存在，零报错。AviExtractor.sniff 只认 `RIFF….AVI ` 魔数
+     * （WAV=RIFF….WAVE 不受影响），提位对非 AVI 文件零行为变化（sniff false 顺序无关）。
+     * JVM 实证（media3 1.8.0 逐个嗅探）：Mp3Extractor→true 抢占；提位后 AviExtractor→true，
+     * 双轨（video/mp4v-es + audio/mpeg）齐出。
+     */
+    internal fun prioritizeAvi(
+        extractors: List<androidx.media3.extractor.Extractor>,
+    ): List<androidx.media3.extractor.Extractor> {
+        val avi = extractors.filterIsInstance<androidx.media3.extractor.avi.AviExtractor>()
+        if (avi.isEmpty()) return extractors
+        return avi + extractors.filter { it !is androidx.media3.extractor.avi.AviExtractor }
+    }
 
     /**
      * 同目录外挂字幕（含自动选择标记）→ SubtitleConfiguration 列表。

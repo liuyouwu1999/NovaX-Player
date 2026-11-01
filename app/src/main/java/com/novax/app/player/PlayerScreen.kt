@@ -154,6 +154,7 @@ import com.novax.app.data.cast.CastSessionHolder
 import com.novax.app.data.db.SourceType
 import com.novax.app.data.privacy.NvPrivacyRedactor
 import com.novax.app.ui.cast.NvCastDeviceSheet
+import com.novax.app.ui.viewers.NvFileRouter
 import com.novax.app.ui.cast.NvCastMeteredDialogHost
 import com.novax.app.ui.cast.rememberNvCastGateState
 import com.novax.app.ui.components.NvBannerKind
@@ -222,6 +223,13 @@ private const val END_STALL_TIMEOUT_MS = 2_500L
 
 /** 位置离开片尾这么多就算「用户又回去了」→ 允许下一次片尾重新收口 */
 private const val END_STALL_RESET_DISTANCE_MS = 5_000L
+
+/**
+ * 视频轨缺失转软解的驻留窗（2026-11-01）：连续满足判定的心跳次数。心跳 ~500ms，3 次 ≈1.5s——
+ * 覆盖轨道选择落定窗口的同时不被起播瞬态误触发；正常文件视频轨在 READY 后即时选中，
+ * 驻留条件一次都凑不满。
+ */
+private const val VIDEO_MISSING_STREAK_TICKS = 3
 
 /**
  * 「seek 后无画面」看门狗参数（2026-09-15 用户录屏取证后重写）：
@@ -427,6 +435,12 @@ fun PlayerScreen(
     // 音轨缺失自动转软解（2026-09-19 用户需求）：设备无该音频解码器 → 直接切软解内核
     // 播放（libVLC 软解 DTS/TrueHD/E-AC-3），Toast 提示 2 秒自动消失；每部片只切一次
     var audioSwitchDone by remember { mutableStateOf(false) }
+    // 视频轨缺失自动转软解（2026-11-01 用户 NAS 老 AVI 实测）：视频轨组缺失或整组未被选中
+    // （老编码无硬解路径）→ 转 libVLC 软解兜底；每部片只切一次
+    var videoSwitchDone by remember { mutableStateOf(false) }
+    // 视频轨缺失判定驻留计数：连续 N 个心跳满足才触发（防起播轨道选择未落定的瞬态误报；
+    // 不设 isPlaying 门槛——老 AVI 音频 EOS 后 playing 会立刻翻 false，等播放态就永远等不到）
+    var videoMissingStreak by remember { mutableIntStateOf(0) }
     // C12 反馈：顶栏「方向切换」循环模式（横屏↔竖屏；系统未锁时可达自动·重力）与「画面旋转」角度（0/90/180/270）
     // 2026-09-26：FOLLOW_VIDEO 移除后旧存档可能含已删除枚举值——按名恢复、失败回退横屏
     var orientationMode by rememberSaveable(
@@ -735,6 +749,9 @@ fun PlayerScreen(
         showZoomHint = false
         // 换片重置音轨自动切换：新视频重新侦测
         audioSwitchDone = false
+        // 换片重置视频轨缺失侦测（2026-11-01）：同上口径，新文件重新判定
+        videoSwitchDone = false
+        videoMissingStreak = 0
     }
     // 根 Box 实际像素尺寸：平移夹紧的屏幕口径（onSizeChanged 写入 state，
     // 手势 lambda 每次调用读最新值——旋屏/画中画尺寸变化后无需重建 gestureEvents）
@@ -1031,7 +1048,15 @@ fun PlayerScreen(
             // ---- 视频轨缺失侦测（杜比视界 Profile 5 静默丢弃，见 videoTrackMissingMessage）----
             // 必须放在心跳里持续判定：真机取证显示 onTracksChanged 触发时 duration 往往还没就绪，
             // 一次性检查会永久错过（首版实现即因此不生效，Profile 5 仍然只有黑屏没有任何提示）。
-            if (errorMessage == null) {
+            // 2026-11-01：缺失形态先算一次给下方自动转软解复用；**非 DV 的未选中视频不再走
+            // 死胡同错误弹窗**（原 non-DV 分支连软解按钮都没有，用户只能干看黑屏）——交由
+            // 下方自动转专用播放器接管（libVLC 可解 mp4v/mjpeg 等老编码，远好过报错）。
+            // DV 仍走错误+软解按钮流（行为不变）。
+            val videoMissingMime = videoGroupMime(player.currentTracks)
+            val videoMissing = videoTrackMissingShape(player.currentTracks)
+            if (errorMessage == null &&
+                (videoMissingMime == null || videoMissingMime.contains("dolby-vision", ignoreCase = true))
+            ) {
                 videoTrackMissingMessage(
                     player.currentTracks,
                     durationMs,
@@ -1064,6 +1089,39 @@ fun PlayerScreen(
                         Toast.LENGTH_SHORT,
                     ).show()
                     onFallbackRetry(SOFT_ROUTE_REASON_AUDIO)
+                }
+            }
+            // ---- 视频轨缺失自动转软解（2026-11-01 用户 NAS 老 AVI 实测：只出声没画面、
+            //      零提示零报错）----
+            // 根因链：老编码（MPEG-4 ASP 等）本机无硬解路径 → 视频轨组缺失（解封装层丢弃）
+            // 或整组未被选中（选择层放弃）。既有 videoTrackMissingMessage（杜比视界流）被
+            // durationMs>0 护栏拦住——而此类文件时长恰恰算不出来（AVI 无视频轨时时间轴瘫痪，
+            // 进度条恒 00:00），于是全程静默；时长算得出来时又被 non-DV 死胡同错误弹窗抢占
+            // （上方已改为非 DV 不再设 errorMessage）。故本判定**不做 duration 护栏**，改用
+            // 连续心跳驻留窗防瞬态误报；也不设 isPlaying 门槛（音频 EOS 后 playing 立刻翻
+            // false）。DV 编码仍走既有错误+软解按钮流（不在此触发，行为不变）。
+            if (errorMessage == null && !videoSwitchDone && onFallbackRetry != null) {
+                val url = playUrl
+                if (videoMissing &&
+                    (videoMissingMime == null || !videoMissingMime.contains("dolby-vision", ignoreCase = true)) &&
+                    url != null && NvFileRouter.extensionOf(url) in NvFileRouter.VIDEO_EXTS
+                ) {
+                    videoMissingStreak++
+                    if (videoMissingStreak >= VIDEO_MISSING_STREAK_TICKS) {
+                        videoSwitchDone = true
+                        Log.w(
+                            "NvVideo",
+                            "video track missing/unselected (mime=$videoMissingMime) streak=$videoMissingStreak → soft-decode handoff",
+                        )
+                        Toast.makeText(
+                            context,
+                            context.getString(R.string.player_video_unsupported_toast),
+                            Toast.LENGTH_SHORT,
+                        ).show()
+                        onFallbackRetry(SOFT_ROUTE_REASON_VIDEO)
+                    }
+                } else {
+                    videoMissingStreak = 0
                 }
             }
             // ---- 片尾卡住看门狗 ----
@@ -2306,6 +2364,28 @@ private fun audioMissingShape(tracks: Tracks): Boolean {
     val videoGroups = tracks.groups.filter { it.type == C.TRACK_TYPE_VIDEO }
     if (videoGroups.isNotEmpty() && videoGroups.none { it.isSelected }) return false
     return true
+}
+
+/**
+ * 视频轨缺失形态判定（2026-11-01 老 AVI 案例，结构判定）：轨道信息已到达（groups 非空）的
+ * 前提下，视频组**不存在**（解封装层丢弃，坏编码嗅探层丢轨形态）或**存在但整组未被选中**
+ * （选择层放弃，无解码器形态）→ true；视频组正常选中 → false（纯音频文件/轨道未到达 → false）。
+ * 注意两种缺失形态都必须 true——冒烟实证（2026-11-01 模拟器）：解封装丢弃形态下视频组为空，
+ * 若以「未选中组 mime 非 null」为判据该形态永远不触发。
+ */
+internal fun videoTrackMissingShape(tracks: Tracks): Boolean {
+    if (tracks.groups.isEmpty()) return false
+    val videoGroups = tracks.groups.filter { it.type == C.TRACK_TYPE_VIDEO }
+    if (videoGroups.any { it.isSelected }) return false
+    return true
+}
+
+/** 视频组 mime（日志/展示用；组不存在返回 null，不参与判定） */
+internal fun videoGroupMime(tracks: Tracks): String? {
+    val videoGroups = tracks.groups.filter { it.type == C.TRACK_TYPE_VIDEO }
+    return videoGroups.firstNotNullOfOrNull { g ->
+        (0 until g.length).map { g.getTrackFormat(it) }.firstOrNull()?.sampleMimeType
+    }
 }
 
 /**

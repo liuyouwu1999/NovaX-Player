@@ -265,6 +265,10 @@
     <string name="player_codec_ac3">AC-3 (Dolby Digital)</string>
     <!-- Task 9: soft-route memory display name for the Dolby Vision reason (protocol value is now a neutral token) -->
     <string name="player_soft_route_reason_dv">Dolby Vision video</string>
+    <string name="player_soft_route_reason_video">Legacy-coded video</string>
+    <!-- 2026-11-01 v1.0.0.13：视频轨缺失/未选中自动转专用播放器；兜底页切集回主播放器 -->
+    <string name="player_video_unsupported_toast">Video track cannot decode on this device; switched to the dedicated player</string>
+    <string name="player_route_back_toast">Switched to the default player</string>
     <!-- Task 9: fallback seek toast (extractor now signals; the activity renders text) -->
     <string name="player_fallback_seek_toast">No seek index; estimated positioning enabled</string>
     <!-- Task 9: Jellyfin embedded subtitle track display names (composed UI-side) -->

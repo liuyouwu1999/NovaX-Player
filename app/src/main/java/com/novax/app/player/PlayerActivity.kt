@@ -1298,10 +1298,10 @@ class PlayerActivity : androidx.fragment.app.FragmentActivity() {
             ?.takeUnless { isSoftRouteAudioReason(it) }
         if (softRouteReason != null) {
             Log.d("NvPerf", "soft-route memory hit: $softRouteReason → direct libVLC")
-            val reasonLabel = if (isSoftRouteDolbyVisionReason(softRouteReason)) {
-                getString(R.string.player_soft_route_reason_dv)
-            } else {
-                softRouteReason
+            val reasonLabel = when {
+                isSoftRouteDolbyVisionReason(softRouteReason) -> getString(R.string.player_soft_route_reason_dv)
+                isSoftRouteVideoReason(softRouteReason) -> getString(R.string.player_soft_route_reason_video)
+                else -> softRouteReason
             }
             Toast.makeText(
                 this,

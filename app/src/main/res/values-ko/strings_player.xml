@@ -265,6 +265,9 @@
     <string name="player_codec_ac3">AC-3(돌비 디지털)</string>
     <!-- Task 9: 소프트 라우팅 기억 표시명 -->
     <string name="player_soft_route_reason_dv">돌비비전 영상</string>
+    <string name="player_soft_route_reason_video">구형 영상 코덱</string>
+    <string name="player_video_unsupported_toast">이 영상은 본기기에서 디코딩할 수 없어 전용 플레이어로 전환했습니다</string>
+    <string name="player_route_back_toast">기본 플레이어로 전환했습니다</string>
     <!-- Task 9: 폴백 시크 알림 -->
     <string name="player_fallback_seek_toast">시크 인덱스가 없어 추정 위치 탐색을 사용합니다</string>
     <!-- Task 9: Jellyfin 내장 자막 트랙 표시명 -->

@@ -265,6 +265,9 @@
     <string name="player_codec_ac3">AC-3（杜比数字）</string>
     <!-- Task 9: 软路由记忆「杜比视界画面」展示名（协议值已改中性 token） -->
     <string name="player_soft_route_reason_dv">杜比视界画面</string>
+    <string name="player_soft_route_reason_video">视频编码较老</string>
+    <string name="player_video_unsupported_toast">该视频编码本机播不了，已切换到专用播放器</string>
+    <string name="player_route_back_toast">已切换到默认播放器</string>
     <!-- Task 9: 降级 seek 提示（提取器只发信号，文案由 Activity 渲染） -->
     <string name="player_fallback_seek_toast">无跳转索引，已启用估算定位</string>
     <!-- Task 9: Jellyfin 内嵌字幕轨展示名（UI 侧拼装） -->
