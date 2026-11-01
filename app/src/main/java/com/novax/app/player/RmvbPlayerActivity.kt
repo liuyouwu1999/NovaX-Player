@@ -1526,6 +1526,10 @@ class RmvbPlayerActivity : ComponentActivity() {
         // 被覆盖的 NvRmvbProxy（ServerSocket+线程池）泄漏到进程结束
         switchJob?.cancel()
         switchJob = lifecycleScope.launch {
+            // 2026-11-01 方案二（用户需求：硬解视频用硬解播放）：目标主播放器可承载 → 路由回
+            // 主播放器，不落兜底内核。置于计量闸之前——计量判定交主播放器起播闸门重做（与
+            // 文件页点开同一语义），隐私锁同样由主播放器闸门接手（锁定集→解锁面板，不放播）。
+            if (routeBackToMainIfNeeded(target, entry)) return@launch
             // 2026-09-28 审计 P0-2：换集（含播完自动连播，同径）= 新的一次起播，计量网络按
             // 目标重判；2026-10-11 三档化——「仅提醒一次」档会话内不重复拦截（spec §3），
             // Wi-Fi 开局后切蜂窝的自动连播此前会静默整集拉流的防护仍由「每次重判」保留。
@@ -1538,6 +1542,32 @@ class RmvbPlayerActivity : ComponentActivity() {
             }
             applyQueueSwitch(target, entry)
         }
+    }
+
+    /**
+     * 兜底页切集路由回主播放器（2026-11-01 方案二，用户需求「硬解视频用硬解播放」）：
+     * 目标非兜底扩展名且无有效软路由记忆 → 提示后移交主播放器（整队带过去，队列位置不变），
+     * 本页 finish（onDestroy 收口 proxy/播放器，与用户返回键同路径）。
+     * 当前集进度先落库（与 [applyQueueSwitch] 手动切集同口径）。
+     * 通知栏/后台播放条的切集不经此路径（PlaybackService 既有跳过逻辑不变）。
+     */
+    private suspend fun routeBackToMainIfNeeded(target: Int, entry: Pair<String, String>): Boolean {
+        if (!shouldRouteBackToMain(entry.first, softRouteMemoryReason(playerPrefsSnapshot(), entry.first))) {
+            return false
+        }
+        Log.w("NvPerf", "route back to main player (hardware decode): ${entry.first}")
+        flushHistory()
+        toast(getString(R.string.player_route_back_toast))
+        val queueId = PlayerPlaylistHolder.put(queue.map { it.first to it.second })
+        startActivity(
+            Intent(this, PlayerActivity::class.java)
+                .putExtra(PlayerActivity.EXTRA_VIDEO_URL, entry.first)
+                .putExtra(PlayerActivity.EXTRA_TITLE, entry.second.ifBlank { entry.first.substringAfterLast('/') })
+                .putExtra(PlayerActivity.EXTRA_POSITION_MS, 0L)
+                .putExtra(PlayerActivity.EXTRA_QUEUE_ID, queueId),
+        )
+        finish()
+        return true
     }
 
     /** 换集落地（闸门通过/用户确认后调用）：原 advanceQueue 的状态变更与起播管线整体移入，
@@ -3160,6 +3190,22 @@ class RmvbPlayerActivity : ComponentActivity() {
 
     companion object {
         const val EXTRA_TITLE = "rmvb.title"
+
+        /**
+         * 兜底页切集路由回主播放器的判定（2026-11-01 方案二，纯函数可单测）：
+         * 目标**非**兜底扩展名（rm/rmvb/wmv/asf/wma/ape/aiff/aif）且**无**有效软路由记忆
+         * → 主播放器可承载（硬解），交回。音轨类记忆读侧已退役（FFmpeg 音频扩展后必然可解），
+         * 不阻止回路由——函数内自过滤，调用方传原始记忆值也不会误判（纵深防御）。
+         * 其余记忆（video_track/DV）命中的目标继续留在兜底内核（记忆语义：这台设备带不动）。
+         */
+        fun shouldRouteBackToMain(url: String, softRouteReason: String?): Boolean =
+            !isFallbackTarget(url) &&
+                (softRouteReason == null || isSoftRouteAudioReason(softRouteReason))
+
+        /** 读目标 URL 的有效软路由记忆（音轨类读侧忽略，与 PlaybackService.softRouteOf 同口径） */
+        fun softRouteMemoryReason(prefs: androidx.datastore.preferences.core.Preferences?, url: String): String? =
+            prefs?.get(androidx.datastore.preferences.core.stringPreferencesKey(SOFT_ROUTE_KEY_PREFIX + url))
+                ?.takeUnless { isSoftRouteAudioReason(it) }
 
         /** 卡死确认阈值（2026-10-13「卡了再出」）：播放中位置连续不动超过此时长才弹层；
          * 须大于自愈型抖动的典型重连耗时容忍与正常 seek 缓冲，小于用户可忍受的僵死 */
