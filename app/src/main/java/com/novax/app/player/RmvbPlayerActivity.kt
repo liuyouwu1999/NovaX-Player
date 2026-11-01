@@ -1645,6 +1645,12 @@ class RmvbPlayerActivity : ComponentActivity() {
             val mp = vlcPlayer
             var waited = 0
             while (mp != null && waited < 3_000 && !(mp.isPlaying && mp.length > 0)) {
+                // 2026-11-01 v1.0.0.14：无时长容器（坏索引 AVI 等）length 恒 0，续播 seek
+                // 注定不可行——宽限 1s 后立即放弃，不再等满 3s（真机反馈「切换更慢」的元凶之一）
+                if (waited >= 1_000 && mp != null && mp.isPlaying && mp.length == 0L) {
+                    Log.w("NvRmvb", "switch resume skipped: length=0 (no-duration container)")
+                    break
+                }
                 delay(50)
                 waited += 50
             }
@@ -1666,7 +1672,9 @@ class RmvbPlayerActivity : ComponentActivity() {
             // Playing 续播块：横幅重亮 5s（撒谎）+ 按 startPositionMs 回跳 seek + 守卫重武装
             resumeApplied = true
         }
-        toast("$title")
+        // 2026-11-01 v1.0.0.14：撤除切集「报集名」toast——主播放器切集无提示，v1.0.0.14 起
+        // AVI 全量走本页后该提示每次切集必弹（用户反馈「提示显示文件名很奇怪」），与主播放器
+        // 对齐：静默切集，顶栏标题已是集名。
     }
 
     /**
