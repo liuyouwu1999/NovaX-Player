@@ -1324,6 +1324,10 @@ internal fun NvFileRow(
                         model = coil3.request.ImageRequest.Builder(LocalContext.current)
                             .data(java.io.File(thumbnailPath))
                             .size(160, 240)
+                            // 2026-11-01 GIF 动画上线（coil-gif 全局注册）后文件页仍保持定格首帧
+                            // （用户拍板：只在查看器动）。显式锁 BitmapFactory 解码器：GIF 只解
+                            // 首帧；其余格式该解码器本就是默认链兜底，行为与此前逐字节一致。
+                            .decoderFactory(coil3.decode.BitmapFactoryDecoder.Factory())
                             .build(),
                         contentDescription = null,
                         modifier = Modifier.fillMaxSize(),

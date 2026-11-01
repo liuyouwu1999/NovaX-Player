@@ -182,6 +182,10 @@ dependencies {
 
     // 图片加载（NvPosterCard）
     implementation("io.coil-kt.coil3:coil-compose:3.3.0")
+    // 2026-11-01 GIF 动画支持：coil-gif 经 ServiceLoader 自动注册 GifDecoder，
+    // 查看器（ImageViewerScreen）动图自动循环播放；文件页缩略图不需要动画，
+    // 已在 FileBrowser NvFileRow 的请求上显式锁定 BitmapFactoryDecoder（静态首帧，与旧行为一致）。
+    implementation("io.coil-kt.coil3:coil-gif:3.3.0")
 
     // C8: 播放内核
     implementation("androidx.media3:media3-exoplayer:1.8.0")
