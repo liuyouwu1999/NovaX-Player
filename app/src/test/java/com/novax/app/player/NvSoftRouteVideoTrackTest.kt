@@ -47,13 +47,11 @@ class NvSoftRouteVideoTrackTest {
     fun `普通硬解文件交回主播放器`() {
         assertTrue(RmvbPlayerActivity.shouldRouteBackToMain("http://nas/a.mp4", null))
         assertTrue(RmvbPlayerActivity.shouldRouteBackToMain("http://nas/b.mkv", null))
-        // AVI 不是兜底扩展名：无记忆的老 AVI 首次仍由主播放器起播（方案一的检测在播放期接管）
-        assertTrue(RmvbPlayerActivity.shouldRouteBackToMain("http://nas/c.avi", null))
     }
 
     @Test
     fun `兜底扩展名留在兜底内核`() {
-        for (u in listOf("rm", "rmvb", "wmv", "asf", "wma", "ape", "aiff", "aif")) {
+        for (u in listOf("rm", "rmvb", "wmv", "asf", "wma", "ape", "aiff", "aif", "avi")) {
             assertFalse("ext=$u", RmvbPlayerActivity.shouldRouteBackToMain("http://nas/x.$u", null))
         }
     }
@@ -63,7 +61,7 @@ class NvSoftRouteVideoTrackTest {
     fun `video_track 记忆阻止回路由`() {
         assertFalse(
             RmvbPlayerActivity.shouldRouteBackToMain(
-                "http://nas/old.avi",
+                "http://nas/old.mkv",
                 SOFT_ROUTE_REASON_VIDEO,
             ),
         )
@@ -97,7 +95,8 @@ class NvSoftRouteVideoTrackTest {
     @Test
     fun `脏尾巴与 query 不影响判定`() {
         assertTrue(RmvbPlayerActivity.shouldRouteBackToMain("file:///sdcard/x.mp4 ", null))
-        assertTrue(RmvbPlayerActivity.shouldRouteBackToMain("novax://1/dir/a.avi?token=x", null))
+        // v1.0.0.14 起 avi 属兜底扩展名：query 脏尾巴不影响「留在兜底内核」判定
+        assertFalse(RmvbPlayerActivity.shouldRouteBackToMain("novax://1/dir/a.avi?token=x", null))
         assertFalse(RmvbPlayerActivity.shouldRouteBackToMain("novax://1/dir/b.rmvb?token=x", null))
     }
 }

@@ -33,11 +33,21 @@ class NvVlcEngine(
      * 起引擎（幂等）：选项由调用方装配（网络缓存档按是否有代理、性能模式跳帧、
      * 弱机自适应降块——见 [buildLibVlcOptions] 注释），本类只负责 LibVLC/MediaPlayer
      * 构造与事件监听接线。
+     *
+     * [aout]：音频输出模块名（如 "opensles"/"audiotrack"），null = libVLC 默认。
+     * 2026-11-01 v1.0.0.14 起 fallback 页恒传 "opensles"：audiotrack 模块在部分文件
+     * （24kHz MP3-in-AVI 实测，真机 vivo + 无头模拟器双复现）写入时触发
+     * `AudioTrack_WriteByteArrayV23: assertion "jbuffer.size > 0"` **SIGABRT 直接杀死
+     * 进程**（用户表现=打开即闪退）；opensles 是 libvlc-all 自带的成熟替代输出，
+     * 写入路径完全不同，不受该断言影响。
      */
-    fun start(options: ArrayList<String>) {
+    fun start(options: ArrayList<String>, aout: String? = null) {
         if (libVlc != null) return
         libVlc = LibVLC(appContext, options)
-        player = MediaPlayer(libVlc).also { mp -> mp.setEventListener(onEvent) }
+        player = MediaPlayer(libVlc).also { mp ->
+            aout?.let { mp.setAudioOutput(it) }
+            mp.setEventListener(onEvent)
+        }
     }
 
     /**

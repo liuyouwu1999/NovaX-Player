@@ -860,6 +860,11 @@ class RmvbPlayerActivity : ComponentActivity() {
                             processors = specs?.processors ?: 1,
                         ),
                     ),
+                    // 2026-11-01 v1.0.0.14：音频输出恒用 opensles。audiotrack 模块对部分文件
+                    //（24kHz MP3-in-AVI 实测）写入时 SIGABRT 杀死整个进程（真机 vivo + 无头
+                    // 模拟器双复现，abort message=audiotrack.c:1004 jbuffer.size>0），用户表现
+                    // =兜底页打开即闪退。opensles 为 libvlc-all 自带成熟输出，写入路径不同。
+                    aout = "opensles",
                 )
                 var waited = 0
                 while (surfaceLayout == null && waited < 3_000) {
@@ -3268,8 +3273,12 @@ class RmvbPlayerActivity : ComponentActivity() {
          * 兜底扩展名集：ExoPlayer 无对应容器/解码支持的格式（PlayerActivity 路由判定唯一依据）。
          * 2026-10-26 补 wma/ape/aiff/aif：随音频路由表补全（NvFileRouter.AUDIO_EXTS）一并收编，
          * VLC 原生可播；m4b/mka/oga 走 media3（MP4/Matroska/Ogg 容器，ExoPlayer 支持）不在此表。
+         * 2026-11-01 v1.0.0.14 补 avi：XviD 族老编码在 media3 软解码器（c2.android.mpeg4）上
+         * 实测「出格式不出帧」（真机 vivo frames=0、画面冻在首帧而音频正常走），VLC 的
+         * MPEG-4 Part 2 软解则是看家本领——AVI 整体路由兜底页。v1.0.0.13 的嗅探提位与
+         * 检测安全网保留（media3 侧任何残留 AVI 路径仍有兜底）。
          */
-        val FALLBACK_EXTENSIONS = setOf("rm", "rmvb", "wmv", "asf", "wma", "ape", "aiff", "aif")
+        val FALLBACK_EXTENSIONS = setOf("rm", "rmvb", "wmv", "asf", "wma", "ape", "aiff", "aif", "avi")
 
         fun isFallbackTarget(pathOrUrl: String): Boolean {
             // 尾部空格/点容错与 NvFileRouter.extensionOf 同式（2026-10-26）：否则脏尾巴文件
