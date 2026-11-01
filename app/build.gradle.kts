@@ -18,19 +18,17 @@ val keystoreProps = Properties().apply {
 // 方案数学性质由 ReleaseVersionSchemeTest 锁定（跨日严格单调、2147 年内不溢出）。
 // 注意：AGP 9 新 Variant API 已无 per-output 重命名能力（javap 实证），产物名维持 AGP 默认，
 // 对外分发命名在归档时手工完成（docs/RELEASE.md §3）。
-// v1.0.0.14 发包：nvReleaseDate=20261101、nvReleaseIndex=2（当日第 3 版，基础码 2026110120）。
-// 内容 = v1.0.0.13 真机验证两 bug 的修复（用户 vivo 实测 + 日志取证）：
-// ① 兜底页（libVLC）打开 24kHz MP3-in-AVI 即闪退——audiotrack 模块写入断言
-//   `AudioTrack_WriteByteArrayV23: jbuffer.size > 0` SIGABRT 杀死整个进程。修复 = 兜底页
-//   音频输出恒切 opensles（libvlc-all 自带成熟模块，写入路径不同不受该断言影响）。
-// ② XviD 族老编码在主播放器软解码器（c2.android.mpeg4）「出格式不出帧」（frames=0，
-//   画面冻在首帧、音频正常走）。修复 = AVI 加入 FALLBACK_EXTENSIONS 整体路由兜底页
-//  （VLC 的 MPEG-4 Part 2 软解是看家本领）；v1.0.0.13 的嗅探提位/检测安全网保留。
-// 历史：v1.0.0.13=202611011x（AVI 误嗅劫持+视频轨缺失自动转软解+切集路由回主播放器）；
+// v1.0.0.15 发包：nvReleaseDate=20261101、nvReleaseIndex=3（当日第 4 版，基础码 2026110130）。
+// 内容 = GIF 动图支持：coil-gif 3.3.0 经 ServiceLoader 自动注册 GifDecoder，查看器动图
+// 自动循环播放；文件页缩略图显式锁 BitmapFactoryDecoder 保持静态首帧（用户拍板只在查看器动）。
+// R8/minify 下注册存活与动画效果均经模拟器 release 冒烟实证（帧号截图对比法）。
+// 历史：v1.0.0.14=202611012x（兜底页 audiotrack 断言闪退→恒切 opensles；XviD 冻帧→AVI
+// 整体路由兜底页+起播看门狗）；
+// v1.0.0.13=202611011x（AVI 误嗅劫持+视频轨缺失自动转软解+切集路由回主播放器）；
 // v1.0.0.12=202611010x（长按倍速黑闪修复）。
-val nvVersionName = "1.0.0.14"
+val nvVersionName = "1.0.0.15"
 val nvReleaseDate = 20261101
-val nvReleaseIndex = 2
+val nvReleaseIndex = 3
 val nvVersionBase: Int = run {
     // T11 评审移交：双守卫 + long 运算。Int 直乘在日期误改（多打一位/改超 21474836 年）时
     // 会静默回绕，require 拦不住；先升 long 再校验，配置期即炸而非产出错版号。
