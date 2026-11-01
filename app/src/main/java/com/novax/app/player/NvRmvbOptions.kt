@@ -42,6 +42,9 @@ internal fun buildLibVlcOptions(
         // 写线程被 i_max_audiotrack_samples（getBufferSizeInFrames ≈ min*2 ≈ 几十 ms）
         // 硬顶住，残留量级与 VLC3 时代相同 → 强制 audiotrack，裸 setRate 即接近
         // VLC3 的即时体感。
+        // 2026-11-01 v1.0.0.14：此 libVLC 级 --aout 已被 NvVlcEngine.start 的 mp 级
+        // setAudioOutput("opensles") 恒遮蔽（VLC 变量继承链 mp 更近；审核 A 项已做字节码
+        // +VLC core 源码取证）——保留作 setAudioOutput 失败时的兜底与倍速调优文档锚点，勿删。
         "--aout=audiotrack",
         "--network-caching=$networkCachingMs",
     )

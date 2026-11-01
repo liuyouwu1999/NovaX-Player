@@ -3207,7 +3207,7 @@ class RmvbPlayerActivity : ComponentActivity() {
 
         /**
          * 兜底页切集路由回主播放器的判定（2026-11-01 方案二，纯函数可单测）：
-         * 目标**非**兜底扩展名（rm/rmvb/wmv/asf/wma/ape/aiff/aif）且**无**有效软路由记忆
+         * 目标**非**兜底扩展名（rm/rmvb/wmv/asf/wma/ape/aiff/aif/avi）且**无**有效软路由记忆
          * → 主播放器可承载（硬解），交回。音轨类记忆读侧已退役（FFmpeg 音频扩展后必然可解），
          * 不阻止回路由——函数内自过滤，调用方传原始记忆值也不会误判（纵深防御）。
          * 其余记忆（video_track/DV）命中的目标继续留在兜底内核（记忆语义：这台设备带不动）。

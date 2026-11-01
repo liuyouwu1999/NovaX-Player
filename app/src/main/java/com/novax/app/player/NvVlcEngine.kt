@@ -45,7 +45,13 @@ class NvVlcEngine(
         if (libVlc != null) return
         libVlc = LibVLC(appContext, options)
         player = MediaPlayer(libVlc).also { mp ->
-            aout?.let { mp.setAudioOutput(it) }
+            aout?.let {
+                // W 级留痕（审核 P2-2）：setAudioOutput 失败会静默回退默认 aout——若哪台设备
+                // 上 opensles 模块缺失导致回退 audiotrack，闪退会复活，此处是唯一排查线索
+                //（vivo 只认 W 级日志）。
+                android.util.Log.w("NvVlc", "aout=$it")
+                mp.setAudioOutput(it)
+            }
             mp.setEventListener(onEvent)
         }
     }
