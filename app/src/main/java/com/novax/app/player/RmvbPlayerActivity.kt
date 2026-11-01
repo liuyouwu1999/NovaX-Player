@@ -358,6 +358,11 @@ class RmvbPlayerActivity : ComponentActivity() {
     private var speedShiftEpoch = 0
     /** 是否真正起播过（Event.Playing）：未起播的 flush 不得落库（BUG-C-R3-02 配套） */
     private var everStarted = false
+    /** 起播看门狗（2026-11-01 v1.0.0.14，用户 1.2GB 坏索引 AVI 实测）：openAndPlay 后
+     * START_WATCHDOG_MS 内未收到 Event.Playing → 停数据源+停播放器+错误层（重试/返回）。
+     * 背景：该文件让 VLC 解复用死循环空转，整机负载 19 系统级卡死——任何坏文件都不许
+     * 把手机拖死。复用 player_err_stalled 文案（本质同为「数据/起播卡住」）。 */
+    private var startupWatchJob: kotlinx.coroutines.Job? = null
     /** 2026-10-13 §2(P1-2):假终已证实、重播未起播(Playing 未清位)的窗口标记——
      * 窗口内 flushHistory 三调用点(Paused/EndReached 真终链/onDestroy)一律不写库 */
     private var fakeTailReplayPending = false
@@ -740,6 +745,20 @@ class RmvbPlayerActivity : ComponentActivity() {
         // 同 API，「起播时非计量、现在计量」的真迁移才拦
         playbackStartMetered = NvMeteredGuard.isMeteredNetwork(this)
         uiBuffering = true
+        // 起播看门狗（每次 openAndPlay 重挂；Event.Playing 置 everStarted 后到点自灭）
+        startupWatchJob?.cancel()
+        startupWatchJob = lifecycleScope.launch {
+            delay(START_WATCHDOG_MS)
+            if (!everStarted && !isFinishing && uiError == null) {
+                Log.w(
+                    "NvRmvb",
+                    "startup watchdog: no Playing in ${START_WATCHDOG_MS}ms → stop source+player, fail",
+                )
+                runCatching { proxy?.stop() }
+                runCatching { vlcPlayer?.stop() }
+                fail(getString(R.string.player_err_stalled))
+            }
+        }
         try {
             val novax = if (playUrl.startsWith(NvUri.SCHEME + "://")) NvUri.parse(playUrl) else null
             sourceId = novax?.first
@@ -3228,6 +3247,14 @@ class RmvbPlayerActivity : ComponentActivity() {
         /** 卡死确认阈值（2026-10-13「卡了再出」）：播放中位置连续不动超过此时长才弹层；
          * 须大于自愈型抖动的典型重连耗时容忍与正常 seek 缓冲，小于用户可忍受的僵死 */
         private const val STALL_CONFIRM_MS = 10_000L
+
+        /**
+         * 起播看门狗时限（2026-11-01 v1.0.0.14）：openAndPlay 后这么久仍无 Event.Playing
+         * 即判起播失败（停源+停播放器+错误层）。正常 NAS 冷起 ≤5s，15s 已含慢源余量；
+         * 上不封顶的代价是坏文件（1.2GB 坏索引 AVI 实测）在 VLC 解复用死循环里把整机
+         * CPU 拖死（负载 19 系统级卡死）——宁可惜杀慢源，不可拖死手机。
+         */
+        private const val START_WATCHDOG_MS = 15_000L
 
         /** 同值 seek 若被内核去重（探针实测无 flush 效果时改 30 强制真实 seek） */
         private const val RATE_FLUSH_SEEK_NUDGE_MS = 0L
