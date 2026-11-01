@@ -749,7 +749,10 @@ class RmvbPlayerActivity : ComponentActivity() {
         startupWatchJob?.cancel()
         startupWatchJob = lifecycleScope.launch {
             delay(START_WATCHDOG_MS)
-            if (!everStarted && !isFinishing && uiError == null) {
+            // 存活判据双通道（审核 P0-1）：本 VLC4 栈「播放中换 media 不补发 Playing」——
+            // 切集后 everStarted 恒 false 但新集在正常播放（isPlaying=true），必须视为存活，
+            // 否则每次手动切集 15s 后被误杀。isPlaying=false 且未置位 = 真未起播 → 止损。
+            if (!everStarted && vlcPlayer?.isPlaying != true && !isFinishing && uiError == null) {
                 Log.w(
                     "NvRmvb",
                     "startup watchdog: no Playing in ${START_WATCHDOG_MS}ms → stop source+player, fail",
