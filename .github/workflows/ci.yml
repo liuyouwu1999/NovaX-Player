@@ -30,7 +30,10 @@ jobs:
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: '17'
+          # 2026-11-02 JDK 17→21：Robolectric 的 SDK 36 android-all 包要求 Java 21，
+          # Java 17 下三个 Robolectric 测试类 sandbox 创建即挂（本机 JDK 21 全绿故一期落地未暴露）。
+          # Kotlin/AGP 字节码目标仍是 17（jvmTarget），仅运行工具链升级。
+          java-version: '21'
 
       - uses: gradle/actions/setup-gradle@v6
 
@@ -55,7 +58,7 @@ jobs:
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: '17'
+          java-version: '21'
 
       - uses: gradle/actions/setup-gradle@v6
 
