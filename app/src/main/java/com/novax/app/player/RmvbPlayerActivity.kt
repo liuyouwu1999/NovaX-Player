@@ -662,7 +662,7 @@ class RmvbPlayerActivity : ComponentActivity() {
                 MeteredGate.remindMode(this), NvMeteredGuard.sessionConfirmed)
         ) return false
         val novax = targetUrl?.let { u ->
-            if (u.startsWith(NvUri.SCHEME + "://")) NvUri.parse(u) else null
+            if (NvExternalOpen.isNovaxCommandUri(u)) NvUri.parse(u) else null
         }
         val sid = novax?.first ?: sourceId
         val type = sid?.let { s ->
@@ -769,7 +769,7 @@ class RmvbPlayerActivity : ComponentActivity() {
             }
         }
         try {
-            val novax = if (playUrl.startsWith(NvUri.SCHEME + "://")) NvUri.parse(playUrl) else null
+            val novax = if (NvExternalOpen.isNovaxCommandUri(playUrl)) NvUri.parse(playUrl) else null
             sourceId = novax?.first
             sourcePath = novax?.second
             if (novax != null) attachHistory()
@@ -1750,7 +1750,7 @@ class RmvbPlayerActivity : ComponentActivity() {
     private suspend fun resumePositionForEntry(playUrl: String): Long {
         val resumeOn = runCatching { playerPrefsStore.data.first()[KEY_RESUME_ON_OPEN] }
             .getOrNull() ?: true
-        val novax = if (playUrl.startsWith(NvUri.SCHEME + "://")) NvUri.parse(playUrl) else null
+        val novax = if (NvExternalOpen.isNovaxCommandUri(playUrl)) NvUri.parse(playUrl) else null
         val keyPath = novax?.second ?: playUrl
         val durationMs = episodeResumeDurationMs(applicationContext, novax?.first, keyPath)
         val result = episodeResumePositionMs(applicationContext, novax?.first, keyPath, resumeOn, durationMs)

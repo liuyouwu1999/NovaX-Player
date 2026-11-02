@@ -782,7 +782,7 @@ class PlaybackService : MediaSessionService() {
                 val url = spec.queueUrls[target]
                 val title = spec.queueTitles.getOrNull(target)?.takeIf { it.isNotBlank() }
                     ?: url.substringAfterLast('/')
-                val novaxTarget = if (url.startsWith(NvUri.SCHEME + "://")) NvUri.parse(url) else null
+                val novaxTarget = if (NvExternalOpen.isNovaxCommandUri(url)) NvUri.parse(url) else null
                 // 隐私切集闸（隐私计划 Task 12，映射核 NvGateWiring.serviceSwitchGate）：目标集
                 // 已锁 → 停连播 + 「内容已上锁」通知拉回 PlayerActivity 出解锁面板。先于计量闸
                 // 与 prepareEpisodeMedia（锁定内容一次网络读都不能有）。

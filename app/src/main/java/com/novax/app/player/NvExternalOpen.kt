@@ -3,6 +3,7 @@ package com.novax.app.player
 import android.content.ContentResolver
 import android.net.Uri
 import android.provider.OpenableColumns
+import com.novax.app.data.playback.NvUri
 import java.io.ByteArrayOutputStream
 
 /**
@@ -83,4 +84,16 @@ object NvExternalOpen {
         val scheme = Uri.parse(uriString).scheme?.lowercase() ?: return true
         return scheme in ALLOWED_EXTERNAL_SCHEMES
     }
+
+    /**
+     * novax:// 内部命令判别（三期 spec §4-4.3 双口径收口）。
+     * 与 [isAllowedExternalUri] 是两个语义、不可互替：
+     * - 本函数（内部命令）：**大小写敏感严格前缀**——内部命令 URL 全由应用自身构造（恒小写），
+     *   严格匹配防 lookalike scheme（NOVAX:// 等）混入内部路由；误判方向=漏判（fail-closed，
+     *   漏判落入外部白名单被拒），机构 2.4「不用 startsWith」针对的是外部白名单（已由
+     *   isAllowedExternalUri 的 Uri.parse+lowercase 解决），内部入口保持严格口径。
+     * - isAllowedExternalUri（外部放行）：Uri.parse().scheme 小写判别，宽容外部输入大小写。
+     */
+    fun isNovaxCommandUri(uriString: String?): Boolean =
+        uriString != null && uriString.startsWith(NvUri.SCHEME + "://")
 }

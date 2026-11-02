@@ -301,7 +301,7 @@ class PlayerActivity : androidx.fragment.app.FragmentActivity() {
         val historyPath = activeSpec?.history?.path
             ?: intent.getStringExtra(EXTRA_HISTORY_PATH)
             ?: url
-        val novaxTarget = if (url.startsWith(NvUri.SCHEME + "://")) NvUri.parse(url) else null
+        val novaxTarget = if (NvExternalOpen.isNovaxCommandUri(url)) NvUri.parse(url) else null
 
         // 隐私起播闸·同步预检（Task 12，映射核 NvGateWiring.startGate）：novax 目标命中未解锁
         // 锁规则 → 先盖解锁面板（热路径 index 已在内存，零等待）；冷启动 index 未到站的
@@ -987,7 +987,7 @@ class PlayerActivity : androidx.fragment.app.FragmentActivity() {
         switchInFlight = true
         NvQSwitchTrace.mark("tap delta=$delta target=$target", begin = true)
         val (url, title) = q[target]
-        val novaxTarget = if (url.startsWith(NvUri.SCHEME + "://")) NvUri.parse(url) else null
+        val novaxTarget = if (NvExternalOpen.isNovaxCommandUri(url)) NvUri.parse(url) else null
         val base = StartParams(
             url = url,
             title = title,
@@ -1751,7 +1751,7 @@ class PlayerActivity : androidx.fragment.app.FragmentActivity() {
         val state = eng.player.playbackState
         if (!(eng.player.isPlaying || state == Player.STATE_READY || state == Player.STATE_BUFFERING)) return
         val newUrl = spec.videoUrl
-        val novax = if (newUrl.startsWith(NvUri.SCHEME + "://")) NvUri.parse(newUrl) else null
+        val novax = if (NvExternalOpen.isNovaxCommandUri(newUrl)) NvUri.parse(newUrl) else null
         lastStart = StartParams(
             url = newUrl,
             title = spec.title,

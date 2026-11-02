@@ -10,6 +10,7 @@ import androidx.core.content.FileProvider
 import com.novax.app.data.NvGraph
 import com.novax.app.data.db.SourceEntity
 import com.novax.app.data.playback.NvUri
+import com.novax.app.player.NvExternalOpen
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.withContext
@@ -33,7 +34,7 @@ sealed interface ViewerInput {
 
     companion object {
         fun parse(uriString: String, title: String): ViewerInput? {
-            if (uriString.startsWith(NvUri.SCHEME + "://")) {
+            if (NvExternalOpen.isNovaxCommandUri(uriString)) {
                 val (id, path) = NvUri.parse(uriString) ?: return null
                 return Remote(id, path, title)
             }
