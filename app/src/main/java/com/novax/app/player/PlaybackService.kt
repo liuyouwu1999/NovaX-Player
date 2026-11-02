@@ -219,7 +219,7 @@ class PlaybackService : MediaSessionService() {
     // 切换会被基线吞掉（终审 Important-1）
     /** 由 ACTION_START 触发（主线程）：按规格构建/重建引擎并接入 session */
     private fun startPlaybackInternal(spec: EngineSpec, refreshBaseline: Boolean = true) {
-        NvQSwitchTrace.mark("svc.startPlaybackInternal enter url=${spec.videoUrl.substringAfterLast('/')}")
+        NvQSwitchTrace.mark("svc.startPlaybackInternal enter url=${NvPrivacyRedactor.redactText(spec.videoUrl, null).substringAfterLast('/')}")
         Log.d(
             "NvPerf",
             "PlaybackService startPlayback url=${spec.videoUrl} startAt=${spec.startPositionMs} " +
