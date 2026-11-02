@@ -293,4 +293,7 @@
     <string name="files_wizard_plain_confirm_title">パスワードを暗号化せずに保存しますか？</string>
     <string name="files_wizard_plain_confirm_msg">システムの暗号化が利用できないため、パスワードは端末内のアプリ専用領域に暗号化されず保存されます。続行しますか？</string>
     <string name="files_wizard_plain_confirm_ok">保存する</string>
+
+    <!-- 2026-11-01 機構整改 §1.2-5：SFTP 初回ピン留めの一回限り通知 -->
+    <string name="files_wizard_pin_toast">ホストのフィンガープリントを記録しました。今後の接続で検証します</string>
 </resources>

@@ -293,4 +293,7 @@
     <string name="files_wizard_plain_confirm_title">以未加密方式保存口令？</string>
     <string name="files_wizard_plain_confirm_msg">系统加密组件异常，口令将以未加密形式保存在本机应用的私有存储中。是否继续？</string>
     <string name="files_wizard_plain_confirm_ok">仍要保存</string>
+
+    <!-- 2026-11-01 机构整改 §1.2-5：SFTP 首次钉扎一次性提示 -->
+    <string name="files_wizard_pin_toast">已记录主机指纹，后续连接将校验</string>
 </resources>

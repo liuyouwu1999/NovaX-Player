@@ -235,6 +235,14 @@ internal fun AddSourceWizardScreen(
                 onDismiss = vm::dismissPlaintextSave,
             )
         }
+        // spec §1.2-5 首钉显性化：TOFU 记指纹不再静默，一次性 toast 后立刻复位标志
+        val context = LocalContext.current
+        LaunchedEffect(wizard.hostPinNotice) {
+            if (wizard.hostPinNotice) {
+                Toast.makeText(context, R.string.files_wizard_pin_toast, Toast.LENGTH_SHORT).show()
+                vm.consumeHostPinNotice()
+            }
+        }
     }
 }
 

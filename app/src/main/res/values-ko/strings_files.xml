@@ -293,4 +293,7 @@
     <string name="files_wizard_plain_confirm_title">비밀번호를 암호화하지 않고 저장할까요?</string>
     <string name="files_wizard_plain_confirm_msg">시스템 암호화를 사용할 수 없어 비밀번호가 이 기기의 앱 전용 저장소에 암호화 없이 저장됩니다. 계속할까요?</string>
     <string name="files_wizard_plain_confirm_ok">그래도 저장</string>
+
+    <!-- 2026-11-01 기구 정비 §1.2-5: SFTP 최초 고정 일회성 알림 -->
+    <string name="files_wizard_pin_toast">호스트 지문을 기록했습니다. 이후 연결부터 검증합니다</string>
 </resources>

@@ -293,4 +293,7 @@
     <string name="files_wizard_plain_confirm_title">以未加密方式儲存密碼？</string>
     <string name="files_wizard_plain_confirm_msg">系統加密元件異常，密碼將以未加密形式儲存在本機應用的私有儲存空間。是否繼續？</string>
     <string name="files_wizard_plain_confirm_ok">仍要儲存</string>
+
+    <!-- 2026-11-01 機構整改 §1.2-5：SFTP 首次釘扎一次性提示 -->
+    <string name="files_wizard_pin_toast">已記錄主機指紋，後續連線將驗證</string>
 </resources>

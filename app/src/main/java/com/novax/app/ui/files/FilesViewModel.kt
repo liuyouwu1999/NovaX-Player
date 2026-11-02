@@ -198,6 +198,8 @@ data class NvWizardUiState(
     // Keystore 异常时明文落库的知情确认框（D1 用户拍板）；FilesOnly 记住触发保存的按钮
     val plaintextConfirmOpen: Boolean = false,
     val plaintextConfirmFilesOnly: Boolean = false,
+    // SFTP 首次钉扎一次性提示，spec §1.2-5；UI toast 后 consumeHostPinNotice 复位
+    val hostPinNotice: Boolean = false,
 ) {
     /** 「获取共享列表」入口可用性：SMB 源且主机+账号已填（匿名视为已填） */
     val canFetchShares: Boolean
@@ -2297,6 +2299,9 @@ class FilesViewModel(
         _wizard.update { it.copy(connecting = true, error = null, testSuccess = false) }
         val entity = wizardEntity()
         viewModelScope.launch {
+            // spec §1.2-5 首钉显性化：连接前查信任，SFTP 成功且此前无记录 → 一次性提示
+            // （known-hosts 为 KB 级同步读，放协程避免主线程 IO；mismatch 拒绝语义不受影响）
+            val sftpPinPending = entity.type == SourceType.SFTP && !repo.sftp.isHostTrusted(entity)
             val result = repo.connect(entity)
             if (!sameWizardConnection(w, _wizard.value)) {
                 if (_wizard.value.sessionId == w.sessionId) _wizard.update { it.copy(connecting = false) }
@@ -2305,7 +2310,7 @@ class FilesViewModel(
             result.fold(
                 onSuccess = {
                     _wizard.update {
-                        it.copy(connecting = false, testSuccess = true, error = null, step = 2)
+                        it.copy(connecting = false, testSuccess = true, error = null, step = 2, hostPinNotice = sftpPinPending)
                     }
                     if (entity.type == SourceType.SMB) {
                         fetchShares()                 // 测试成功自动拉一次共享列表
@@ -2509,6 +2514,9 @@ class FilesViewModel(
     fun dismissPlaintextSave() {
         _wizard.update { it.copy(plaintextConfirmOpen = false) }
     }
+
+    /** 首钉提示已展示，复位一次性标志 */
+    fun consumeHostPinNotice() = _wizard.update { it.copy(hostPinNotice = false) }
 
     private fun doSaveSource(filesOnly: Boolean, storedPassword: String) {
         val w = _wizard.value
