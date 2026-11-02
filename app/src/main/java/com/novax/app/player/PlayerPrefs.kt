@@ -294,7 +294,7 @@ suspend fun Context.migrateSoftRouteMemoriesOnce() {
 /**
  * 迁移后台触发（PlayerActivity.onCreate 调，非挂起）：必须走 [playerPrefsIoScope] 而非
  * lifecycleScope——软解记忆直连路由在 onCreate 后 ~190ms 内 finish()，lifecycleScope 取消
- * 会连带取消未提交的迁移编辑，旧记忆永不清除（Fold3 真机实证：DTS 旧记忆→路由→libVLC
+ * 会连带取消未提交的迁移编辑，旧记忆永不清除（折叠屏真机实证：DTS 旧记忆→路由→libVLC
  * 必崩的死循环）。App scope 写不被 Activity 销毁取消：首启即使读侧撞上竞态路由+崩溃，
  * 迁移仍落盘，第二次打开必然直连主播放器。
  */
@@ -312,7 +312,7 @@ val KEY_NET_TIMEOUT_SEC = intPreferencesKey("novax_net_connect_timeout_seconds")
 
 /**
  * 音画偏移补偿（2026-09-23 长按倍速/大跳后音画不同步的兜底修法，单位毫秒，默认 0）。
- * 背景：部分机型（Fold3 实测）音频输出链路（杜比/音效栈）有 ~0.3-0.5s 的固有延迟，
+ * 背景：部分机型（折叠屏真机实测）音频输出链路（杜比/音效栈）有 ~0.3-0.5s 的固有延迟，
  * app 侧拿不到该值（时间戳不含音效级延迟），表现为「嘴巴先动、声音后到」。
  * 负值 = 音频提前（丢料）；正值 = 音频延后（延迟队列）。消费：NvAvOffsetAudioProcessor
  * （起播与每次 seek/变速冲刷时重新武装）；设置-播放器「音画偏移」行调节，按设备记忆。

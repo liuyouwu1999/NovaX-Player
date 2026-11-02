@@ -10,7 +10,7 @@ class RendererDescriptorParserTest {
  <specVersion><major>1</major><minor>0</minor></specVersion>
  <device>
   <deviceType>urn:schemas-upnp-org:device:MediaRenderer:1</deviceType>
-  <friendlyName>客厅的小米电视</friendlyName>
+  <friendlyName>TestTV</friendlyName>
   <serviceList>
    <service>
      <serviceType>urn:schemas-upnp-org:service:RenderingControl:1</serviceType>
@@ -25,7 +25,7 @@ class RendererDescriptorParserTest {
 
     @Test fun `解析名称与相对controlURL`() {
         val (name, control) = RendererDescriptorParser.parse(xml, "http://192.168.1.8:49152/desc.xml")!!
-        assertEquals("客厅的小米电视", name)
+        assertEquals("TestTV", name)
         assertEquals("http://192.168.1.8:49152/upnp/control/AVT1", control)
     }
 

@@ -907,7 +907,7 @@ class RmvbPlayerActivity : ComponentActivity() {
             ensureAttached()
 
             // 2026-09-18 真机修复：Media(libVlc, String) 把字符串按**本地路径**解释——
-            // http 代理 URL 变成 MRL 'file:////http%3A//...' 直接打不开（Fold3 实测日志）。
+            // http 代理 URL 变成 MRL 'file:////http%3A//...' 直接打不开（折叠屏真机实测日志）。
             // 必须按 Uri 构造；本地绝对路径转 file:// Uri 走同一构造路径
             // 2026-09-28 外部「打开方式」：content:// 的读授权随 VIEW Intent 授予，但 VLC
             // 核心不认 content MRL（Media(Uri) 只是 encodeVLCUri→nativeNewFromLocation，

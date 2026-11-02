@@ -389,7 +389,7 @@ class PlayerActivity : androidx.fragment.app.FragmentActivity() {
         // 2026-09-29 FFmpeg 音频升级迁移：清「音轨」类旧软解路由记忆（一次性，幂等）。
         // 必须挂 App 级 scope（真机教训）：软解记忆直连路由在 onCreate 后 ~190ms 内 finish()，
         // lifecycleScope 随之取消——迁移编辑未提交即被取消，旧记忆永不清除；遇到「路由后必崩」
-        // 的宿主（Fold3 实测：DTS→libVLC 页 vlc-audiotrack abort）会死循环。App scope 的写
+        // 的宿主（折叠屏真机实测：DTS→libVLC 页 vlc-audiotrack abort）会死循环。App scope 的写
         // 不随 Activity 销毁取消，最坏多崩一次、下次打开必然直连主播放器
         migrateSoftRouteMemoriesInBackground()
 
@@ -1306,7 +1306,7 @@ class PlayerActivity : androidx.fragment.app.FragmentActivity() {
         // 该文件上次在这台设备上已确认硬解不了（音轨/杜比视界画面），再次打开直接路由 libVLC，
         // 无声/黑屏窗口为零。判定记忆由 PlayerScreen 触发切换时写入（见 onFallbackRetry）
         // 2026-09-29 FFmpeg 音频升级：「音轨」类记忆读侧直接忽略（新内核已能软解 AC3/EAC3/
-        // DTS/TrueHD，这些记忆升级后必然错误）——不信任写入侧迁移的提交时机（真机 Fold3：
+        // DTS/TrueHD，这些记忆升级后必然错误）——不信任写入侧迁移的提交时机（折叠屏真机：
         // 冷进程 + 直连路由 + 宿主崩溃的 600ms 生命周期里 DataStore 编辑跑不赢，读侧忽略才
         // 是无竞态根治；后台迁移只负责清库存）。视频类记忆（杜比视界画面等）继续生效
         // i18n Task 9③：读侧同时识别旧中文协议值与新英文 token（升级兼容，行为等价）；

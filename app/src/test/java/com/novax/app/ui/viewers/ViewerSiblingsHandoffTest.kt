@@ -22,7 +22,7 @@ class ViewerSiblingsHandoffTest {
     val tmp = TemporaryFolder()
 
     private fun novaxUri(i: Int): String =
-        "novax://2/imgcrash/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_202001011234" + i.toString().padStart(2, '0') + ".jpg"
+        "novax://2/imgcrash/%E6%B5%8B%E8%AF%95%E5%9B%BE%E7%89%87_202001011234" + i.toString().padStart(2, '0') + ".jpg"
 
     @Test
     fun `小列表走原 extras 不落盘`() {
@@ -40,8 +40,8 @@ class ViewerSiblingsHandoffTest {
     @Test
     fun `往返写读保持顺序与内容`() {
         val uris = listOf(
-            "file:///storage/emulated/0/Download/微信图片_2019080316400726.jpg",
-            "novax://3/a/b/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87.jpg",
+            "file:///storage/emulated/0/Download/photo_sample_001.jpg",
+            "novax://3/a/b/%E6%B5%8B%E8%AF%95%E5%9B%BE%E7%89%87.jpg",
             novaxUri(5999),
         )
         val f = ViewerSiblingsHandoff.writeTo(tmp.newFolder(), uris)
