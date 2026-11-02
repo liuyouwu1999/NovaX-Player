@@ -72,13 +72,3 @@ jobs:
 
       - name: Release build (R8 / lintVital / resource shrink / packaging guard)
         run: ./gradlew assembleRelease --stacktrace
-
-      - name: Upload test reports on failure
-        if: failure()
-        uses: actions/upload-artifact@v4
-        with:
-          name: test-reports-release
-          path: |
-            app/build/reports/tests/**
-            build/reports/**
-          if-no-files-found: ignore
