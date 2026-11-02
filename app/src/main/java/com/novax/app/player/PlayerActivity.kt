@@ -179,6 +179,7 @@ class PlayerActivity : androidx.fragment.app.FragmentActivity() {
     // 2026-09-19：时长提示（异步查库表）——引擎解析出真实时长前（SMB 慢源可达数秒），
     // 先用媒体库已知时长驱动进度条；此窗口内滑杆零反馈 = 用户反馈「开头进去进度条拖不动」
     private var durationHintMs by mutableLongStateOf(0L)
+    private val durationHintGate = NvDurationHintGate()   // 三期 spec §1.2-1：晚到旧查询作废
 
     // P2（错误态重试语义）：记录本次起播参数，重试 = 重建引擎真重试
     private var lastStart: StartParams? = null
@@ -327,8 +328,9 @@ class PlayerActivity : androidx.fragment.app.FragmentActivity() {
 
         // 2026-09-19：时长提示异步查询（媒体库 durationMs，缺则看历史行）——IO 协程，到货即重组。
         // SMB 慢源解析容器耗时数秒，此窗口内引擎 duration 未知、进度条完全无反馈（用户实测）
+        val hintCaptured = durationHintGate.capture()
         lifecycleScope.launch(Dispatchers.IO) {
-            val d = runCatching {
+            durationHintGate.refresh(hintCaptured, {
                 if (novaxTarget != null) {
                     NvGraph.mediaItemDao(this@PlayerActivity)
                         .findByKey(novaxTarget.first, novaxTarget.second)?.durationMs
@@ -336,8 +338,7 @@ class PlayerActivity : androidx.fragment.app.FragmentActivity() {
                             .findByKey(novaxTarget.first, novaxTarget.second)?.durationMs
                     ?: 0L
                 } else 0L
-            }.getOrDefault(0L)
-            if (d > 0L) durationHintMs = d
+            }, { durationHintMs = it })
         }
         // §4.1 内容隔离(轮1评审 A-P1):recreate 换内容(播 A 中外部 VIEW 开 B)时,旧存档不得回放——
         // 否则 B 被 seek 到 A 的位置、还挂上 A 的队列。键不一致(或无存档)= 全新起播
@@ -1063,6 +1064,7 @@ class PlayerActivity : androidx.fragment.app.FragmentActivity() {
         novaxNeedsChoice = false
         novaxError = null
         durationHintMs = 0L   // BUG-C-R2-03：新集时长未知，沿用上一集 hint 会让进度条分母错、拖动比例错
+        durationHintGate.clear()   // 三期 §1.2-1：在途旧查询回填一律作废
         lastStart = base
         launchStart(base, 0L, allowPrompt = true, prefs = readPrefs())
     }
@@ -1757,15 +1759,16 @@ class PlayerActivity : androidx.fragment.app.FragmentActivity() {
         novaxCandidates = emptyList()
         novaxNeedsChoice = false
         durationHintMs = 0L
-        // 时长提示按新集回填（与 onCreate 同一查库逻辑），消除进度条时长提示空窗
+        durationHintGate.clear()
+        // 时长提示按新集回填（与 onCreate 同一查库逻辑），消除进度条时长提示空窗；世代守卫防旧回填
         if (novax != null) {
+            val hintCaptured = durationHintGate.capture()
             lifecycleScope.launch(Dispatchers.IO) {
-                val d = runCatching {
+                durationHintGate.refresh(hintCaptured, {
                     NvGraph.mediaItemDao(this@PlayerActivity).findByKey(novax.first, novax.second)?.durationMs
                         ?: NvGraph.historyDao(this@PlayerActivity).findByKey(novax.first, novax.second)?.durationMs
                         ?: 0L
-                }.getOrDefault(0L)
-                if (d > 0L) durationHintMs = d
+                }, { durationHintMs = it })
             }
         }
         Log.d("NvPerf", "resync with service: $newUrl")
