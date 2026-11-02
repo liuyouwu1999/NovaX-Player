@@ -8,6 +8,7 @@ import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import android.os.SystemClock
 import android.util.Log
 import android.widget.Toast
 import androidx.core.app.NotificationCompat
@@ -95,7 +96,12 @@ class PlaybackService : MediaSessionService() {
     private var sessionPlayerDelegate: Player? = null
 
     /** 2026-09-15 播放中自适应降级/恢复：rebuffer 观测与档位决策（纯逻辑类） */
-    private val adaptivePolicy = NvAdaptivePolicy(System::currentTimeMillis)
+    // 2026-11-02 机构整改 spec §3：策略时钟改单调钟——System.currentTimeMillis 受系统时间
+    // 跳变影响，前跳≥30s 恰逢缓冲会误 ESCALATE 重建引擎、回拨会惰化策略数分钟；rebuffer
+    // 时长/冷却/burst/重建宽限窗全部是「持续时间」语义，必须走 elapsedRealtime。四个构造点
+    // 同批切换；其余墙钟用法（SMB 看门狗/限速器/TTL/睡眠定时）影响均有界自愈，本轮不动
+    // 挂三期备忘（spec §3.2）
+    private val adaptivePolicy = NvAdaptivePolicy(SystemClock::elapsedRealtime)
     private var adaptiveJob: Job? = null
 
     /** watchdog 当前观测的片源 URL：换片重置策略状态，自适应重建（同片换档）保留升降级记忆 */
@@ -107,7 +113,7 @@ class PlaybackService : MediaSessionService() {
      * （见 maybeStartAdaptiveWatchdog 顶部，裁决与 adaptivePolicy 同口径——videoUrl 变化）；
      * 同片重建（自适应降档/自动切档自身触发）保留实例，否则自动档会从原画反复降档自激。
      */
-    private var qualityAutoPolicy = NvQualityAutoPolicy(System::currentTimeMillis)
+    private var qualityAutoPolicy = NvQualityAutoPolicy(SystemClock::elapsedRealtime)
 
     /** qualityAutoPolicy 当前观测的片源 URL（同 adaptiveUrl 口径：换片新建实例，同片保留） */
     private var qualityUrl: String? = null
@@ -340,7 +346,7 @@ class PlaybackService : MediaSessionService() {
         // adaptivePolicy.reset() 同口径（videoUrl 变化=换片）；同片重建（自适应降档/自动
         // 切档自身）URL 不变 → 保留实例与阶梯，否则自动档会从原画反复降档自激。
         if (spec.videoUrl != qualityUrl) {
-            qualityAutoPolicy = NvQualityAutoPolicy(System::currentTimeMillis)
+            qualityAutoPolicy = NvQualityAutoPolicy(SystemClock::elapsedRealtime)
         }
         qualityUrl = spec.videoUrl
         adaptiveJob?.cancel()
@@ -614,7 +620,7 @@ class PlaybackService : MediaSessionService() {
                     // 手动转自动档：阶梯归位（AUTO 起播原画）——current 无重置入口，按裁决 3
                     // 以「新建实例」等价实现。置于解析成功后：失败则保留旧实例，阶梯仍与
                     // 实际在播的流一致（入口处的 onUserAction 已完成封窗职责）
-                    qualityAutoPolicy = NvQualityAutoPolicy(System::currentTimeMillis)
+                    qualityAutoPolicy = NvQualityAutoPolicy(SystemClock::elapsedRealtime)
                 }
                 Log.d("NvQuality", "switchQuality ${if (fromUser) "manual" else "auto"} -> $tier at $position")
             } catch (ce: kotlinx.coroutines.CancellationException) {
