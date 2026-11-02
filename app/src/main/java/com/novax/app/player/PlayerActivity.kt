@@ -56,6 +56,7 @@ import com.novax.app.data.playback.NvMediaSourceBuilder
 import com.novax.app.data.playback.NvUri
 import com.novax.app.data.privacy.NvGateWiring
 import com.novax.app.data.privacy.NvPrivacyAccess
+import com.novax.app.data.privacy.NvPrivacyRedactor
 import com.novax.app.data.privacy.NvPrivacySession
 import com.novax.app.data.scanner.NvScannerHolder
 import com.novax.app.ui.components.NvErrorState
@@ -696,7 +697,9 @@ class PlayerActivity : androidx.fragment.app.FragmentActivity() {
                 } catch (ce: kotlinx.coroutines.CancellationException) {
                     throw ce
                 } catch (t: Throwable) {
-                    Log.w("NvPerf", "switch pipeline failed: ${t.javaClass.simpleName}: ${t.message}")
+                    // 三期 spec §4-4.1：切集管线异常（源解析/开流）message 可能携带媒体路径/URL，
+                    // 脱敏后落日志（下方 novaxError 上屏文案非日志出口，本任务不动）
+                    Log.w("NvPerf", "switch pipeline failed: ${t.javaClass.simpleName}: ${NvPrivacyRedactor.redactThrowable(t).message}")
                     novaxLoading = false
                     novaxError = getString(R.string.player_err_switch_failed, t.message ?: t.javaClass.simpleName)
                 } finally {
@@ -1037,7 +1040,8 @@ class PlayerActivity : androidx.fragment.app.FragmentActivity() {
                 throw ce   // Activity 销毁取消：互斥位随实例消亡，无需处理
             } catch (t: Throwable) {
                 // 管线异常必须落定互斥位，否则后续切集被永久忽略（另一形态的「卡死」）
-                Log.w("NvPerf", "switch pipeline failed: ${t.javaClass.simpleName}: ${t.message}")
+                // 三期 spec §4-4.1：同 :699——切集管线异常脱敏后落日志（novaxError 上屏文案不动）
+                Log.w("NvPerf", "switch pipeline failed: ${t.javaClass.simpleName}: ${NvPrivacyRedactor.redactThrowable(t).message}")
                 novaxLoading = false
                 novaxError = getString(R.string.player_err_switch_failed, t.message ?: t.javaClass.simpleName)
             } finally {
@@ -1258,7 +1262,10 @@ class PlayerActivity : androidx.fragment.app.FragmentActivity() {
      * - P1-6：服务内同地址仍在播（通知栏重进/Activity 重建）→ 直接复用引擎，绝不重建断流。
      */
     private suspend fun startPlayback(p: StartParams, prefs: Preferences?) {
-        NvQSwitchTrace.mark("startPlayback enter url=${p.url.substringAfterLast('/')}")
+        // 三期 spec §4-4.1（点名点位）：裸文件名进 W 日志（vivo 可见）——先在 URL 上下文掩名
+        // （userinfo/host/路径尾段）再取尾段=「***.rmvb」；novax://单段编码路径/裸本地路径/
+        // http URL 三形态均被 maskUris/maskPathsAndNames 掩尾段（NvPrivacyRedactorTest 两用例钉住）
+        NvQSwitchTrace.mark("startPlayback enter url=${NvPrivacyRedactor.redactText(p.url, null).substringAfterLast('/')}")
         // 2026-09-28 缺陷 B：外部意图参数进入真实起播 = 新意图已被消费，resync 让位结束。
         // externalDisplayName 只在外部 VIEW 管线构造的参数上非空（通知重进/切集/resync
         // 重建的参数均为 null）。此处到 novaxLoading=true 之间无挂起点，不存在 resync 插窗

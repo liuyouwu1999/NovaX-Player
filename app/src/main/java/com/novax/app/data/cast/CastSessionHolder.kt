@@ -5,6 +5,7 @@ import com.novax.app.R
 import com.novax.app.data.NvGraph
 import com.novax.app.data.db.MediaDb
 import com.novax.app.data.db.SourceType
+import com.novax.app.data.privacy.NvPrivacyRedactor
 import com.novax.app.data.smb.SmbClient
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -38,7 +39,9 @@ object CastSessionHolder {
     // 里任何未捕获异常（如 Toast 线程错误）会走全局默认处理器直接杀进程
     private val scope = CoroutineScope(
         SupervisorJob() + Dispatchers.IO + kotlinx.coroutines.CoroutineExceptionHandler { _, e ->
-            android.util.Log.w("NvCast", "holder scope uncaught", e)
+            // 三期 spec §4-4.1（二期挂账 CastSessionHolder×5）：兜底出口的异常可能来自投屏
+            // 预处理链（媒体路径/URL 进 message），脱敏后落日志；类名+栈帧保留
+            android.util.Log.w("NvCast", "holder scope uncaught", NvPrivacyRedactor.redactThrowable(e))
         },
     )
     // 返工⑬（2026-10-16 控制层迁移）：seam 生产实现 = jUPnP ControlPoint 适配器
@@ -273,10 +276,15 @@ object CastSessionHolder {
         val context = checkNotNull(appContext) { "CastSessionHolder 未初始化" }
         val session = checkNotNull(session) { "CastSessionHolder 未初始化" }
         // 返工3 诊断线（2026-10-16）：入口即落 NvCast——「NAS 视频点了没反应」类问题从这行开始对账
+        // 隐私红线（三期 spec §4-4.1）：media.title/path 含媒体文件名与路径，I 级 release 不剥除，
+        // 出口过脱敏（对齐 CastSession.cast 同款入口行的既有处理）
         android.util.Log.i(
             "NvCast",
-            "cast 入口: device=\"${device.name}\" media=\"${media.title}\" path=${media.path} " +
-                "size=${media.sizeBytes} offset=${offsetMs}ms",
+            NvPrivacyRedactor.redactText(
+                "cast 入口: device=\"${device.name}\" media=\"${media.title}\" path=${media.path} " +
+                    "size=${media.sizeBytes} offset=${offsetMs}ms",
+                null,
+            ),
         )
         // 电视端大概率解不了的容器（spec C13 §6）：非阻塞提醒，不拦截尝试
         val ext = media.path.substringAfterLast('.').lowercase()
@@ -337,7 +345,12 @@ object CastSessionHolder {
                     Result.success<String?>(null)
                 }
                 val sub = subResult.getOrElse { e ->
-                    android.util.Log.w("NvCast", "字幕列举失败，跳过自动字幕继续投屏", e)
+                    // 三期 spec §4-4.1（二期挂账 ×5）：listSubtitles 异常 message 可能含字幕/媒体路径，脱敏后落日志
+                    android.util.Log.w(
+                        "NvCast",
+                        "字幕列举失败，跳过自动字幕继续投屏",
+                        NvPrivacyRedactor.redactThrowable(e),
+                    )
                     null
                 }
                 if (sub != null) {
@@ -361,8 +374,19 @@ object CastSessionHolder {
             // 预处理链意外异常（DB/嗅探层抛出等，正常都被内部 runCatching 吞）：不许把用户
             // 卡死在连接中态——落 Error 走既有 toast 面后原样上抛（调用方 scope 无处理器，
             // 与旧版裸抛同语义）
-            android.util.Log.w("NvCast", "cast 预处理链异常", e)
-            if (connectingPrimed) session.abortConnecting(device, e.message ?: context.getString(R.string.data_cast_err_cast_failed))
+            // 三期 spec §4-4.1（点名点位）：预处理链异常的 message 可能含媒体路径/URL，
+            // 脱敏后落日志；tag+异常类名+栈帧保留=诊断不丢
+            android.util.Log.w("NvCast", "cast 预处理链异常", NvPrivacyRedactor.redactThrowable(e))
+            // abortConnecting 落点追踪（三期 spec §4-4.1）：实现 CastSession.abortConnecting 把
+            // message 写进 CastUiState.Error——是【上屏回调】（投屏面板错误态展示），非日志非设备侧
+            // （SOAP 不携带）；故源头改传 redactText 脱敏文本，原始 e.message 不再出预处理链
+            if (connectingPrimed) {
+                session.abortConnecting(
+                    device,
+                    e.message?.let { NvPrivacyRedactor.redactText(it, null) }
+                        ?: context.getString(R.string.data_cast_err_cast_failed),
+                )
+            }
             throw e
         }
     }
@@ -389,7 +413,8 @@ object CastSessionHolder {
                 val dbSize = runCatching {
                     MediaDb.get(context).mediaItemDao().findByKey(source.id, media.path)?.sizeBytes ?: 0L
                 }.getOrElse { e ->
-                    android.util.Log.w("NvCast", "库元数据大小回查失败", e)
+                    // 三期 spec §4-4.1（二期挂账 ×5）：统一套 redactThrowable（fail toward more masking）
+                    android.util.Log.w("NvCast", "库元数据大小回查失败", NvPrivacyRedactor.redactThrowable(e))
                     0L
                 }
                 if (dbSize > 0) {
@@ -463,7 +488,9 @@ object CastSessionHolder {
             throw e
         } catch (e: Exception) {
             // 快速失败（连接拒绝/404 等）：远程源 = 投屏必然取不到流，如实终止；本地源仅跳过 DV 提醒
-            android.util.Log.w("NvCast", "片源预处理失败（remote=$isRemote）", e)
+            // 三期 spec §4-4.1（二期挂账 ×5）：openStreamBlocking 异常（FileNotFoundException 等）
+            // 的 message 携带媒体全路径，脱敏后落日志
+            android.util.Log.w("NvCast", "片源预处理失败（remote=$isRemote）", NvPrivacyRedactor.redactThrowable(e))
             if (isRemote) return ctx.getString(R.string.data_cast_err_source_unreadable) to false
             return null to false
         }

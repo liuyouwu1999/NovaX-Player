@@ -262,7 +262,9 @@ class Thumbnailer(
                         throw ce   // scope 取消（App 退出）：随协程终止，不算单条失败
                     } catch (t: Throwable) {
                         // worker 绝不因单条异常死亡（BUG-C-R5-08：死一条=并发永久递减、该行卡 RUNNING）
-                        android.util.Log.w("NvThumb", "worker survived: ${t.javaClass.simpleName} ${t.message}")
+                        // 三期 spec §4-4.1（点名点位）：抽帧失败异常 message 含媒体路径，脱敏后落日志
+                        val r = NvPrivacyRedactor.redactThrowable(t)
+                        android.util.Log.w("NvThumb", "worker survived: ${t.javaClass.simpleName} ${r.message}")
                     }
                 }
             }
@@ -395,7 +397,9 @@ class Thumbnailer(
                 } catch (e: Exception) {
                     // 2026-10-22 真机修复：抽取失败（源不可达/目录被清/解码失败等）只应丢封面，
                     // 不允许异常穿透协程炸掉进程（vivo 无线日志实证 ENOENT 曾致整机闪退）
-                    android.util.Log.w("NvThumb", "image thumb extract failed: ${e.javaClass.simpleName}: ${e.message}")
+                    // 三期 spec §4-4.1（点名点位）：源不可达异常 message 含媒体路径，脱敏后落日志
+                    val r = NvPrivacyRedactor.redactThrowable(e)
+                    android.util.Log.w("NvThumb", "image thumb extract failed: ${e.javaClass.simpleName}: ${r.message}")
                     null
                 } finally {
                     runCatching { tmp.delete() }

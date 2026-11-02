@@ -28,6 +28,7 @@ import com.novax.app.data.db.MediaDb
 import com.novax.app.data.db.SourceEntity
 import com.novax.app.data.db.SourceType
 import com.novax.app.data.playback.NvUri
+import com.novax.app.data.privacy.NvPrivacyRedactor
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -71,7 +72,9 @@ class PlaybackService : MediaSessionService() {
     /** 作用域兜底（E5-1 发版审查）：handler 延迟执行，初始化期引用 applicationContext 安全——后台协程未捕获异常记日志落盘，不杀进程。 */
     private val serviceScope = CoroutineScope(
         SupervisorJob() + Dispatchers.Main.immediate + CoroutineExceptionHandler { _, e ->
-            Log.w("NvServiceScope", "uncaught in serviceScope", e)
+            // 三期 spec §4-4.1：兜底出口异常可能来自播放/切集/开流链（message 携带媒体路径/URL），
+            // 脱敏后落日志；recordNonFatal 保持原始 e——NvCrashLog.write 内部统一脱敏落盘
+            Log.w("NvServiceScope", "uncaught in serviceScope", NvPrivacyRedactor.redactThrowable(e))
             runCatching { NvCrashLog.recordNonFatal(applicationContext, "serviceScope", e) }
         },
     )
@@ -628,7 +631,8 @@ class PlaybackService : MediaSessionService() {
             } catch (t: Throwable) {
                 // 本地 catch 收敛为 Toast（serviceScope 的 E5-1 兜底 handler 只落盘不提示）：
                 // 切清晰度失败必须让用户可见（同 switchQueue）
-                Log.w("NvError", "switchQuality failed", t)
+                // 三期 spec §4-4.1：切清晰度链异常（开流/源解析）脱敏后落日志（下方 toast 上屏不动）
+                Log.w("NvError", "switchQuality failed", NvPrivacyRedactor.redactThrowable(t))
                 Toast.makeText(
                     applicationContext,
                     applicationContext.getString(
@@ -1004,7 +1008,8 @@ class PlaybackService : MediaSessionService() {
             } catch (t: Throwable) {
                 // 本地 catch 收敛为 Toast（serviceScope 的 E5-1 兜底 handler 只落盘不提示）：
                 // 后台切集失败必须收敛为提示（BUG-C-R2-01）
-                Log.w("NvError", "switchQueue failed", t)
+                // 三期 spec §4-4.1：后台切集链异常（开流/源解析）脱敏后落日志（下方 toast 上屏不动）
+                Log.w("NvError", "switchQueue failed", NvPrivacyRedactor.redactThrowable(t))
                 Toast.makeText(
                     applicationContext,
                     applicationContext.getString(

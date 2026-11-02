@@ -88,7 +88,11 @@ object NvStallRecovery {
     fun recover(reason: String) {
         val h = handler ?: return
         Log.w("NvPerf", "stall recovery triggered: $reason")
-        runCatching { h() }.onFailure { Log.w("NvPerf", "stall recovery failed", it) }
+        // handler=forceRePrepareOnMainThread（EpisodeMediaKit 注入），异常与 prepare 失败同源
+        // 可能携带媒体路径/URL——三期 spec §4-4.1，脱敏后落日志
+        runCatching { h() }.onFailure {
+            Log.w("NvPerf", "stall recovery failed", com.novax.app.data.privacy.NvPrivacyRedactor.redactThrowable(it))
+        }
     }
 
     // ---------------- 画面侧自愈（2026-09-15 真机复现「画面没了」后新增） ----------------

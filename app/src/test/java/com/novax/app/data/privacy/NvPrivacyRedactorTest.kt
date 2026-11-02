@@ -191,4 +191,24 @@ class NvPrivacyRedactorTest {
         assertNotNull("cause 链递归脱敏后仍在", redactedCause)
         assertFalse(redactedCause!!.message!!.contains("SECRET"))
     }
+
+    // ---- 三期 spec §4-4.1：NvQSwitch 裸文件名出口（PlayerActivity startPlayback enter）的
+    // 组合模式钉子——先 redactText(url, null) 在 URL 上下文掩名再 substringAfterLast('/')。
+    // p.url 三形态（http URL / novax:// 单段编码路径 / 裸本地路径）都必须掩掉媒体文件名。
+
+    @Test
+    fun `NvQSwitch组合_URL形态_媒体文件名被掩`() {
+        val url = "http://192.168.1.5:8080/media/Movies/私人合集.rmvb?token=tok"
+        val tail = NvPrivacyRedactor.redactText(url, null).substringAfterLast('/')
+        assertEquals("***.rmvb?***", tail)
+        assertFalse(tail.contains("私人合集"))
+    }
+
+    @Test
+    fun `NvQSwitch组合_裸本地路径形态_媒体文件名被掩`() {
+        val url = "/storage/emulated/0/Movies/私人合集.rmvb"
+        val tail = NvPrivacyRedactor.redactText(url, null).substringAfterLast('/')
+        assertEquals("***.rmvb", tail)
+        assertFalse(tail.contains("私人合集"))
+    }
 }

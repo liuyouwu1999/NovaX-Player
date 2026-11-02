@@ -736,8 +736,11 @@ class RmvbPlayerActivity : ComponentActivity() {
         } catch (e: kotlinx.coroutines.CancellationException) {
             throw e   // 2026-09-21 审计 P2：切集取消不得走 fail() 污染新集错误态
         } catch (e: Exception) {
-            Log.w("NvRmvb", "setup failed", e)
-            fail(e.message ?: e.javaClass.simpleName)
+            // 三期 spec §4-4.2：二期已证本 catch reachable surface 为空（不可达面论证见二期 T4
+            // 复审包），保守保留仅作兜底，脱敏防将来复活时泄 URI
+            val r = NvPrivacyRedactor.redactThrowable(e)
+            Log.w("NvRmvb", "setup failed", r)
+            fail(r.message ?: r.javaClass.simpleName)
         }
     }
 
@@ -1546,7 +1549,9 @@ class RmvbPlayerActivity : ComponentActivity() {
                 }
             }
         } catch (e: Exception) {
-            android.util.Log.w("NvThumb", "cover capture failed: ${e.message}")
+            // 三期 spec §4-4.1（点名点位）：封面捕获失败异常 message 含媒体路径，脱敏后落日志
+            val r = NvPrivacyRedactor.redactThrowable(e)
+            android.util.Log.w("NvThumb", "cover capture failed: ${r.message}")
         }
     }
 

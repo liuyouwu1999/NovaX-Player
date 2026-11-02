@@ -459,7 +459,10 @@ class PlaybackEngine(
             ioRetryAvailable = true          // 重新武装自愈，避免与 IO 自愈互相消耗
             player.seekTo(position.coerceAtLeast(0L))
             player.prepare()
-        }.onFailure { Log.w("NvPerf", "force re-prepare failed", it) }
+        }.onFailure {
+            // 三期 spec §4-4.1：prepare 失败 cause 链可能携带媒体路径/URL（FileNotFoundException 等），脱敏后落日志
+            Log.w("NvPerf", "force re-prepare failed", com.novax.app.data.privacy.NvPrivacyRedactor.redactThrowable(it))
+        }
         // 重新 prepare 只重建管线；真机取证（C2MtkBufferManager: bufferqueue may disconnected）
         // 显示解码器换档后还会持有断开的旧 bufferqueue，必须同时重挂 surface 才能真正出画。
         NvStallRecovery.notifyNoPictureRecover("forceRePrepare from=${position}ms")

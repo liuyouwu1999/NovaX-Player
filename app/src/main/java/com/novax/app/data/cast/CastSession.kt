@@ -311,7 +311,10 @@ class CastSession(
             throw e
         } catch (e: Exception) {
             // 返工3：任何投屏路径失败必落 NvCast（红线：不允许静默）——此前此处零日志
-            android.util.Log.w("NvCast", "cast() 失败: ${e.javaClass.simpleName}: ${e.message}", e)
+            // 三期 spec §4-4.1：e.message 可能携带媒体路径/URL（SetURI 取流失败等），脱敏后落日志；
+            // tag+异常类名+栈帧保留=诊断不丢
+            val r = NvPrivacyRedactor.redactThrowable(e)
+            android.util.Log.w("NvCast", "cast() 失败: ${e.javaClass.simpleName}: ${r.message}", r)
             // H-6：gen 过期 = 异常迟到落地时新会话已在途——closeSession/Error 双跳过（旧实现
             // 无条件收尾+写 Error：投 A 超时后改投 B，A 的超时异常停掉 B 的流服务器并把 B 的
             // Connecting 覆写成 Error，B「连上电视但不播」）；资源回收同理由新会话入口完成
