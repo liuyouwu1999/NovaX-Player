@@ -64,8 +64,9 @@ android {
     testOptions {
         unitTests.isReturnDefaultValues = true
         // 机构整改 spec §5（Robolectric 落地，D2 方案 A）：单测可读资源/资产——Room schema
-        // 快照经 sourceSets.test.assets 进入 MigrationTestHelper 可见资产。会动全模块单测
-        // 资源管线，落地时必须全量回归（spec §5.2 落地工程清单）
+        // 快照经 sourceSets.test.assets 进入 MigrationTestHelper 可见资产。Robolectric 已落地
+        // （二期 0b958e7，全量回归绿；AGP 9.1 下 schemas 挂 debug sourceSet，三坑详见二期
+        // spec §5 与下方 sourceSets 注释）
         unitTests.isIncludeAndroidResources = true
     }
     sourceSets {
