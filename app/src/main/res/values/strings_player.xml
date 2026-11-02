@@ -11,6 +11,7 @@
 
     <!-- PlayerActivity: entry / routing toasts & errors -->
     <string name="player_err_unrecognized">Couldn\'t identify the file to open</string>
+    <string name="player_err_unsupported_scheme">Unsupported file address</string>
     <string name="player_err_open_title">Can\'t open video</string>
     <string name="player_err_switch_failed">Switch failed: %1$s</string>
     <string name="player_quality_switch_failed">Quality switch failed: %1$s</string>

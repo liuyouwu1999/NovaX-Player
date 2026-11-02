@@ -11,6 +11,7 @@
 
     <!-- PlayerActivity: 진입/라우팅 토스트 및 오류 -->
     <string name="player_err_unrecognized">열 파일을 인식할 수 없습니다</string>
+    <string name="player_err_unsupported_scheme">지원되지 않는 파일 주소입니다</string>
     <string name="player_err_open_title">동영상을 열 수 없습니다</string>
     <string name="player_err_switch_failed">전환 실패: %1$s</string>
     <string name="player_quality_switch_failed">화질 전환 실패: %1$s</string>

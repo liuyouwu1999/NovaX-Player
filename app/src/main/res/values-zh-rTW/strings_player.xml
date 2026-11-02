@@ -11,6 +11,7 @@
 
     <!-- PlayerActivity：入口/路由 Toast 與錯誤 -->
     <string name="player_err_unrecognized">無法識別要開啟的檔案</string>
+    <string name="player_err_unsupported_scheme">不支援的檔案位址</string>
     <string name="player_err_open_title">無法開啟影片</string>
     <string name="player_err_switch_failed">切換失敗：%1$s</string>
     <string name="player_quality_switch_failed">切換清晰度失敗：%1$s</string>

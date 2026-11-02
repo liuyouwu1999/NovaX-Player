@@ -29,6 +29,9 @@ object NvMeteredGuard {
             val scheme = if (colon > 0) url.substring(0, colon).lowercase() else ""
             when (scheme) {
                 "content", "file" -> false
+                // TODO(三期备忘，机构整改 spec §6.2-5)：将来支持 rtsp/rtmp 等流播放时，把对应
+                // scheme 加入远程判定，并同步 NvExternalOpen.ALLOWED_EXTERNAL_SCHEMES 白名单
+                // 与文档口径；未知 scheme 恒 false 的保守行为维持不变
                 "http", "https", "ftp" -> true
                 else -> false
             }

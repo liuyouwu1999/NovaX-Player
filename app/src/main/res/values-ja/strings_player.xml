@@ -11,6 +11,7 @@
 
     <!-- PlayerActivity: 入口/ルーティング トーストとエラー -->
     <string name="player_err_unrecognized">開くファイルを認識できません</string>
+    <string name="player_err_unsupported_scheme">サポートされていないファイルアドレスです</string>
     <string name="player_err_open_title">動画を開けません</string>
     <string name="player_err_switch_failed">切り替え失敗: %1$s</string>
     <string name="player_quality_switch_failed">画質切り替え失敗: %1$s</string>

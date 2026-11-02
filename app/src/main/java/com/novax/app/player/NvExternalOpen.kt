@@ -60,4 +60,27 @@ object NvExternalOpen {
             if (c.moveToFirst()) c.getString(0) else null
         }
     }.getOrNull()
+
+    /**
+     * 外部 ACTION_VIEW 放行 scheme 白名单（2026-11-02 机构整改 spec §6.2-4，机构 2.4 验收标准
+     * 「外部 URI scheme/授权/路由边界明确，非法输入被拒绝」）。
+     *
+     * 判别用 `Uri.parse(url).scheme?.lowercase()`（机构 2.4 原话：不得只用字符串 startsWith——
+     * startsWith 挡不住 "contentXX://" 之类的伪造前缀，也不规范处理大小写）。
+     * - 放行 content|file|http|https：外部「打开方式」现状能播的全部入口，零行为变化；
+     * - ftp 有意收窄不放行：两播放引擎实际均不支持 ftp 播放（NvMeteredGuard 计 ftp 入远程仅是
+     *   保守计量口径，见其 TODO 注释），现状传 ftp 本就播不了——此改只是把「莫名播放失败」
+     *   变「明确拒绝」；
+     * - novax:// 内部命令入口与外部打开入口天然分离（NvUri.parse 需 DB 真实 sourceId），外部
+     *   VIEW 传 novax:// 在此一并明确拒绝；
+     * - 无 scheme（裸本地路径）放行：引擎 File 分支既有支持，不在「其余 scheme」字面范围内；
+     * - 空值拒绝（调用方外部 data 非空的分支才进本函数，空值属防御）。
+     */
+    val ALLOWED_EXTERNAL_SCHEMES = setOf("content", "file", "http", "https")
+
+    fun isAllowedExternalUri(uriString: String?): Boolean {
+        if (uriString.isNullOrBlank()) return false
+        val scheme = Uri.parse(uriString).scheme?.lowercase() ?: return true
+        return scheme in ALLOWED_EXTERNAL_SCHEMES
+    }
 }

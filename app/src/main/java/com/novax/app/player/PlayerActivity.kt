@@ -267,6 +267,14 @@ class PlayerActivity : androidx.fragment.app.FragmentActivity() {
             finish()
             return
         }
+        // 2026-11-02 机构整改 spec §6.2-4：外部 ACTION_VIEW scheme 白名单——未知 scheme 现状
+        // 本就播不了，此改把「莫名播放失败」变「明确拒绝」；toast 脱敏（不上屏地址与 scheme 名）。
+        // 只约束外部 data 入口：内部 novax:// 命令路径与通知路径不经此处
+        if (externalData != null && !NvExternalOpen.isAllowedExternalUri(externalData.toString())) {
+            Toast.makeText(this, getString(R.string.player_err_unsupported_scheme), Toast.LENGTH_SHORT).show()
+            finish()
+            return
+        }
         // 缺陷 B：本同步段先占位再进 onStart——外部意图被消费前，resync 的 switched
         // 适配不得用服务旧规格覆盖刚建好的 lastStart（新内容会被完全丢弃）
         if (externalData != null) pendingExternalIntent = true
