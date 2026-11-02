@@ -265,7 +265,10 @@ dependencies {
 // E4-1 fail-fast：release 打包任务执行期校验签名配置在位（CC 安全；taskGraph.whenReady 在
 // 配置缓存命中时不会重执行，不可用作守卫）。缺 keystore.properties 时 AGP 会无声产出
 // 未签名包——必须在打包前拦下，禁止任何形式的回落。
-tasks.matching { it.name.startsWith("package") && it.name.contains("Release") }.configureEach {
+// 2026-11-02 机构整改 spec §4.2-2（2026-10-25 评审 N1 老账）：dev 变体（真机测试装机用，
+// 同 release 签名）的打包任务不含 "Release"，原条件漏网——缺 keystore 时同样无声产未签名
+// 包，一并拦下。Debug 任务（packageX86_64Debug 等）有意不在列：debug 签名是其设计语义。
+tasks.matching { it.name.startsWith("package") && (it.name.contains("Release") || it.name.contains("Dev")) }.configureEach {
     // 实证（Gradle 9.3.1）：doFirst 闭包若引用脚本顶层属性，会连脚本对象一起捕获，
     // CC 报 "cannot serialize Gradle script object references"。故在 configureEach 体内
     // （仅配置期执行，不参与序列化）把探测结果拷进局部 val，doFirst 只捕获这个 Boolean。

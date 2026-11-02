@@ -1,10 +1,17 @@
-# NovaX CI（2026-10-25 外部审查整改）：push 后自动 debug 编译（3 ABI）+ 全量 JVM 单测，
-# 防「编译失败仍推送」事故重演。设计要点：
-# - 触发不加 branches 过滤——公开仓仅 main 一条分支（单提交 amend 工作流），force push 亦触发；
-# - 全文无 secret；不跑 release（keystore 缺失 fail-fast，见 app/build.gradle.kts 尾部守卫）；
-#   不跑 androidTest（需真机）；
+# NovaX CI（2026-11-02 机构整改 spec §4 更版）：双 job。
+# 1) build-and-test：push 后自动 debug 编译（3 ABI）+ 全量 JVM 单测，防「编译失败仍推送」事故重演；
+# 2) release-verify（机构 2.6）：一次性 CI keystore（keytool 现生成、有效期 1 天、密码固定
+#    verify-only）跑 assembleRelease + testReleaseUnitTest——连带 minifyR8 / lintVitalRelease /
+#    资源收缩 / 打包签名守卫全链验证。正式签名密钥永不离开本机；CI 生成的 keystore.properties
+#    与 ci-verify.keystore 均写在仓库根，已被 .gitignore 根锚定规则（/keystore.properties、
+#    /*.keystore）覆盖，绝无入库风险。CI 不可用时的手工验证清单=docs/RELEASE.md 发版流程 +
+#    每版真机人工冒烟（既有惯例，机构 2.6「CI 不可用」项如实对账）。
+# 设计要点（build-and-test 沿革）：
+# - 触发不加 branches 过滤——公开仓仅 main 一条分支，force push 亦触发；
+# - 全文无 secret；不跑 androidTest（需真机）；
 # - media3-ffmpeg-ext 的 ffmpeg 为预编译静态库入库，CI 仅 CMake 链接；
-# - 首跑冷环境（SDK platform 36+37 / NDK / CMake 3.22.1 下载）约 20–40 分钟属预期，非故障。
+# - 首跑冷环境（SDK platform 36+37 / NDK / CMake 3.22.1 下载；两 job 的单测首跑均会下载
+#   Robolectric android-all jar）约 20–40 分钟属预期，非故障。
 name: ci
 
 on:
@@ -33,6 +40,42 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: test-reports
+          path: |
+            app/build/reports/tests/**
+            build/reports/**
+          if-no-files-found: ignore
+
+  release-verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - uses: gradle/actions/setup-gradle@v6
+
+      - name: Generate one-shot CI keystore (verify-only, never the release key)
+        run: |
+          keytool -genkeypair -v -keystore ci-verify.keystore -alias ci-verify \
+            -keyalg RSA -keysize 2048 -validity 1 \
+            -storepass verify-only -keypass verify-only \
+            -dname "CN=novax-ci-verify, OU=verify-only, O=NovaX, C=CN"
+          printf 'storeFile=ci-verify.keystore\nstorePassword=verify-only\nkeyAlias=ci-verify\nkeyPassword=verify-only\n' > keystore.properties
+
+      - name: Release build (R8 / lintVital / resource shrink / packaging guard)
+        run: ./gradlew assembleRelease --stacktrace
+
+      - name: Release unit tests
+        run: ./gradlew testReleaseUnitTest --stacktrace
+
+      - name: Upload test reports on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-reports-release
           path: |
             app/build/reports/tests/**
             build/reports/**
