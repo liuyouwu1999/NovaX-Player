@@ -204,7 +204,7 @@
     <!-- 开源致谢页 -->
     <string name="settings_licenses_header">NovaX 基于以下优秀的开源项目构建，谨此致谢——</string>
     <string name="settings_licenses_footer">各项目完整协议文本见 https://www.apache.org/licenses/LICENSE-2.0 等官方源。\nNovaX 站在这些巨人的肩膀上 —— 感谢开源社区。</string>
-    <string name="settings_license_stack_name">Kotlin 2.2.20 / Coroutines 1.10.2 / AndroidX（Core 1.17.0 · Lifecycle 2.9.4 · Activity Compose 1.11.0 · Navigation Compose 2.9.5） / Jetpack Compose（BOM 2026.09.00，含 Material Icons） / DataStore 1.1.7 / Room 2.8.2 / Coil 3.3.0</string>
+    <string name="settings_license_stack_name">Kotlin 2.2.20 / Coroutines 1.10.2 / AndroidX（Core 1.17.0 · Lifecycle 2.9.4 · Activity Compose 1.11.0 · Navigation Compose 2.9.5） / Jetpack Compose（BOM 2026.09.00，含 Material Icons） / DataStore 1.1.7 / Room 2.8.2</string>
     <string name="settings_license_pinyin4j">离线中文拼音索引与标题自然排序。项目：https://github.com/belerweb/pinyin4j</string>
     <string name="settings_license_nova">NovaX 的播放底座与文件核心源自 Nova Video Player 开源项目，感谢原项目及社区的长期贡献。</string>
     <string name="settings_license_media3">android.media3 提供解码、轨道选择、字幕渲染与媒体会话能力，是本应用播放内核的基石。</string>
@@ -220,5 +220,6 @@
     <string name="settings_license_jupnp">org.jupnp:org.jupnp.android —— DLNA/UPnP 设备发现与控制。项目：https://github.com/jupnp/jupnp</string>
     <string name="settings_license_jetty">org.eclipse.jetty —— 投屏本地流服务器（jUPnP 流传输/GENA 底层）。项目：https://github.com/jetty/jetty.project</string>
     <string name="settings_license_haze">dev.chrisbanes.haze（haze / haze-blur / haze-glass）—— 液态玻璃材质渲染库（模糊、边缘折射与高光，2026-10 界面玻璃化全程使用）。项目：https://github.com/chrisbanes/haze</string>
-    <string name="settings_license_stack">现代安卓开发全栈：语言与协程、AndroidX 基础组件（应用首页/生命周期/导航）、声明式 UI 与图标（material-icons-extended）、键值与关系型持久化、图片加载。</string>
+    <string name="settings_license_coil">io.coil-kt.coil3:coil-compose / coil-gif —— 海报与文件缩略图的图片加载，coil-gif 支持查看器内 GIF 动图播放。项目：https://github.com/coil-kt/coil</string>
+    <string name="settings_license_stack">现代安卓开发全栈：语言与协程、AndroidX 基础组件（应用首页/生命周期/导航）、声明式 UI 与图标（material-icons-extended）、键值与关系型持久化。</string>
 </resources>

@@ -204,7 +204,7 @@
     <!-- 오픈소스 라이선스 페이지 -->
     <string name="settings_licenses_header">NovaX는 다음과 같은 훌륭한 오픈소스 프로젝트를 기반으로 만들어졌습니다. 감사드립니다.</string>
     <string name="settings_licenses_footer">각 프로젝트의 전체 라이선스 전문은 https://www.apache.org/licenses/LICENSE-2.0 등 공식 출처에서 확인할 수 있습니다.\nNovaX는 거인의 어깨 위에 서 있습니다. 오픈소스 커뮤니티에 감사드립니다.</string>
-    <string name="settings_license_stack_name">Kotlin 2.2.20 / Coroutines 1.10.2 / AndroidX(Core 1.17.0 · Lifecycle 2.9.4 · Activity Compose 1.11.0 · Navigation Compose 2.9.5) / Jetpack Compose(BOM 2026.09.00, Material Icons 포함) / DataStore 1.1.7 / Room 2.8.2 / Coil 3.3.0</string>
+    <string name="settings_license_stack_name">Kotlin 2.2.20 / Coroutines 1.10.2 / AndroidX(Core 1.17.0 · Lifecycle 2.9.4 · Activity Compose 1.11.0 · Navigation Compose 2.9.5) / Jetpack Compose(BOM 2026.09.00, Material Icons 포함) / DataStore 1.1.7 / Room 2.8.2</string>
     <string name="settings_license_pinyin4j">오프라인 중국어 병음 색인과 제목 자연 정렬. 프로젝트: https://github.com/belerweb/pinyin4j</string>
     <string name="settings_license_nova">NovaX의 재생 기반과 파일 핵심은 Nova Video Player 오픈소스 프로젝트에서 나왔습니다. 원 프로젝트와 커뮤니티의 오랜 기여에 감사드립니다.</string>
     <string name="settings_license_media3">android.media3는 디코딩, 트랙 선택, 자막 렌더링, 미디어 세션 기능을 제공하는 이 앱 재생 코어의 초석입니다.</string>
@@ -220,5 +220,6 @@
     <string name="settings_license_jupnp">org.jupnp:org.jupnp.android — DLNA/UPnP 기기 검색과 제어. 프로젝트: https://github.com/jupnp/jupnp</string>
     <string name="settings_license_jetty">org.eclipse.jetty — 스크린캐스트 로컬 스트리밍 서버(jUPnP 스트림 전송/GENA 기반). 프로젝트: https://github.com/jetty/jetty.project</string>
     <string name="settings_license_haze">dev.chrisbanes.haze(haze / haze-blur / haze-glass) — 리퀴드 글래스 소재 렌더링 라이브러리(흐림, 가장자리 굴절, 하이라이트, 2026-10 유리 UI 전환 전반에 사용). 프로젝트: https://github.com/chrisbanes/haze</string>
-    <string name="settings_license_stack">현대 안드로이드 개발 풀스택: 언어와 코루틴, AndroidX 기반 구성 요소(앱 홈/수명 주기/내비게이션), 선언형 UI와 아이콘(material-icons-extended), 키-값·관계형 영속성, 이미지 로딩.</string>
+    <string name="settings_license_coil">io.coil-kt.coil3:coil-compose / coil-gif — 포스터와 파일 썸네일의 이미지 로딩, coil-gif로 뷰어에서 GIF 애니메이션 재생 지원. 프로젝트: https://github.com/coil-kt/coil</string>
+    <string name="settings_license_stack">현대 안드로이드 개발 풀스택: 언어와 코루틴, AndroidX 기반 구성 요소(앱 홈/수명 주기/내비게이션), 선언형 UI와 아이콘(material-icons-extended), 키-값·관계형 영속성.</string>
 </resources>

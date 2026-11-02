@@ -35,7 +35,13 @@ import com.novax.app.ui.theme.NvColors
  * （SftpClient 实用）与 BouncyCastle 1.79（bcprov-jdk18on，sshj 传递依赖）；
  * 删 Material Symbols（应用内无字体实物，图标实由 material-icons-extended 提供，并入组条目）；
  * 组条目按 gradle 实测补版本并并入 Coroutines 1.10.2。
- * 2026-10-09 修订（批次二评审点名）：补 eddsa 0.3.0（ISC，sshj 的 Ed25519 签名算法传递依赖）。
+ * 2026-10-09 修订（批次二评审点名）：补 eddsa 0.3.0（sshj 的 Ed25519 签名算法传递依赖；当时记 ISC，
+ * 2026-11-03 对账依 gradle 缓存 POM 实测改记 CC0 1.0，见下轮修订）。
+ * 2026-11-03 修订（三期 §3.4）：按 releaseRuntimeClasspath 对账——eddsa 0.3.0 依缓存 POM 实测改记
+ * CC0 1.0 Universal（POM 为 Maven 元数据权威源）；补 Coil 3.3.0 独立条目（coil-compose+coil-gif
+ * 合一，Apache-2.0，两 POM 实测）并同步自组条目屏显名/描述摘除 Coil（避免同名双列）；jUPnP 取证
+ * 补强=聚合 POM org.jupnp:jupnp:3.0.5 带 CDDL-1.0 licenses 块（依赖链三级 POM 均无该字段），
+ * 条目 CDDL 1.0 口径维持；其余依赖均在册，无版本漂移、无已删依赖。
  */
 
 /**
@@ -76,7 +82,7 @@ internal val licenseEntries = listOf(
         R.string.settings_license_sshj,
     ),
     LicenseEntry(
-        "eddsa 0.3.0", "ISC",
+        "eddsa 0.3.0", "CC0 1.0",
         R.string.settings_license_eddsa,
     ),
     LicenseEntry(
@@ -106,6 +112,10 @@ internal val licenseEntries = listOf(
     LicenseEntry(
         "Haze 2.0.1", "Apache License 2.0",
         R.string.settings_license_haze,
+    ),
+    LicenseEntry(
+        "Coil 3.3.0", "Apache License 2.0",
+        R.string.settings_license_coil,
     ),
     LicenseEntry(
         "Kotlin / AndroidX / Compose stack", "Apache License 2.0",

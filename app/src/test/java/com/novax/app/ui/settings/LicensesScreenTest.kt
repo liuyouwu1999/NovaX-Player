@@ -45,7 +45,8 @@ class LicensesScreenTest {
     @Test fun `vendor 署名保留`() { assertTrue(licenseEntries.any { it.name.contains("Nova Video Player") }) }
     // 2026-10-16 同步：上游 daddcc2 致谢对账补 Haze 2.0.1 条目（真实依赖，液态玻璃渲染库），
     // 屏端实际展示 16 条而测试未同步——15→16。此前计数：13−Material Symbols(无字体实证)+sshj+BouncyCastle+eddsa(批次二评审补)
-    @Test fun `数量与预期一致`() { assertEquals(16, licenseEntries.size) }
+    // 2026-11-03 同步：三期 §3.4 对账补 Coil 3.3.0 独立条目（coil-compose+coil-gif，releaseRuntimeClasspath 实测在册）——16→17
+    @Test fun `数量与预期一致`() { assertEquals(17, licenseEntries.size) }
 
     /** R 常量 → 资源键名（单测无运行时资源表，按本域约定显式映射） */
     private fun resKeyOf(res: Int): String = when (res) {

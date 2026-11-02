@@ -204,7 +204,7 @@
     <!-- オープンソースライセンスページ -->
     <string name="settings_licenses_header">NovaX は以下の優れたオープンソースプロジェクトをもとに作られています。感謝を込めて。</string>
     <string name="settings_licenses_footer">各プロジェクトの完全なライセンス文は https://www.apache.org/licenses/LICENSE-2.0 などの公式ソースをご覧ください。\nNovaX は巨人の肩の上に立っています。オープンソースコミュニティに感謝します。</string>
-    <string name="settings_license_stack_name">Kotlin 2.2.20 / Coroutines 1.10.2 / AndroidX（Core 1.17.0 · Lifecycle 2.9.4 · Activity Compose 1.11.0 · Navigation Compose 2.9.5） / Jetpack Compose（BOM 2026.09.00、Material Icons を含む） / DataStore 1.1.7 / Room 2.8.2 / Coil 3.3.0</string>
+    <string name="settings_license_stack_name">Kotlin 2.2.20 / Coroutines 1.10.2 / AndroidX（Core 1.17.0 · Lifecycle 2.9.4 · Activity Compose 1.11.0 · Navigation Compose 2.9.5） / Jetpack Compose（BOM 2026.09.00、Material Icons を含む） / DataStore 1.1.7 / Room 2.8.2</string>
     <string name="settings_license_pinyin4j">オフライン中国語ピンイン索引とタイトルの自然ソート。プロジェクト：https://github.com/belerweb/pinyin4j</string>
     <string name="settings_license_nova">NovaX の再生基盤とファイル中核は Nova Video Player オープンソースプロジェクトに由来します。原プロジェクトとコミュニティの長期的な貢献に感謝します。</string>
     <string name="settings_license_media3">android.media3 はデコード、トラック選択、字幕レンダリング、メディアセッションを提供する、本アプリ再生コアの礎です。</string>
@@ -220,5 +220,6 @@
     <string name="settings_license_jupnp">org.jupnp:org.jupnp.android — DLNA/UPnP デバイスの探索と制御。プロジェクト：https://github.com/jupnp/jupnp</string>
     <string name="settings_license_jetty">org.eclipse.jetty — キャスト用ローカルストリーミングサーバー（jUPnP のストリーム転送/GENA 層）。プロジェクト：https://github.com/jetty/jetty.project</string>
     <string name="settings_license_haze">dev.chrisbanes.haze（haze / haze-blur / haze-glass）— リキッドグラス素材のレンダリングライブラリ（ぼかし・端の屈折・ハイライト、2026-10 のガラス UI 化全体で使用）。プロジェクト：https://github.com/chrisbanes/haze</string>
-    <string name="settings_license_stack">モダン Android 開発のフルスタック：言語とコルーチン、AndroidX 基盤コンポーネント（ホーム/ライフサイクル/ナビゲーション）、宣言的 UI とアイコン（material-icons-extended）、キーバリュー・リレーショナル永続化、画像読み込み。</string>
+    <string name="settings_license_coil">io.coil-kt.coil3:coil-compose / coil-gif — ポスターとファイルのサムネイルの画像読み込み。coil-gif によりビューア内で GIF アニメを再生できます。プロジェクト：https://github.com/coil-kt/coil</string>
+    <string name="settings_license_stack">モダン Android 開発のフルスタック：言語とコルーチン、AndroidX 基盤コンポーネント（ホーム/ライフサイクル/ナビゲーション）、宣言的 UI とアイコン（material-icons-extended）、キーバリュー・リレーショナル永続化。</string>
 </resources>

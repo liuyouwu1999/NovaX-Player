@@ -204,7 +204,7 @@
     <!-- Licenses page -->
     <string name="settings_licenses_header">NovaX is built on these outstanding open-source projects — with thanks.</string>
     <string name="settings_licenses_footer">Full license texts are available at https://www.apache.org/licenses/LICENSE-2.0 and other official sources.\nNovaX stands on the shoulders of giants — thank you, open-source community.</string>
-    <string name="settings_license_stack_name">Kotlin 2.2.20 / Coroutines 1.10.2 / AndroidX (Core 1.17.0 · Lifecycle 2.9.4 · Activity Compose 1.11.0 · Navigation Compose 2.9.5) / Jetpack Compose (BOM 2026.09.00, incl. Material Icons) / DataStore 1.1.7 / Room 2.8.2 / Coil 3.3.0</string>
+    <string name="settings_license_stack_name">Kotlin 2.2.20 / Coroutines 1.10.2 / AndroidX (Core 1.17.0 · Lifecycle 2.9.4 · Activity Compose 1.11.0 · Navigation Compose 2.9.5) / Jetpack Compose (BOM 2026.09.00, incl. Material Icons) / DataStore 1.1.7 / Room 2.8.2</string>
     <string name="settings_license_pinyin4j">Offline Chinese pinyin indexing and natural title sorting. Project: https://github.com/belerweb/pinyin4j</string>
     <string name="settings_license_nova">NovaX\'s playback foundation and file core are derived from the Nova Video Player open-source project — many thanks to the original project and its community.</string>
     <string name="settings_license_media3">android.media3 provides decoding, track selection, subtitle rendering and media sessions — the cornerstone of this app\'s playback core.</string>
@@ -220,5 +220,6 @@
     <string name="settings_license_jupnp">org.jupnp:org.jupnp.android — DLNA/UPnP device discovery and control. Project: https://github.com/jupnp/jupnp</string>
     <string name="settings_license_jetty">org.eclipse.jetty — local streaming server for casting (transport/GENA layer under jUPnP). Project: https://github.com/jetty/jetty.project</string>
     <string name="settings_license_haze">dev.chrisbanes.haze (haze / haze-blur / haze-glass) — liquid-glass material rendering library (blur, edge refraction and highlights, used throughout the 2026-10 glass UI rework). Project: https://github.com/chrisbanes/haze</string>
-    <string name="settings_license_stack">The modern Android development stack: language and coroutines, AndroidX foundation components (home/lifecycle/navigation), declarative UI and icons (material-icons-extended), key-value and relational persistence, image loading.</string>
+    <string name="settings_license_coil">io.coil-kt.coil3:coil-compose / coil-gif — image loading for posters and file thumbnails; coil-gif enables animated GIF playback in the image viewer. Project: https://github.com/coil-kt/coil</string>
+    <string name="settings_license_stack">The modern Android development stack: language and coroutines, AndroidX foundation components (home/lifecycle/navigation), declarative UI and icons (material-icons-extended), key-value and relational persistence.</string>
 </resources>
