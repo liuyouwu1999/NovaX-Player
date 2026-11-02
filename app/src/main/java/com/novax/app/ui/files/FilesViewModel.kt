@@ -862,8 +862,8 @@ class FilesViewModel(
                         dao.deleteById(id)
                     }
                 }
-                // SFTP 删源驱逐：连接池按旧源前缀清除 + known-hosts 指纹行重置（重加=重置信任；非 SFTP 空操作）
-                if (source != null) repo.evictSftp(source)
+                // SFTP 删源=显式重置信任的唯一路径：池前缀清连接 + 指纹行删除（重加=重新 TOFU；非 SFTP 空操作）
+                if (source != null) repo.resetSftpTrust(source)
                 // M3（2026-10-18 发布终审）：SMB 删源同款驱逐——已认证连接不残留到进程死（非 SMB 空操作）
                 if (source != null) repo.evictSmb(source)
                 // 索引行 + 失引用缩略图 jpg 一并回收（内含 mediaItemDao.deleteBySource）
@@ -2472,8 +2472,8 @@ class FilesViewModel(
                 val scanner = NvScannerHolder.get(appContext)
                 val id = if (w.original != null) {
                     scanner.cancelAndJoin(entity.id)
-                    // 编辑保存驱逐：口令/host/根路径变更后，旧池键连接与旧 host 的 known-hosts 指纹行一并重置
-                    repo.evictSftp(w.original)
+                    // 编辑保存驱逐：只清旧池键连接；known-hosts 指纹保持不动——信任重置唯一路径是删源（spec §1）
+                    repo.evictSftpConnections(w.original)
                     dao.update(entity)
                     entity.id
                 } else dao.insert(entity)

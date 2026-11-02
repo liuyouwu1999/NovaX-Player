@@ -48,11 +48,19 @@ class NvSourceRepository(
     }
 
     /**
-     * SFTP 源删除/编辑保存后驱逐连接池并重置该 host:port 的 known-hosts 指纹信任
-     * （TOFU 重置路径，见 [SftpClient.evictConnectionsAndTrust]）。suspend + [io] 调度：驱逐含
-     * known-hosts 文件 IO，调用方（可在主线程协程）不必关心线程。
+     * SFTP 源**编辑保存**后驱逐连接池（spec §1 信任解耦）：只清连接、**不动 known-hosts
+     * 指纹**——改昵称/口令/host 都不得静默重置 SSH 信任。suspend + [io] 调度理由同下。
      */
-    suspend fun evictSftp(source: SourceEntity) {
+    suspend fun evictSftpConnections(source: SourceEntity) {
+        if (source.type != SourceType.SFTP) return
+        withContext(io) { sftp.evictConnections(source) }
+    }
+
+    /**
+     * SFTP 源**删除**后驱逐连接池并重置该 host:port 的 known-hosts 指纹信任（TOFU 唯一
+     * 重置路径；「删除源重新添加」= 重置，见 [SftpClient.evictConnectionsAndTrust]）。
+     */
+    suspend fun resetSftpTrust(source: SourceEntity) {
         if (source.type != SourceType.SFTP) return
         withContext(io) { sftp.evictConnectionsAndTrust(source) }
     }

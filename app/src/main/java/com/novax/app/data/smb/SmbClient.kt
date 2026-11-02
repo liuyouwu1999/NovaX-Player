@@ -352,7 +352,7 @@ class SmbClient(private val io: CoroutineDispatcher = Dispatchers.IO) {
     }
 
     /**
-     * M3（2026-10-18 发布终审）：源删除/编辑保存后按池键**前缀**驱逐（对齐 SftpClient.evictFor
+     * M3（2026-10-18 发布终审）：源删除/编辑保存后按池键**前缀**驱逐（对齐 SftpClient.evictConnections
      * 语义）——前缀 = keyOf 去掉口令哈希（host+port+username+share），改密/改账号后旧键也能
      * 命中。此前删 SMB 源后其已认证连接存活到进程死（旧凭据仍可拉流，直至 OS 回收）。
      * 关闭走 evictExecutor 后台线程（死连接 close 可阻塞满超时，见 evictExecutor 注释）。
