@@ -710,9 +710,10 @@ class PlaybackService : MediaSessionService() {
         override fun isCommandAvailable(command: Int): Boolean =
             super.isCommandAvailable(command) || extraCommand(command)
 
-        override fun seekToNext() = onSwitch(1)
+        // 三期 spec §1.2-2（评审 P1-1）：next 侧补 canSwitch 守卫与 previous 对称——单文件队列(size==1) 经蓝牙/AVRCP fallback 链不再弹越界假 toast（:668-672 注释意图），media3 默认=无下一集自然 no-op
+        override fun seekToNext() = if (canSwitch()) onSwitch(1) else super.seekToNext()
         override fun seekToPrevious() = if (canSwitch()) onSwitch(-1) else super.seekToPrevious()
-        override fun seekToNextMediaItem() = onSwitch(1)
+        override fun seekToNextMediaItem() = if (canSwitch()) onSwitch(1) else super.seekToNextMediaItem()
         override fun seekToPreviousMediaItem() = if (canSwitch()) onSwitch(-1) else super.seekToPreviousMediaItem()
     }
 
@@ -728,19 +729,25 @@ class PlaybackService : MediaSessionService() {
      */
     private fun switchQueue(direction: Int) {
         val spec = currentSpec ?: return
-        if (spec.queueUrls.isEmpty()) return
-        if (switchingQueue) return
-        val requested = spec.queueIndex + direction
-        if (requested < 0 || requested >= spec.queueUrls.size) {
-            Toast.makeText(
-                applicationContext,
-                applicationContext.getString(
-                    if (direction < 0) R.string.player_queue_first else R.string.player_queue_last,
-                ),
-                Toast.LENGTH_SHORT,
-            ).show()
-            return
+        when (NvQueueSwitchDecision.decideEntry(
+            inFlight = switchingQueue,
+            queueSize = spec.queueUrls.size,
+            queueIndex = spec.queueIndex,
+            direction = direction,
+        )) {
+            NvQueueSwitchDecision.SwitchAction.DROP_IN_FLIGHT,
+            NvQueueSwitchDecision.SwitchAction.IGNORE_EMPTY_QUEUE -> return
+            NvQueueSwitchDecision.SwitchAction.BOUND_FIRST -> {
+                Toast.makeText(applicationContext, applicationContext.getString(R.string.player_queue_first), Toast.LENGTH_SHORT).show()
+                return
+            }
+            NvQueueSwitchDecision.SwitchAction.BOUND_LAST -> {
+                Toast.makeText(applicationContext, applicationContext.getString(R.string.player_queue_last), Toast.LENGTH_SHORT).show()
+                return
+            }
+            NvQueueSwitchDecision.SwitchAction.PROCEED -> Unit
         }
+        val requested = spec.queueIndex + direction   // 下游沿用原名（原 :733 计算，移到门后）
         switchingQueue = true
         serviceScope.launch {
             try {
@@ -920,9 +927,7 @@ class PlaybackService : MediaSessionService() {
                         }
                     }.getOrNull()
                 }
-                // 切集挂起期间内容被并发替换（Activity 新起播）：陈旧意图作废（BUG-C-R2-05）。
-                // 自适应重建只换档不换内容（videoUrl 不变），不会误伤。
-                if (currentSpec?.videoUrl != spec.videoUrl) return@launch
+                if (NvQueueSwitchDecision.isStaleIntent(spec.videoUrl, currentSpec?.videoUrl)) return@launch
                 // 2026-10-10 终审修复：非转码路（jfResolution?.mediaSource == null）此前直接消费
                 // prepared.initialMediaSource——那是 prepareEpisodeMedia 未传元数据时的产物，
                 // MediaMetadata 只有 title，EngineSpec 里的封面/副文字永不被引擎消费（全部
