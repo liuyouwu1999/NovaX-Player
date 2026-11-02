@@ -296,4 +296,7 @@
 
     <!-- 2026-11-01 機構整改 §1.2-5：SFTP 初回ピン留めの一回限り通知 -->
     <string name="files_wizard_pin_toast">ホストのフィンガープリントを記録しました。今後の接続で検証します</string>
+
+    <!-- 2026-11-01 機構整改 §2.2-4：ソースカードの平文パスワード可視バッジ -->
+    <string name="files_src_pwd_plain_badge">パスワード未暗号化</string>
 </resources>

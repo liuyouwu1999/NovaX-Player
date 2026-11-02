@@ -302,4 +302,7 @@
 
     <!-- 2026-11-01 机构整改 §1.2-5：SFTP 首次钉扎一次性提示 -->
     <string name="files_wizard_pin_toast">Host fingerprint recorded — future connections will be verified against it</string>
+
+    <!-- 2026-11-01 机构整改 §2.2-4：源卡口令明文形态可见性角标 -->
+    <string name="files_src_pwd_plain_badge">password not encrypted</string>
 </resources>

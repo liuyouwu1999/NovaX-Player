@@ -296,4 +296,7 @@
 
     <!-- 2026-11-01 機構整改 §1.2-5：SFTP 首次釘扎一次性提示 -->
     <string name="files_wizard_pin_toast">已記錄主機指紋，後續連線將驗證</string>
+
+    <!-- 2026-11-01 機構整改 §2.2-4：源卡密碼明文形態可見性角標 -->
+    <string name="files_src_pwd_plain_badge">密碼未加密</string>
 </resources>

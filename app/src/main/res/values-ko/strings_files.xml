@@ -296,4 +296,7 @@
 
     <!-- 2026-11-01 기구 정비 §1.2-5: SFTP 최초 고정 일회성 알림 -->
     <string name="files_wizard_pin_toast">호스트 지문을 기록했습니다. 이후 연결부터 검증합니다</string>
+
+    <!-- 2026-11-01 기구 정비 §2.2-4: 소스 카드 평문 비밀번호 가시성 배지 -->
+    <string name="files_src_pwd_plain_badge">비밀번호 미암호화</string>
 </resources>

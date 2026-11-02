@@ -457,6 +457,7 @@ private fun SourceListScreen(
                     NvSourceCard(
                         src,
                         locked = sourceLocked(src),
+                        plainPassword = SourceSavePolicy.isPlaintextStored(src.entity.password),
                         onClick = { onSourceClick(src) },
                         onLongClick = { onSourceLongPress(src) },
                     )
@@ -492,6 +493,7 @@ private fun NvSourceCard(
     onClick: () -> Unit,
     onLongClick: () -> Unit,
     locked: Boolean = false,   // 隐私锁（Task 13）：整源锁通用锁样式遮蔽真名/地址（spec §4.3）
+    plainPassword: Boolean = false,   // 2026-11-01 机构整改 §2：口令明文形态（历史明文/知情降级）可见性角标
 ) {
     Row(
         Modifier
@@ -545,6 +547,16 @@ private fun NvSourceCard(
                     },
                     style = NvTypography.LabelMedium, color = NvColors.TextSecondary, maxLines = 1,
                     overflow = TextOverflow.Ellipsis,   // 2026-10-22 i18n：长地址截断出省略号
+                )
+            }
+            if (plainPassword && !locked) {
+                Text(
+                    stringResource(R.string.files_src_pwd_plain_badge),
+                    Modifier
+                        .padding(top = 2.dp)
+                        .clip(NvShape.Badge).background(NvColors.PrimaryContainer)
+                        .padding(horizontal = 6.dp, vertical = 2.dp),
+                    style = NvTypography.LabelSmall, color = NvColors.Primary,
                 )
             }
         }
