@@ -287,4 +287,10 @@
 
     <!-- 无障碍 -->
     <string name="files_cd_toggle_password">切换密码可见</string>
+
+    <!-- 2026-11-01 机构整改 §2：口令解密失败行内提示 + 明文落库知情确认 -->
+    <string name="files_wizard_pass_unknown_hint">暂无法解密已存口令（系统加密组件异常）。其他字段可正常修改；如需更换口令请重新输入，不输入则保留原口令</string>
+    <string name="files_wizard_plain_confirm_title">以未加密方式保存口令？</string>
+    <string name="files_wizard_plain_confirm_msg">系统加密组件异常，口令将以未加密形式保存在本机应用的私有存储中。是否继续？</string>
+    <string name="files_wizard_plain_confirm_ok">仍要保存</string>
 </resources>

@@ -225,6 +225,16 @@ internal fun AddSourceWizardScreen(
                 else -> emptyList()
             },
         )
+        if (wizard.plaintextConfirmOpen) {
+            NvConfirmDialog(
+                title = stringResource(R.string.files_wizard_plain_confirm_title),
+                message = stringResource(R.string.files_wizard_plain_confirm_msg),
+                confirmText = stringResource(R.string.files_wizard_plain_confirm_ok),
+                danger = true,
+                onConfirm = vm::confirmPlaintextSave,
+                onDismiss = vm::dismissPlaintextSave,
+            )
+        }
     }
 }
 
@@ -495,6 +505,13 @@ internal fun StepCredential(vm: FilesViewModel, wizard: NvWizardUiState) {
                 NvTextField(stringResource(R.string.files_field_account), wizard.user, vm::onUser)
                 Spacer(Modifier.height(NvSpacing.M))
                 NvPasswordField(stringResource(R.string.files_field_password), wizard.pass, vm::onPass)
+                if (wizard.passUnknown) {
+                    Spacer(Modifier.height(NvSpacing.XS))
+                    Text(
+                        stringResource(R.string.files_wizard_pass_unknown_hint),
+                        style = NvTypography.LabelSmall, color = NvColors.Error,
+                    )
+                }
             }
         }
         Spacer(Modifier.height(NvSpacing.L))

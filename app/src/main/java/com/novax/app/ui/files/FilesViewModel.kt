@@ -192,6 +192,12 @@ data class NvWizardUiState(
     // 「复制源」时从原源带入的刮削开关（BUG-C-R6-12：复制场景 original 置 null 以免
     // 覆盖原行，但 scrapeEnabled 取值也跟着丢了——副本恒为关）
     val copyScrapeEnabled: Boolean? = null,
+    // 2026-11-01 机构整改 §2：编辑回显解不开原口令（Keystore 异常）——密码框留空+行内提示；
+    // 保存未重输则沿用原列（SourceSavePolicy.resolvePassword 三分辨），杜绝静默清空
+    val passUnknown: Boolean = false,
+    // Keystore 异常时明文落库的知情确认框（D1 用户拍板）；FilesOnly 记住触发保存的按钮
+    val plaintextConfirmOpen: Boolean = false,
+    val plaintextConfirmFilesOnly: Boolean = false,
 ) {
     /** 「获取共享列表」入口可用性：SMB 源且主机+账号已填（匿名视为已填） */
     val canFetchShares: Boolean
@@ -232,6 +238,9 @@ private val KEY_BATTERY_ASKED = booleanPreferencesKey("battery_optimization_aske
 /** C5 §5.2 排序偏好持久化：跨目录、跨会话记忆 */
 private val KEY_FILE_SORT_MODE = stringPreferencesKey("file_sort_mode")
 private val KEY_FILE_SORT_DIRS_FIRST = booleanPreferencesKey("file_sort_dirs_first")
+
+/** 2026-11-01 机构整改 §2：口令降级落库全局标记（仅诊断；权威信号=行级 isPlaintextStored） */
+private val KEY_CREDS_DEGRADED = booleanPreferencesKey("creds_degraded")
 
 /** C5 §5.3 子目录搜索边界：深度 ≤3、结果限 200 条；输入防抖 150ms */
 const val SEARCH_MAX_DEPTH = 3
@@ -2035,6 +2044,8 @@ class FilesViewModel(
                 SourceType.WEBDAV, SourceType.JELLYFIN -> parseHostField(source.host)
                 else -> null
             }
+            // spec §2 三态回显：null=解不开（Keystore 丢失）→ 空框+passUnknown，保存未重输沿用原列
+            val shownPass = NvSecrets.decryptOrNull(source.password)
             _wizard.value = NvWizardUiState(
                 open = true, step = 1, original = if (duplicate) null else source,
                 protocol = NvProtocol.of(source.type) ?: return@launch,
@@ -2044,8 +2055,9 @@ class FilesViewModel(
                 https = parsed?.https ?: false,
                 port = source.port.takeIf { it > 0 }?.toString()
                     ?: parsed?.port?.let { clampPort(it) }.orEmpty(),
-                domain = source.domain, user = source.username, pass = NvSecrets.decrypt(source.password),
-                anonymous = source.username.isBlank(), shareOrPath = source.shareOrPath,
+                domain = source.domain, user = source.username, pass = shownPass ?: "",
+                anonymous = source.username.isBlank(), passUnknown = shownPass == null,
+                shareOrPath = source.shareOrPath,
                 // 已存扫描根回填（副本沿用同组目录），Step2 可继续增删
                 selectedScanDirs = ScanRoots.parse(source.scanRoots).toSet(),
                 // 复制源：刮削开关随原源带入（BUG-C-R6-12）
@@ -2156,7 +2168,7 @@ class FilesViewModel(
     }
     fun onDomain(v: String) = _wizard.update { it.copy(domain = v, testSuccess = false, shares = emptyList(), sharesError = null) }
     fun onUser(v: String) = _wizard.update { it.copy(user = v, testSuccess = false, shares = emptyList(), sharesError = null) }
-    fun onPass(v: String) = _wizard.update { it.copy(pass = v, testSuccess = false, shares = emptyList(), sharesError = null) }
+    fun onPass(v: String) = _wizard.update { it.copy(pass = v, passUnknown = false, testSuccess = false, shares = emptyList(), sharesError = null) }   // 用户重输=主动换密码，退出 KeepExisting（spec §2）
     fun onAnonymous(v: Boolean) = _wizard.update { it.copy(anonymous = v, testSuccess = false, shares = emptyList(), sharesError = null) }
     fun onShareOrPath(v: String) = _wizard.update { it.copy(shareOrPath = v, testSuccess = false) }
     fun onNickname(v: String) = _wizard.update { it.copy(nickname = v) }
@@ -2270,6 +2282,16 @@ class FilesViewModel(
         if (w.step != 1 || w.connecting) return
         validateWizard(w)?.let { err ->
             _wizard.update { it.copy(error = err, testSuccess = false) }
+            return
+        }
+        // spec §2.2-2（评审二轮 P0-R）：passUnknown 且连接相关字段未变 → 免重测直进 Step2。
+        // 连接没变就没有需要重新验证的东西；Step2 浏览因口令不可解预期失败，不阻断保存
+        //（loadWizardDir onFailure 不清 testSuccess、保存按钮只看 testSuccess && !browse.loading
+        //  ——既有事实，依赖锚，实施不得破坏）
+        val candidate = wizardEntity()
+        if (SourceSavePolicy.canSkipRetest(w.passUnknown, w.pass, w.original, candidate)) {
+            _wizard.update { it.copy(testSuccess = true, error = null, step = 2) }
+            loadWizardDir(emptyList())
             return
         }
         _wizard.update { it.copy(connecting = true, error = null, testSuccess = false) }
@@ -2457,6 +2479,40 @@ class FilesViewModel(
     private fun confirmAddSourceInternal(filesOnly: Boolean) {
         val w = _wizard.value
         if (!w.testSuccess || w.connecting || w.saving) return
+        when (val cmd = SourceSavePolicy.resolveSave(
+            filesOnly = filesOnly,
+            anonymous = w.anonymous,
+            passUnknown = w.passUnknown,
+            pass = w.pass,
+            originalPassword = w.original?.password,
+        ) { plain -> NvSecrets.encryptOrNull(plain) }) {
+            is SourceSavePolicy.SaveCommand.Save -> doSaveSource(cmd.filesOnly, cmd.storedPassword)
+            is SourceSavePolicy.SaveCommand.ConfirmPlaintext ->
+                // Keystore 异常：不静默降级——知情确认后才可明文落库（spec §2.2-3，D1 用户拍板）
+                _wizard.update { it.copy(plaintextConfirmOpen = true, plaintextConfirmFilesOnly = cmd.filesOnly) }
+        }
+    }
+
+    /** 知情确认框「仍要保存」：明文落库（本机 Room，备份规则已排除）+ 全局降级标记置位 */
+    fun confirmPlaintextSave() {
+        val w = _wizard.value
+        if (!w.testSuccess || w.saving) return
+        val res = SourceSavePolicy.resolvePassword(w.anonymous, w.passUnknown, w.pass)
+        val plain = (res as? SourceSavePolicy.PassResolution.NeedsEncrypt)?.plain ?: run {
+            _wizard.update { it.copy(plaintextConfirmOpen = false) }
+            return
+        }
+        doSaveSource(w.plaintextConfirmFilesOnly, plain)
+    }
+
+    /** 知情确认框「取消」：不保存，回向导（可重输密码走加密路径，或退出） */
+    fun dismissPlaintextSave() {
+        _wizard.update { it.copy(plaintextConfirmOpen = false) }
+    }
+
+    private fun doSaveSource(filesOnly: Boolean, storedPassword: String) {
+        val w = _wizard.value
+        if (w.saving) return
         val entity = wizardEntity().copy(
             id = w.original?.id ?: 0L,
             // BUG-C-R6-12：复制源（original=null）时用 copyScrapeEnabled 带入原源开关
@@ -2465,6 +2521,8 @@ class FilesViewModel(
             // filesOnly → DISABLED（"[]"）= 仅文件源永不扫描
             scanRoots = if (filesOnly) ScanRoots.DISABLED else ScanRoots.encode(w.selectedScanDirs),
             status = SourceStatus.OK, lastCheckedAt = System.currentTimeMillis(),
+            // 口令三分辨后的最终落库值（wizardEntity 产出的是连接/浏览临时实体，落库值以此覆盖）
+            password = storedPassword,
         )
         _wizard.update { it.copy(saving = true) }
         viewModelScope.launch {
@@ -2501,6 +2559,8 @@ class FilesViewModel(
                     }
                 }
             }.onSuccess {
+                // 降级标记随本次落库行形态写/清（最后落库行实态；全局标记仅诊断，权威信号=行级角标）
+                setCredsDegradedMark(SourceSavePolicy.isPlaintextStored(storedPassword))
                 if (filesOnly) {
                     Toast.makeText(
                         appContext,
@@ -2520,6 +2580,14 @@ class FilesViewModel(
                     )
                 }
             }
+        }
+    }
+
+    /** 全局降级标记（novax_settings DataStore）：随本次落库行形态写/清，仅诊断/测试钩子；写失败良性降级（W 级惯例） */
+    private fun setCredsDegradedMark(degraded: Boolean) {
+        viewModelScope.launch {
+            runCatching { appContext.novaxSettings.edit { it[KEY_CREDS_DEGRADED] = degraded } }
+                .onFailure { android.util.Log.w("NvFiles", "creds degraded mark failed: ${it.message}") }
         }
     }
 

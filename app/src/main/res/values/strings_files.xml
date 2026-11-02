@@ -293,4 +293,10 @@
 
     <!-- Accessibility -->
     <string name="files_cd_toggle_password">Toggle password visibility</string>
+
+    <!-- 2026-11-01 机构整改 §2：口令解密失败行内提示 + 明文落库知情确认 -->
+    <string name="files_wizard_pass_unknown_hint">Saved password can\'t be decrypted right now (system encryption unavailable). Other fields are safe to edit; enter a password only to replace it</string>
+    <string name="files_wizard_plain_confirm_title">Save password unencrypted?</string>
+    <string name="files_wizard_plain_confirm_msg">System encryption is unavailable. The password would be stored unencrypted in the app\'s private storage on this device. Continue?</string>
+    <string name="files_wizard_plain_confirm_ok">Save anyway</string>
 </resources>

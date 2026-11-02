@@ -287,4 +287,10 @@
 
     <!-- 無障礙 -->
     <string name="files_cd_toggle_password">切換密碼可見</string>
+
+    <!-- 2026-11-01 機構整改 §2：口令解密失敗行內提示 + 明文落庫知情確認 -->
+    <string name="files_wizard_pass_unknown_hint">暫無法解密已存密碼（系統加密元件異常）。其他欄位可正常修改；如需更換密碼請重新輸入，不輸入則保留原密碼</string>
+    <string name="files_wizard_plain_confirm_title">以未加密方式儲存密碼？</string>
+    <string name="files_wizard_plain_confirm_msg">系統加密元件異常，密碼將以未加密形式儲存在本機應用的私有儲存空間。是否繼續？</string>
+    <string name="files_wizard_plain_confirm_ok">仍要儲存</string>
 </resources>

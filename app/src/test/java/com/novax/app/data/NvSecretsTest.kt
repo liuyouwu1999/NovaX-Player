@@ -1,7 +1,7 @@
 package com.novax.app.data
 
+import com.novax.app.ui.files.SourceSavePolicy
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
@@ -56,5 +56,11 @@ class NvSecretsTest {
     @Test
     fun decrypt_undecryptable_fallsBackEmpty_authPathAnchor() {
         assertEquals("", NvSecrets.decrypt("nvenc1:AAAA:BBBB"))
+    }
+
+    @Test
+    fun plainPrefix_matchesNvSecretsActualPrefix() {
+        // SourceSavePolicy.PLAIN_PREFIX 与 NvSecrets 实际密文前缀必须恒等（角标/降级标记判定依赖）
+        assertTrue(NvSecrets.encryptOrNull("x")!!.startsWith(SourceSavePolicy.PLAIN_PREFIX))
     }
 }
