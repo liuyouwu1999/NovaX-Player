@@ -1,15 +1,23 @@
-[中文](README.md) | English
+<div align="center">
+
+<img src=".github/assets/icon.svg" width="144" alt="NovaX icon"/>
 
 # NovaX Player
 
-An Android video player for local and network media. It plays from SMB, SFTP, WebDAV, Jellyfin and local storage, runs a dual playback engine (ExoPlayer + libVLC), casts over DLNA, and keeps all data on your device.
+**Your local & NAS movie library, one tap away**
 
 [![GitHub Release](https://img.shields.io/github/v/release/liuyouwu1999/NovaX-Player)](https://github.com/liuyouwu1999/NovaX-Player/releases)
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](LICENSE)
 ![Platform](https://img.shields.io/badge/platform-Android-lightgrey)
 ![Min API](https://img.shields.io/badge/Android-8.0%2B%20(API%2026)-green)
 
-[Download](#download) · [Features](#features) · [Gestures](#gestures) · [Build from source](#build-from-source) · [Contributing](#contributing) · [License](#license)
+[中文](README.md) | English
+
+An Android video player for local and network media. It plays from SMB, SFTP, WebDAV, Jellyfin and local storage, runs a dual playback engine (ExoPlayer + libVLC), casts over DLNA, and keeps all data on your device.
+
+[Download](#download) · [Features](#features) · [Gestures](#gestures) · [Screenshots](#screenshots) · [Build from source](#build-from-source) · [Contributing](#contributing) · [License](#license)
+
+</div>
 
 ## Download
 

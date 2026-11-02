@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="18 18 72 72">
+  <!-- NovaX 启动图标：与 app/src/main/res/drawable/ic_launcher_* 两层矢量一致，
+       按自适应图标可视区域（中央 72/108）裁切 + 圆角，供 README 展示。 -->
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="108" y2="108" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#FFA53D"/>
+      <stop offset="1" stop-color="#FF4D00"/>
+    </linearGradient>
+    <clipPath id="sq">
+      <rect x="18" y="18" width="72" height="72" rx="16"/>
+    </clipPath>
+  </defs>
+  <g clip-path="url(#sq)">
+    <rect x="0" y="0" width="108" height="108" fill="url(#bg)"/>
+    <path d="M45,37 L73,54 L45,71 Z" fill="#FFFFFF" stroke="#FFFFFF" stroke-width="9" stroke-linejoin="round"/>
+  </g>
+</svg>

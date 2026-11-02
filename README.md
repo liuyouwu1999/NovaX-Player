@@ -1,15 +1,23 @@
-中文 | [English](README.en.md)
+<div align="center">
+
+<img src=".github/assets/icon.svg" width="144" alt="NovaX 图标"/>
 
 # NovaX Player
 
-Android 本地与网络视频播放器。支持 SMB、SFTP、WebDAV、Jellyfin 和本地存储，ExoPlayer 与 libVLC 双内核，带 DLNA 投屏，数据全部保存在设备本地。
+**本地与 NAS 的影片库，随点随看**
 
 [![GitHub Release](https://img.shields.io/github/v/release/liuyouwu1999/NovaX-Player)](https://github.com/liuyouwu1999/NovaX-Player/releases)
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](LICENSE)
 ![Platform](https://img.shields.io/badge/platform-Android-lightgrey)
 ![Min API](https://img.shields.io/badge/Android-8.0%2B%20(API%2026)-green)
 
-[下载安装](#下载安装) · [功能](#功能) · [操作手势](#操作手势) · [从源码构建](#从源码构建) · [参与贡献](#参与贡献) · [许可证](#许可证)
+中文 | [English](README.en.md)
+
+Android 本地与网络视频播放器。支持 SMB、SFTP、WebDAV、Jellyfin 和本地存储，ExoPlayer 与 libVLC 双内核，带 DLNA 投屏，数据全部保存在设备本地。
+
+[下载安装](#下载安装) · [功能](#功能) · [操作手势](#操作手势) · [界面预览](#界面预览) · [从源码构建](#从源码构建) · [参与贡献](#参与贡献) · [许可证](#许可证)
+
+</div>
 
 ## 下载安装
 
