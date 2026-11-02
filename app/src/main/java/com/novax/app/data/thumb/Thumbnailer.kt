@@ -15,6 +15,7 @@ import com.novax.app.data.db.SourceEntity
 import com.novax.app.data.db.SourceType
 import com.novax.app.data.db.ThumbState
 import com.novax.app.data.db.escapeLikePattern
+import com.novax.app.data.privacy.NvPrivacyRedactor
 import java.io.File
 import org.videolan.libvlc.LibVLC
 import org.videolan.libvlc.Media
@@ -522,7 +523,7 @@ class Thumbnailer(
                 result = outFile
             }.onFailure { e ->
                 if (e is CancellationException) throw e
-                android.util.Log.w("NvThumb", "mmr failed: id=${item.id} ext=$ext err=${e.message}")
+                android.util.Log.w("NvThumb", NvPrivacyRedactor.redactText("mmr failed: id=${item.id} ext=$ext err=${e.message}", null))
                 var handled = false
                 // BUG-C-R6-17：libVLC 兜底从「仅 RM/RMVB/WMV/ASF」放宽到所有 MMR 解不出的
                 // 格式；非候选扩展名一次性（会话级），解不出最多损失一次超时、不循环重试

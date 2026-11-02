@@ -278,4 +278,7 @@
     <!-- Task 9: RMVB 代理上遊失敗原因（kind+detail 拆分，代理只發 token） -->
     <string name="player_rmvb_err_upstream_connect">無法連線影片源：%1$s</string>
     <string name="player_rmvb_err_upstream_interrupted">網路連線中斷：%1$s</string>
+    <!-- 2026-11-02 机构整改 spec §6.2-2：setup 失败上屏白名单文案（e.message 不再直出） -->
+    <string name="player_rmvb_err_setup_content">無法開啟該內容位址</string>
+    <string name="player_rmvb_err_setup_generic">無法準備播放</string>
 </resources>

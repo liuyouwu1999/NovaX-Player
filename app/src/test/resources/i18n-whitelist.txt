@@ -228,8 +228,6 @@ data/webdav/WebDavClient.kt :: 服务器不支持 Range 且流短于
 
 # B21 requireNotNull：VLC 引擎未启动（生命周期防御，崩溃诊断）
 player/NvVlcEngine.kt :: NvVlcEngine 未启动
-# B21 IOException：无法打开内容 URI（只进异常链）
-player/NvVlcEngine.kt :: 无法打开内容 URI
 # B22 IOException：字幕下载失败（runCatching 吞掉降级，原文仅异常链）
 player/SubtitleCharset.kt :: 字幕下载失败
 # B23 NvTmdbAuthException detail（用户可见句已资源化 data_scrape_key_invalid，HTTP 细节留异常链）

@@ -146,4 +146,49 @@ class NvPrivacyRedactorTest {
         )
         assertEquals("/media/Movies/***.mp4 + http://h/v/***.mkv?***", NvPrivacyRedactor.redactText(s, null, emptyList()))
     }
+
+    // ---- 2026-11-02 机构整改 spec §6.2-3：userinfo 段掩码 + redactThrowable ----
+
+    @Test
+    fun `userinfo 段掩码_账号密码`() {
+        assertEquals(
+            "connect as https://***@192.0.2.5/dav/***.mp4",
+            NvPrivacyRedactor.redactText("connect as https://admin:secret@192.0.2.5/dav/movie.mp4", null),
+        )
+    }
+
+    @Test
+    fun `userinfo 段掩码_带query整段仍掩`() {
+        assertEquals(
+            "fetch http://***@host/dl/***.rmvb?***",
+            NvPrivacyRedactor.redactText("fetch http://u:p@host/dl/a.rmvb?token=xyz", null),
+        )
+    }
+
+    @Test
+    fun `userinfo 掩码幂等`() {
+        val once = NvPrivacyRedactor.redactText("http://admin:secret@192.0.2.5/dav/movie.mkv", null)
+        assertEquals(once, NvPrivacyRedactor.redactText(once, null))
+    }
+
+    @Test
+    fun `redactThrowable_message脱敏_原对象不动`() {
+        val original = java.io.IOException("connect failed http://10.0.0.2/dav/movie.mp4?api_key=SECRET")
+        val redacted = NvPrivacyRedactor.redactThrowable(original)
+        assertFalse(redacted.message!!.contains("SECRET"))
+        assertFalse(redacted.message!!.contains("/dav/movie.mp4"))
+        assertEquals("输入对象不被改写（调用方可能还要用它）", original.message, "connect failed http://10.0.0.2/dav/movie.mp4?api_key=SECRET")
+    }
+
+    @Test
+    fun `redactThrowable_栈帧保留_cause递归脱敏`() {
+        val cause = java.io.IOException("http://10.0.0.2/dav/movie.mp4?api_key=SECRET")
+        val original = IllegalStateException("probe failed", cause)
+        val redacted = NvPrivacyRedactor.redactThrowable(original)
+        assertEquals("无敏感文本的 message 原样保留", "probe failed", redacted.message)
+        assertEquals("栈帧是类/方法名不含敏感文本，保留定位价值", original.stackTrace.firstOrNull(), redacted.stackTrace.firstOrNull())
+        val redactedCause = redacted.cause
+        assertNotNull("cause 链递归脱敏后仍在", redactedCause)
+        assertFalse(redactedCause!!.message!!.contains("SECRET"))
+    }
 }

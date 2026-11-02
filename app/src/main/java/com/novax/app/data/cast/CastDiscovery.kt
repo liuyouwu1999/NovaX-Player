@@ -6,6 +6,7 @@ import android.content.Intent
 import android.content.ServiceConnection
 import android.net.wifi.WifiManager
 import android.os.IBinder
+import com.novax.app.data.privacy.NvPrivacyRedactor
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -109,11 +110,11 @@ class CastDiscovery(private val context: Context) {
         // 返工3（2026-10-16）：手动添加失败必落 NvCast（红线：不允许静默）——此前失败只剩一个
         // 2 秒 toast，模拟器全链路实测「desc.xml 已取、后续零动作」无一字日志可查
         if (xml == null) {
-            android.util.Log.w("NvCast", "手动添加失败：描述 XML 拉取失败（网络/超时） url=$descriptorUrl")
+            android.util.Log.w("NvCast", NvPrivacyRedactor.redactText("手动添加失败：描述 XML 拉取失败（网络/超时） url=$descriptorUrl", null))
             return null
         }
         val (name, control, rcs) = RendererDescriptorParser.parse(xml, descriptorUrl) ?: run {
-            android.util.Log.w("NvCast", "手动添加失败：描述不含可用 AVTransport controlURL url=$descriptorUrl")
+            android.util.Log.w("NvCast", NvPrivacyRedactor.redactText("手动添加失败：描述不含可用 AVTransport controlURL url=$descriptorUrl", null))
             null
         } ?: return null
         val device = CastDevice(

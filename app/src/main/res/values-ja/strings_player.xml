@@ -278,4 +278,7 @@
     <!-- Task 9: RMVB プロキシ上游失敗の理由 -->
     <string name="player_rmvb_err_upstream_connect">動画ソースに接続できません：%1$s</string>
     <string name="player_rmvb_err_upstream_interrupted">ネットワーク接続が中断されました：%1$s</string>
+    <!-- 2026-11-02 机构整改 spec §6.2-2：setup 失败上屏白名单文案（e.message 不再直出） -->
+    <string name="player_rmvb_err_setup_content">このコンテンツアドレスを開けません</string>
+    <string name="player_rmvb_err_setup_generic">再生を準備できません</string>
 </resources>

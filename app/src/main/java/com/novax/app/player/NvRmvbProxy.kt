@@ -2,6 +2,7 @@ package com.novax.app.player
 
 import com.novax.app.data.NvSourceRepository
 import com.novax.app.data.db.SourceEntity
+import com.novax.app.data.privacy.NvPrivacyRedactor
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.BufferedReader
@@ -297,8 +298,11 @@ class NvRmvbProxy(
         if (!running.get()) return
         val cb = onUpstreamFailure ?: return
         if (!upstreamFailureReported.compareAndSet(false, true)) return
-        android.util.Log.w("NvPerf", "rmvb proxy upstream failure: kind=$kind detail=$detail")
-        cb(kind, detail)
+        // 机构整改 spec §6.2-1：detail 可能含远程路径，且本回调 detail 会拼进资源文案**上屏**
+        // （RmvbPlayerActivity player_rmvb_err_upstream_*）——出口处一次性脱敏，日志与上屏同源
+        val safeDetail = NvPrivacyRedactor.redactText(detail, null)
+        android.util.Log.w("NvPerf", "rmvb proxy upstream failure: kind=$kind detail=$safeDetail")
+        cb(kind, safeDetail)
     }
 
     companion object {

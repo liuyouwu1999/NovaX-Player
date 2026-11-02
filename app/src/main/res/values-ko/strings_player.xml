@@ -278,4 +278,7 @@
     <!-- Task 9: RMVB 프록시 업스트림 실패 원인 -->
     <string name="player_rmvb_err_upstream_connect">비디오 소스에 연결할 수 없습니다: %1$s</string>
     <string name="player_rmvb_err_upstream_interrupted">네트워크 연결이 끊겤습니다: %1$s</string>
+    <!-- 2026-11-02 机构整改 spec §6.2-2：setup 失败上屏白名单文案（e.message 不再直出） -->
+    <string name="player_rmvb_err_setup_content">이 콘텐츠 주소를 열 수 없습니다</string>
+    <string name="player_rmvb_err_setup_generic">재생을 준비할 수 없습니다</string>
 </resources>

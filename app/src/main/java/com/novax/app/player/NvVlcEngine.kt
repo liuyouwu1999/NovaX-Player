@@ -61,13 +61,14 @@ class NvVlcEngine(
      * - Media(libVlc, String) 把字符串按**本地路径**解释——代理 http URL 必须按 Uri 构造；
      * - VLC 核心不认 content MRL（Media(Uri) 只是 encodeVLCUri→nativeNewFromLocation），
      *   须自开文件描述符走 Media(fd)（VLC 官方 App 同款）；fd 归本类持有、release 时关闭。
+     * - 2026-11-02 机构整改 spec §6.2-2——异常文案不带 URI 本体，上屏文案由宿主白名单资源承载。
      */
     fun openMedia(uri: String): Media {
         val lib = requireNotNull(libVlc) { "NvVlcEngine 未启动（先 start）" }
         val media = if (uri.startsWith("content://")) {
             contentPfd?.let { runCatching { it.close() } }
             val pfd = contentResolver.openFileDescriptor(android.net.Uri.parse(uri), "r")
-                ?: throw java.io.IOException("无法打开内容 URI: $uri")
+                ?: throw java.io.IOException("content URI unavailable (URI omitted for privacy)")
             contentPfd = pfd
             Media(lib, pfd.fileDescriptor)
         } else {

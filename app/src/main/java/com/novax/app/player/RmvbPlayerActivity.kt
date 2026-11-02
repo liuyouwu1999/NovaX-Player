@@ -515,7 +515,10 @@ class RmvbPlayerActivity : ComponentActivity() {
             val cm = getSystemService(Context.CONNECTIVITY_SERVICE) as? android.net.ConnectivityManager
             val hp = cm?.activeNetwork?.let { cm.getLinkProperties(it) }?.httpProxy
             if (hp != null && hp.host != null) {
-                Log.w("NvRmvb", "system http proxy detected: ${hp.host}:${hp.port} — local rmvb proxy loopback will be hijacked (Clash/VPN)")
+                // 机构整改 spec §6.2-1：代理 host 是网络拓扑信息，定点脱敏（redactor 的 URI/
+                // PATH 词法不覆盖裸 host:port，硬包等于没掩）；port 与事件语义保留，排障仍能
+                // 对上「有系统代理且本地回环被劫持」这条时间线
+                Log.w("NvRmvb", "system http proxy detected: <host-redacted>:${hp.port} — local rmvb proxy loopback will be hijacked (Clash/VPN)")
                 runOnUiThread {
                     android.widget.Toast.makeText(
                         this,
@@ -935,8 +938,15 @@ class RmvbPlayerActivity : ComponentActivity() {
         } catch (e: kotlinx.coroutines.CancellationException) {
             throw e   // 2026-09-21 审计 P2：切集取消不得走 fail() 污染新集错误态
         } catch (e: Exception) {
-            Log.w("NvRmvb", "setup failed", e)
-            fail(e.message ?: e.javaClass.simpleName)
+            // 机构整改 spec §6.2-2：上屏文案白名单化——e.message 不再直出（旧路径会把
+            // 「无法打开内容 URI: content://…」整段上屏）；错误细节保留在脱敏日志里，屏上只给
+            // 白名单资源文案。只动 setup 路径，其他 fail() 调用点不碰（防回归）
+            Log.w(
+                "NvRmvb",
+                NvPrivacyRedactor.redactText("setup failed", null),
+                NvPrivacyRedactor.redactThrowable(e),
+            )
+            fail(setupFailText(e))
         }
     }
 
@@ -1544,6 +1554,12 @@ class RmvbPlayerActivity : ComponentActivity() {
         uiBuffering = false
         uiError = msg
     }
+
+    /** setup 失败上屏文案白名单：IOException=内容地址打不开（外部 content:// 失效/被收回常态），其余一律通用文案 */
+    private fun setupFailText(e: Exception): String = getString(
+        if (e is java.io.IOException) R.string.player_rmvb_err_setup_content
+        else R.string.player_rmvb_err_setup_generic,
+    )
 
     // ---------------- 队列（上一集/下一集/播完自动连播） ----------------
 

@@ -20,6 +20,7 @@ import com.novax.app.data.db.WatchKind
 import com.novax.app.data.playback.NvDataSourceFactory
 import com.novax.app.data.playback.NvMediaSourceBuilder
 import com.novax.app.data.playback.NvUri
+import com.novax.app.data.privacy.NvPrivacyRedactor
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File
@@ -302,7 +303,11 @@ suspend fun resolveJellyfinStream(
     if (tier == NvQualityTier.AUTO) {
         android.util.Log.d("NvQuality", "resolveJellyfinStream AUTO 兜底原画（设计行为）", e)
     } else {
-        android.util.Log.w("NvQuality", "resolveJellyfinStream failed -> 原画兜底 tier=$tier", e)
+        android.util.Log.w(
+            "NvQuality",
+            NvPrivacyRedactor.redactText("resolveJellyfinStream failed -> 原画兜底 tier=$tier", null),
+            NvPrivacyRedactor.redactThrowable(e),
+        )
         toastTranscodeUnavailable(context)
     }
     JellyfinStreamResolution(

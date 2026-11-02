@@ -30,6 +30,9 @@ object NvPrivacyRedactor {
     private val PATH_RE = Regex("""/[^\s"'<>\\]*""")
     private val NAME_RE = Regex("""[^\s"'<>\\/]+[.][A-Za-z0-9]{1,5}\b""")
 
+    /** userinfo 段：:// 到第一个 @ 之间的账号[:密码]（不含 / @ 空白，? 后属 query 另行整段掩码） */
+    private val USERINFO_RE = Regex("""(://)[^/@\s]+@""")
+
     /** 常见媒体扩展名（视频+字幕+音频+播放列表）：集合从宽，宁多掩不漏掩；刻意不含 xml 等非媒体后缀 */
     private val MEDIA_EXTS = setOf(
         "mp4", "mkv", "avi", "mov", "wmv", "flv", "webm", "m4v", "mpg", "mpeg", "ts", "m2ts",
@@ -90,8 +93,11 @@ object NvPrivacyRedactor {
     private fun maskUris(text: String): String =
         URI_RE.replace(text) { m ->
             val uri = m.value
-            val query = uri.indexOf('?')
-            val masked = maskLastSegment(if (query >= 0) uri.substring(0, query) else uri)
+            // 机构整改 spec §6.2-3：scheme://user:pass@host 的 userinfo 段打码——redactor 原版
+            // 不掩 userinfo，WebDAV/Jellyfin 带 http auth 的 URL 会整段进日志
+            val noUserinfo = USERINFO_RE.replace(uri, "$1***@")
+            val query = noUserinfo.indexOf('?')
+            val masked = maskLastSegment(if (query >= 0) noUserinfo.substring(0, query) else noUserinfo)
             if (query >= 0) "$masked?***" else masked
         }
 
@@ -115,4 +121,16 @@ object NvPrivacyRedactor {
         if (last.substring(dot + 1).lowercase() !in MEDIA_EXTS) return s
         return core.substring(0, slash + 1) + MASK + last.substring(dot) + s.substring(core.length)
     }
+
+    /**
+     * 供 `Log.w(tag, msg, tr)` 三参出口的 throwable 脱敏替身（2026-11-02 机构整改 spec §6.2）：
+     * 异常 message/cause 链经 [redactText] 掩码后重建为纯 Throwable（message 无敏感文本时原样
+     * 保留），栈帧数组原样搬运——栈帧是类/方法名，不含敏感文本，保留排障定位价值。输入对象
+     * 不被改写（调用方可能还要用它走控制流）。**仅用于日志出口**，不得把返回值 rethrow 或参与
+     * 控制流（类型信息会被抹成 Throwable）。
+     */
+    fun redactThrowable(t: Throwable): Throwable =
+        Throwable(redactText(t.message ?: t.javaClass.name, null), t.cause?.let { redactThrowable(it) }).apply {
+            stackTrace = t.stackTrace
+        }
 }

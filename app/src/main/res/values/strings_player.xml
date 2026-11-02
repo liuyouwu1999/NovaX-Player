@@ -279,4 +279,7 @@
     <!-- Task 9: RMVB proxy upstream failure reasons (kind+detail split; proxy emits tokens) -->
     <string name="player_rmvb_err_upstream_connect">Cannot connect to video source: %1$s</string>
     <string name="player_rmvb_err_upstream_interrupted">Network connection interrupted: %1$s</string>
+    <!-- 2026-11-02 机构整改 spec §6.2-2：setup 失败上屏白名单文案（e.message 不再直出） -->
+    <string name="player_rmvb_err_setup_content">Couldn\'t open this content address</string>
+    <string name="player_rmvb_err_setup_generic">Couldn\'t prepare playback</string>
 </resources>
