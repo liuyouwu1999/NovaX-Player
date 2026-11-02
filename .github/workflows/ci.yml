@@ -1,8 +1,10 @@
 # NovaX CI（2026-11-02 机构整改 spec §4 更版）：双 job。
 # 1) build-and-test：push 后自动 debug 编译（3 ABI）+ 全量 JVM 单测，防「编译失败仍推送」事故重演；
 # 2) release-verify（机构 2.6）：一次性 CI keystore（keytool 现生成、有效期 1 天、密码固定
-#    verify-only）跑 assembleRelease + testReleaseUnitTest——连带 minifyR8 / lintVitalRelease /
-#    资源收缩 / 打包签名守卫全链验证。正式签名密钥永不离开本机；CI 生成的 keystore.properties
+#    verify-only）跑 assembleRelease——连带 minifyR8 / lintVitalRelease / 资源收缩 /
+#    打包签名守卫全链验证。注意：AGP 9 下本工程不存在 release 变体单测任务（:app:tasks
+#    实测仅 debug 单测任务族，首跑曾因 testReleaseUnitTest not found 红灯），单测覆盖
+#    由 build-and-test job 全量承担。正式签名密钥永不离开本机；CI 生成的 keystore.properties
 #    与 ci-verify.keystore 均写在仓库根，已被 .gitignore 根锚定规则（/keystore.properties、
 #    /*.keystore）覆盖，绝无入库风险。CI 不可用时的手工验证清单=docs/RELEASE.md 发版流程 +
 #    每版真机人工冒烟（既有惯例，机构 2.6「CI 不可用」项如实对账）。
@@ -67,9 +69,6 @@ jobs:
 
       - name: Release build (R8 / lintVital / resource shrink / packaging guard)
         run: ./gradlew assembleRelease --stacktrace
-
-      - name: Release unit tests
-        run: ./gradlew testReleaseUnitTest --stacktrace
 
       - name: Upload test reports on failure
         if: failure()
