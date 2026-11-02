@@ -22,7 +22,7 @@
 | 4 | DLNA 投屏发现与推送 | 设备列表能发现局域网 DLNA 渲染器；选中后推送片源，渲染器正常起播，停止/断开不残留播放 |
 | 5 | SMB / SFTP / WebDAV 三协议源起播 | 三类 NAS 源各自完成目录浏览并起播至少一个视频；SFTP 首连出现主机指纹确认提示 |
 | 6 | Room 迁移（旧版本覆盖装数据保留） | 用旧版本升级覆盖安装后首启，媒体库/源配置/播放记录均在，无崩溃、无空库 |
-| 7 | release 包日志剥除核验 | `adb logcat \| grep "com.novax.app"` 无 Log.v/Log.d 级输出（仅 W/E 及以上）——R8 `-assumenosideeffects` 剥除生效（二期挂账 §10-1 销账项） |
+| 7 | release 包日志剥除核验 | `adb logcat \| grep "com.novax.app"` 应用侧无 Log.v/Log.d 输出（I/W/E 不在本项核验范围，出现不算失败）——R8 `-assumenosideeffects` 剥除生效（二期挂账 §10-1 销账项） |
 
 ### 历版实证备注（承接 AGENTS.md 既有记录）
 
