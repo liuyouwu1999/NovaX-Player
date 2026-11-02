@@ -2300,7 +2300,7 @@ class FilesViewModel(
         val entity = wizardEntity()
         viewModelScope.launch {
             // spec §1.2-5 首钉显性化：连接前查信任，SFTP 成功且此前无记录 → 一次性提示
-            // （known-hosts 为 KB 级同步读，放协程避免主线程 IO；mismatch 拒绝语义不受影响）
+            // （known-hosts 为 KB 级同步读，仅首钉连接时一次，主线程可容忍；mismatch 拒绝语义不受影响）
             val sftpPinPending = entity.type == SourceType.SFTP && !repo.sftp.isHostTrusted(entity)
             val result = repo.connect(entity)
             if (!sameWizardConnection(w, _wizard.value)) {

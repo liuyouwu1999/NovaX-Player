@@ -49,7 +49,8 @@ class NvSourceRepository(
 
     /**
      * SFTP 源**编辑保存**后驱逐连接池（spec §1 信任解耦）：只清连接、**不动 known-hosts
-     * 指纹**——改昵称/口令/host 都不得静默重置 SSH 信任。suspend + [io] 调度理由同下。
+     * 指纹**——改昵称/口令/host 都不得静默重置 SSH 信任。suspend + [io] 调度：驱逐含
+     * 连接关闭/known-hosts 文件 IO，调用方（可在主线程协程）不必关心线程。
      */
     suspend fun evictSftpConnections(source: SourceEntity) {
         if (source.type != SourceType.SFTP) return
