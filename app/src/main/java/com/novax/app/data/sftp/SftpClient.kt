@@ -39,8 +39,9 @@ import java.util.concurrent.Executors
  * Host key 校验：TOFU（trust on first use）——首连把服务器公钥指纹（SHA-256，OpenSSH
  * known_hosts 同款 `SHA256:<b64无填充>` 格式）记入 filesDir 下 sftp_known_hosts
  * （[SftpKnownHosts]；不用 DataStore：连接建立有阻塞路径，DataStore 同步读需 runBlocking），
- * 复连一致放行、不一致抛中文可行动错误；删除/编辑源时清对应指纹行（[evictFor]），
- * 「删除源重新添加」即重置信任。known-hosts 未初始化时直接抛错拒绝建链（E2-2，
+ * 复连一致放行、不一致抛中文可行动错误；删除源时清对应指纹行（[evictConnectionsAndTrust]；
+ * 编辑保存只驱逐连接不清指纹——2026-11-01 spec §1），「删除源重新添加」即重置信任。
+ * known-hosts 未初始化时直接抛错拒绝建链（E2-2，
  * 不再回落 accept-all：attach 已前移 NvApp.onCreate，正常路径必先初始化）。
  *
  * 联调注记：list/open/fileSize 的**真实服务器路径**（家目录相对路径、非 ASCII 文件名、
@@ -64,7 +65,7 @@ class SftpClient(
         Thread(r, "NvSftpClose").apply { isDaemon = true }
     }
 
-    /** 池键前缀（不含口令哈希）：[evictFor] 按前缀匹配驱逐；[keyOf] = 前缀 + 口令哈希 */
+    /** 池键前缀（不含口令哈希）：[evictConnections] 按前缀匹配驱逐；[keyOf] = 前缀 + 口令哈希 */
     private fun poolPrefixOf(source: SourceEntity): String =
         "sftp://${source.username.trim()}@${source.host.trim()}:${portOf(source)}/${source.shareOrPath.trim()}/"
 
@@ -216,17 +217,31 @@ class SftpClient(
     }
 
     /**
-     * 源删除/编辑保存时驱逐（NvSourceRepository.evictSftp 转发）：按池键**前缀**（不含
-     * 口令哈希——改密后旧键也能命中）移除匹配连接并后台关闭；同时清该 host:port 的指纹行，
-     * 「删除源重新添加」即重置 TOFU 信任（见类 kdoc）。
+     * 编辑保存时驱逐（NvSourceRepository.evictSftpConnections 转发）：按池键**前缀**（不含
+     * 口令哈希——改密后旧键也能命中）移除匹配连接并后台关闭。**不动 known-hosts 指纹**——
+     * 2026-11-01 机构整改 spec §1：连接清理与信任重置解耦，改昵称/口令/根路径乃至 host 都
+     * 不得静默重置 SSH 信任；旧 host 指纹行残留无害（不连不用，改回免重钉）。
      */
-    fun evictFor(source: SourceEntity) {
+    fun evictConnections(source: SourceEntity) {
         val prefix = poolPrefixOf(source)
         pool.keys.filter { it.startsWith(prefix) }.forEach { key ->
             pool.remove(key)?.let { dead -> closeEntryAsync(dead) }
         }
+    }
+
+    /**
+     * 源删除时驱逐并重置信任（NvSourceRepository.resetSftpTrust 转发，原名 evictFor 更名——
+     * 方法名必须体现「会改安全信任状态」，机构整改 §3.2）：= [evictConnections] + 删该
+     * host:port 指纹行。「删除源重新添加」即重置 TOFU（唯一重置路径，见类 kdoc）。
+     */
+    fun evictConnectionsAndTrust(source: SourceEntity) {
+        evictConnections(source)
         knownHostsStore?.remove(source.host.trim(), portOf(source))
     }
+
+    /** 该源 host:port 是否已有 TOFU 信任记录（首连钉扎提示用，spec §1.2-5）；未初始化=false */
+    fun isHostTrusted(source: SourceEntity): Boolean =
+        knownHostsStore?.get(source.host.trim(), portOf(source)) != null
 
     // ---------- 连接管理 ----------
 
@@ -250,7 +265,7 @@ class SftpClient(
     private fun isAlive(entry: PooledEntry): Boolean =
         entry.ssh.isConnected && entry.ssh.transport.isRunning
 
-    /** H-1：按当前源池键精确驱逐（evictFor 的单键版：不动指纹，只杀连接） */
+    /** H-1：按当前源池键精确驱逐（evictConnections 的单键版：不动指纹，只杀连接） */
     private fun evictEntry(source: SourceEntity) {
         pool.remove(keyOf(source))?.let { dead -> closeEntryAsync(dead) }
     }

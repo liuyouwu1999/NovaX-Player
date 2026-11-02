@@ -28,7 +28,7 @@ internal class SftpKnownHosts(private val file: File) {
     fun put(host: String, port: Int, fingerprint: String) =
         atomicWrite(lines().filterNot { it.startsWith(prefix(host, port)) } + record(host, port, fingerprint))
 
-    /** 移除该 host:port 的记录（删源/编辑保存的重置信任落点）；本就无记录返回 false */
+    /** 移除该 host:port 的记录——删源重置信任落点（编辑保存不再删指纹，spec §1）；本就无记录返回 false */
     @Synchronized
     fun remove(host: String, port: Int): Boolean {
         val all = lines()
@@ -77,7 +77,7 @@ internal fun publicKeyFingerprint(key: PublicKey): String =
  * 不一致 → 抛中文可行动错误。sshj 会把 verify 内抛出的异常包成
  * TransportException(KEY_EXCHANGE_FAILED, cause) 上抛（0.38.0 KeyExchanger 字节码核实），
  * 中文文案在 cause 链里，由调用方错误映射还原。host/port 固定用源配置值——与
- * [SftpClient.evictFor] 的清除键同源，不用 verify 回调 hostname（同一连接两者恒等）。
+ * [SftpClient.evictConnectionsAndTrust] 的清除键同源，不用 verify 回调 hostname（同一连接两者恒等）。
  */
 internal class TofuHostKeyVerifier(
     private val store: SftpKnownHosts,
