@@ -13,6 +13,7 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import net.schmizz.sshj.SSHClient
+import net.schmizz.sshj.common.SecurityUtils
 import net.schmizz.sshj.sftp.SFTPClient
 import java.io.File
 import java.io.IOException
@@ -54,6 +55,20 @@ class SftpClient(
 ) {
 
     private class PooledEntry(val ssh: SSHClient, val sftp: SFTPClient)
+
+    init {
+        // 2026-11-02 SFTP 传输层修复（sshj × Android 系统提供器撞名）：sshj 首次加密操作会
+        // register()——实例化自带依赖 bcprov 的 BouncyCastleProvider 并把名字 "BC" 记为默认
+        // 安全提供器；但 Android 系统里同名 "BC"（兼容残留版，被系统裁剪得只剩证书类用途）
+        // 已占住注册名，sshj 只跳过注册、仍按名字 "BC" 记账 → 之后所有算法请求都打到空壳上
+        // 必挂（API 35 实测：no such algorithm: X25519/EC/SHA-256 for provider BC，任何
+        // KEX 皆死，SFTP 在现代 Android 完全无法建链——JVM 单测走 fake 传输层所以一直没暴露）。
+        // 这里禁用其 BC 注册，并把可能已被缓存的名字记账纠回平台默认 JCE（conscrypt，算法
+        // 齐全）。幂等；SFTP 是全 app 唯一 sshj 加密消费方，接线放此即可
+        // （SftpTransportProviderWiringTest 锚定）。
+        SecurityUtils.setRegisterBouncyCastle(false)
+        SecurityUtils.setSecurityProvider(null)
+    }
 
     private val pool = ConcurrentHashMap<String, PooledEntry>()
 
