@@ -24,6 +24,9 @@ import androidx.sqlite.db.SupportSQLiteDatabase
  * watch_history/favorites 各加 pathCipher 可空列（密文行约定：非 null ⇒ path=HMAC hex、
  * title=标题密文、pathCipher=路径密文；null ⇒ 旧明文行。MIGRATION_6_7 非破坏性迁移，
  * SQL 清单见 PrivacyDb7）。
+ * 2026-11-02 机构整改 spec §5：exportSchema=true，快照落 app/schemas/（经 KSP
+ * room.schemaLocation 生成）。硬性规矩：以后每次 version bump 必须随附新快照 JSON 入库
+ * （MigrationRobolectricTest 按 7.json 严格比对，无快照=新版本迁移无法校验即红）。
  */
 @Database(
     entities = [
@@ -35,7 +38,7 @@ import androidx.sqlite.db.SupportSQLiteDatabase
         PrivacyRuleEntity::class,
     ],
     version = 7,
-    exportSchema = false,
+    exportSchema = true,
 )
 abstract class MediaDb : RoomDatabase() {
 

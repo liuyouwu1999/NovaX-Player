@@ -60,6 +60,21 @@ android {
     // C13：cast 单测跑 JVM，android.util.Log 等桩方法返回默认值（Log.w 诊断日志不再炸测试）
     testOptions {
         unitTests.isReturnDefaultValues = true
+        // 机构整改 spec §5（Robolectric 落地，D2 方案 A）：单测可读资源/资产——Room schema
+        // 快照经 sourceSets.test.assets 进入 MigrationTestHelper 可见资产。会动全模块单测
+        // 资源管线，落地时必须全量回归（spec §5.2 落地工程清单）
+        unitTests.isIncludeAndroidResources = true
+    }
+    sourceSets {
+        // Room schemaLocation 生成的 JSON（app/schemas）→ 单测资产（MigrationTestHelper 按
+        // <databaseClass>/7.json 读取）。AGP 9.1 落地备注：官方文档的 test sourceSet 挂法在
+        // AGP 9.1 失效——mergeDebugUnitTestAssets 任务已不存在（tasks --all 实证），test
+        // sourceSet 的 assets 无合并出口；单测资产经 test_config.properties 的
+        // android_merged_assets 指向 debug 变体 mergeDebugAssets，故挂 debug sourceSet
+        // （只进 debug 变体，release 打包不受影响；MigrationRobolectricTest 实证可读）。
+        getByName("debug") {
+            assets.srcDir("$projectDir/schemas")
+        }
     }
     signingConfigs {
         if (keystorePropsFile.exists()) {
@@ -146,6 +161,13 @@ androidComponents {
             output.versionCode.set(nvVersionBase + (abi?.let { nvAbiCodeOffsets[it] } ?: 0))
         }
     }
+}
+
+ksp {
+    // Room schema 快照导出（机构整改 spec §5）：每次 version bump 必生成新 JSON 随提交入库，
+    // 作为迁移测试（MigrationRobolectricTest runMigrationsAndValidate）的权威比对基线；
+    // 忘带快照 = 迁移测试无法对新版本校验即红（防「迁移 SQL 与实体注解漂移」静默）
+    arg("room.schemaLocation", "$projectDir/schemas")
 }
 
 kotlin {
@@ -243,6 +265,12 @@ dependencies {
 
     // C6 §3.1 单测：SubtitleMatcher
     testImplementation("junit:junit:4.13.2")
+    // 机构整改 spec §5（D2 方案 A）：Robolectric + MigrationTestHelper 迁移自动化 + VM 壳层测试（§10-11）
+    testImplementation("org.robolectric:robolectric:4.16")
+    testImplementation("androidx.test:core:1.7.0")
+    testImplementation("androidx.test.ext:junit:1.3.0")   // AndroidJUnit4 所在 artifact（core 不传递提供，评审 P2-2）
+    testImplementation("androidx.room:room-testing:2.8.2")
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.10.2")
     testImplementation("net.sf.kxml:kxml2:2.3.0")   // JVM 单测提供真实 XmlPullParserFactory（android.jar 为桩）
     // JVM 单测里 android.jar 的 org.json 是桩（isReturnDefaultValues 静默返回默认值），
     // 补真实实现——与 kxml2 对 XmlPullParser 的处理同型（仅测试期，零运行时影响）

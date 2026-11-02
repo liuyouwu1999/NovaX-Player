@@ -1,6 +1,7 @@
 package com.novax.app.data
 
 import com.novax.app.ui.files.SourceSavePolicy
+import org.junit.AfterClass
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
@@ -15,6 +16,18 @@ import javax.crypto.spec.SecretKeySpec
  * 全路径在纯 JVM 可测；Keystore 失败路径用抛异常工厂模拟。
  */
 class NvSecretsTest {
+
+    companion object {
+        /** keyFactory 缝泄漏防护（机构整改二期，随 Robolectric 落地）：无论用例序列如何终止，恢复产品默认——
+         *  Robolectric 时代同 JVM 测试类共享进程，缝不恢复会污染后续真实 Keystore 路径用例 */
+        private val originalKeyFactory = NvSecrets.keyFactory
+
+        @AfterClass
+        @JvmStatic
+        fun restoreKeyFactory() {
+            NvSecrets.keyFactory = originalKeyFactory
+        }
+    }
 
     private val swKey: SecretKey =
         KeyGenerator.getInstance("AES").apply { init(256) }.generateKey()
