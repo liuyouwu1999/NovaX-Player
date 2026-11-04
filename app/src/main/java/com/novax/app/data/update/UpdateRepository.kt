@@ -77,10 +77,10 @@ class UpdateRepository(private val http: ReleaseHttp) {
 
         val asset = NvAssetMatcher.pick(deviceAbis, release.assets)
 
-        // sums 是独立校验和资产，best-effort：取不到/解析空 → null，不影响 Available。
-        // 资产名双口径（2026-11-04 真机实证：归档自 v1.0.0.16 起用带版本号命名，精确匹配旧名
-        // 永远落空 → canInstall 恒 false → 应用内安装被误禁）：固定名 SHA256SUMS.txt 或
-        // 带版本号 SHA256SUMS-<ver>.txt 均识别。
+        // sums 双通道 best-effort：取不到/解析空 → null，不影响 Available。
+        // ①资产（2026-11-04 真机实证：归档自 v1.0.0.16 起用带版本号命名，固定名/带版本号双口径识别）；
+        // ②正文 ```sha256 围栏回退（同日流量网络实证：文件下载域名被墙时资产取不到，而
+        //   release JSON 走 api.github.com 已达——校验和随响应零额外请求，应用内安装仍可用）
         val sums = if (asset == null) null else release.assets
             .firstOrNull { isSumsAsset(it.name) }
             ?.url?.let { url ->
@@ -88,6 +88,7 @@ class UpdateRepository(private val http: ReleaseHttp) {
                     ?.let(NvSha256SumsParser::parse)
                     ?.takeIf { it.isNotEmpty() }
             }
+            ?: sumsFromBody(release.body)
 
         return UpdateCheckResult.Available(
             release = release,
@@ -106,5 +107,24 @@ class UpdateRepository(private val http: ReleaseHttp) {
         fun isSumsAsset(name: String): Boolean =
             name == SUMS_ASSET_NAME ||
                 (name.startsWith("SHA256SUMS-") && name.endsWith(".txt"))
+
+        /** 正文 ```sha256 围栏 → 校验和映射（围栏缺失/解析空 → null）。零网络：body 随 release JSON 已达 */
+        private fun sumsFromBody(body: String?): Map<String, String>? {
+            if (body.isNullOrBlank()) return null
+            val lines = body.lines()
+            var i = 0
+            while (i < lines.size) {
+                if (lines[i].trimStart().startsWith("```sha256")) {
+                    val out = ArrayList<String>()
+                    i++
+                    while (i < lines.size && !lines[i].trimStart().startsWith("```")) {
+                        out.add(lines[i]); i++
+                    }
+                    return NvSha256SumsParser.parse(out.joinToString("\n")).takeIf { it.isNotEmpty() }
+                }
+                i++
+            }
+            return null
+        }
     }
 }

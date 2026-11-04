@@ -19,6 +19,17 @@
 生成：`sha256sum NovaX-<版本>-*.apk > SHA256SUMS-<版本>.txt && cp SHA256SUMS-<版本>.txt SHA256SUMS.txt`，
 `gh release create/upload` 时两份都带上。
 
+### Release body 双段约定（2026-11-04 起，v1.0.0.20 首用）
+
+Release 说明正文 = **markdown 列表说明 + 末尾 ```sha256 围栏**（不使用 ```changelog 围栏）：
+
+- markdown 说明段：GitHub 网页正常渲染；应用内弹窗走 extractor 回退路径（v1.0.0.20 起
+  stripMarkdown 跳围栏内容，哈希行不透出弹窗；v1.0.0.19 及更早弹窗会一次性看到哈希行，更新即愈）。
+- ```sha256 围栏：内容逐行 `<64hex> *<apk文件名>`，**文件名必须与 APK 资产名逐字一致**
+  （更新器按文件名键查 sums；v1.0.0.20 起更新器在 sums 资产取不到时回退解析此围栏——
+  文件下载域名被墙而 api.github.com 可达的场景，校验和随 release JSON 零额外请求下发）。
+- 两份 SHA256SUMS 资产照常上传（旧版本 app 只走资产通道）。
+
 ---
 
 ## Release R8 真机冒烟清单

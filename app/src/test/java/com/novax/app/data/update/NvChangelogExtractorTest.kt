@@ -25,9 +25,17 @@ class NvChangelogExtractorTest {
         assertTrue(NvChangelogExtractor.extract("   ").isEmpty())
         assertTrue(NvChangelogExtractor.extract("```changelog\n\n```").isEmpty())
     }
-    @Test fun `普通围栏不是changelog块`() {
-        // "# h" 为标题行随新规则丢弃，围栏 ``` 行照旧跳过，只余 z
-        assertEquals(listOf("z"), NvChangelogExtractor.extract("# h\n```\nz\n```"))
+    @Test fun `普通围栏内容整块跳过`() {
+        // 2026-11-04 语义升级：围栏内内容整体跳过（防 ```sha256 校验和围栏哈希行透出），
+        // 此前仅跳围栏标记行、内容 z 会漏出——行为变更非放宽
+        assertEquals(emptyList<String>(), NvChangelogExtractor.extract("# h\n```\nz\n```"))
+    }
+    @Test fun `无changelog围栏时sha256围栏内容也不透出`() {
+        // 2026-11-04 防御：正文出现 ```sha256 校验和围栏（新发版约定）而 pipeline 漏写
+        // ```changelog 时，回退路径不得把哈希行当 changelog 透出
+        val body = "## 修复\n```sha256\n" +
+            "974f2ad6e722a51ab8781257d15a61a7c3546940e6876738197df3543493c333 *NovaX-1.0.0.20-arm64-v8a.apk\n```"
+        assertTrue(NvChangelogExtractor.extract(body).isEmpty())
     }
 
     // ---------- 2026-10-26「弹窗文字太乱」新规则 ----------

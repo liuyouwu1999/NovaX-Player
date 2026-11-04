@@ -68,6 +68,29 @@ class UpdateRepositoryTest {
         val http = FakeHttp(mapOf(API to "not json"))
         assertEquals(UpdateCheckResult.Failed.Reason.BAD_RESPONSE, (UpdateRepository(http).check("1.0.0.0", listOf("arm64-v8a")) as UpdateCheckResult.Failed).reason)
     }
+    @Test fun `sums资产缺失回退正文sha256围栏`() {
+        // 2026-11-04：文件下载域名被墙（流量网络实证）时 sums 资产取不到 → 从 release body
+        // 的 ```sha256 围栏解析校验和（随 api.github.com 响应已达，零额外请求）→ 应用内安装可用
+        val json = """
+{
+  "url": "https://api.github.com/repos/liuyouwu1999/NovaX-Player/releases/2",
+  "html_url": "https://github.com/liuyouwu1999/NovaX-Player/releases/tag/v1.0.0.1",
+  "tag_name": "v1.0.0.1",
+  "name": "NovaX Player v1.0.0.1",
+  "body": "# NovaX Player v1.0.0.1\n\n```changelog\n修复若干问题\n```\n\n```sha256\n${SUMS.trim().lineSequence().joinToString("\\n")}\n```",
+  "assets": [
+    {"name": "NovaX-1.0.0.1-arm64-v8a.apk", "browser_download_url": "$BASE/NovaX-1.0.0.1-arm64-v8a.apk"},
+    {"name": "NovaX-1.0.0.1-armeabi-v7a.apk", "browser_download_url": "$BASE/NovaX-1.0.0.1-armeabi-v7a.apk"},
+    {"name": "NovaX-1.0.0.1-x86_64.apk", "browser_download_url": "$BASE/NovaX-1.0.0.1-x86_64.apk"}
+  ]
+}
+""".trimIndent()
+        val http = FakeHttp(mapOf(API to json))
+        val r = UpdateRepository(http).check("1.0.0.0", listOf("arm64-v8a")) as UpdateCheckResult.Available
+        assertTrue(r.canInstall)
+        assertTrue(r.sums!!.containsKey("NovaX-1.0.0.1-arm64-v8a.apk"))
+        assertEquals(listOf(API), http.hits)   // 正文回退零额外网络请求
+    }
 
     companion object {
         private const val BASE = "https://github.com/liuyouwu1999/NovaX-Player/releases/download/v1.0.0.1"

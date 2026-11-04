@@ -34,10 +34,15 @@ object NvChangelogExtractor {
      * - `**加粗**` 星号剥离（此前原样透出）；
      * - 有序列表前缀（`1.`/`1、`/`1)`）剥离——弹窗统一重编号，防双重编号。
      */
-    internal fun stripMarkdown(body: String): List<String> = body.lines().mapNotNull { raw ->
-        var t = raw.trim()
-        if (t.isEmpty() || t.startsWith("```") || t.startsWith("|")) return@mapNotNull null
-        if (HEADING_RE.containsMatchIn(t)) return@mapNotNull null
+    internal fun stripMarkdown(body: String): List<String> {
+        // 2026-11-04：围栏内容整体跳过（含 ```sha256 校验和围栏——新发版约定，防哈希行被
+        // 当 changelog 透出）；此前仅跳围栏标记行本身，围栏内普通文本行会漏出
+        var inFence = false
+        return body.lines().mapNotNull { raw ->
+            var t = raw.trim()
+            if (t.startsWith("```")) { inFence = !inFence; return@mapNotNull null }
+            if (inFence || t.isEmpty() || t.startsWith("|")) return@mapNotNull null
+            if (HEADING_RE.containsMatchIn(t)) return@mapNotNull null
         t = t.replace(Regex("^[-*+]\\s+"), "")
         // 有序前缀剥离（复审 P2-2 收口）：点号后须至少一空白（防行首裸小数 "1.5 倍速优化"
         // 被误剥成 "5 倍速优化"）；顿号/右括号按中文惯例允许零空白（"2、第二条"）
@@ -46,7 +51,8 @@ object NvChangelogExtractor {
         t = t.replace(Regex("\\[([^\\]]*)]\\([^)]*\\)"), "$1")
         t = t.replace("`", "")
         t = t.replace("**", "")
-        t.trim().ifEmpty { null }
+            t.trim().ifEmpty { null }
+        }
     }
 
     /** 行首标题标记（1-6 级）：`#` 后必须跟空白，避免误杀含 # 的正文 */
