@@ -46,6 +46,19 @@ class UpdateRepositoryTest {
         assertNull(r.sums)
         assertFalse(r.canInstall)          // spec §2.5：宁可不装
     }
+    @Test fun `带版本号SUMS资产名可被识别`() {
+        // 2026-11-04 用户真机实证：归档自 v1.0.0.16 起用带版本号命名 SHA256SUMS-<ver>.txt，
+        // 更新器却精确匹配 SHA256SUMS.txt → 永远 canInstall=false（不提供应用内安装）。
+        val json = REAL_JSON_LATEST.replace(
+            "\"name\": \"SHA256SUMS.txt\", \"browser_download_url\": \"$SUMS_URL\"",
+            "\"name\": \"SHA256SUMS-1.0.0.1.txt\", \"browser_download_url\": \"$SUMS_VERSIONED_URL\"",
+        )
+        val http = FakeHttp(mapOf(API to json, SUMS_VERSIONED_URL to SUMS))
+        val r = UpdateRepository(http).check("1.0.0.0", listOf("arm64-v8a")) as UpdateCheckResult.Available
+        assertTrue(r.canInstall)
+        assertTrue(r.sums!!.containsKey("NovaX-1.0.0.1-arm64-v8a.apk"))
+    }
+
     @Test fun `资产全不匹配则不可安装`() {
         val http = FakeHttp(mapOf(API to REAL_JSON_LATEST, SUMS_URL to SUMS))
         val r = UpdateRepository(http).check("1.0.0.0", listOf("mips")) as UpdateCheckResult.Available
@@ -59,6 +72,7 @@ class UpdateRepositoryTest {
     companion object {
         private const val BASE = "https://github.com/liuyouwu1999/NovaX-Player/releases/download/v1.0.0.1"
         private const val SUMS_URL = "$BASE/SHA256SUMS.txt"
+        private const val SUMS_VERSIONED_URL = "$BASE/SHA256SUMS-1.0.0.1.txt"
 
         /** Task 2 REAL_JSON 改 tag v1.0.0.1、资产名 1.0.0.1 */
         private val REAL_JSON_LATEST = """

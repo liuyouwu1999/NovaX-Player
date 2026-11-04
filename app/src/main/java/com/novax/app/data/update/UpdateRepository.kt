@@ -77,9 +77,12 @@ class UpdateRepository(private val http: ReleaseHttp) {
 
         val asset = NvAssetMatcher.pick(deviceAbis, release.assets)
 
-        // sums 是独立资产（SHA256SUMS.txt），best-effort：取不到/解析空 → null，不影响 Available
+        // sums 是独立校验和资产，best-effort：取不到/解析空 → null，不影响 Available。
+        // 资产名双口径（2026-11-04 真机实证：归档自 v1.0.0.16 起用带版本号命名，精确匹配旧名
+        // 永远落空 → canInstall 恒 false → 应用内安装被误禁）：固定名 SHA256SUMS.txt 或
+        // 带版本号 SHA256SUMS-<ver>.txt 均识别。
         val sums = if (asset == null) null else release.assets
-            .firstOrNull { it.name == SUMS_ASSET_NAME }
+            .firstOrNull { isSumsAsset(it.name) }
             ?.url?.let { url ->
                 runCatching { http.get(url) }.getOrNull()
                     ?.let(NvSha256SumsParser::parse)
@@ -97,7 +100,11 @@ class UpdateRepository(private val http: ReleaseHttp) {
     companion object {
         const val DEFAULT_API_URL = "https://api.github.com/repos/liuyouwu1999/NovaX-Player/releases/latest"
 
-        /** 发版流水线固定的校验和资产名（`_release/` 约定） */
+        /** 发版流水线固定校验和资产名（`_release/` 旧约定；现行带版本号命名由 [isSumsAsset] 识别） */
         const val SUMS_ASSET_NAME = "SHA256SUMS.txt"
+
+        fun isSumsAsset(name: String): Boolean =
+            name == SUMS_ASSET_NAME ||
+                (name.startsWith("SHA256SUMS-") && name.endsWith(".txt"))
     }
 }

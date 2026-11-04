@@ -91,7 +91,10 @@ internal val DarkPalette = NvPalette(
     // 2026-10-15 观感返工②：GlassFill 0x7314141A→0x26000000（45%→15% 黑）——tint 极淡靠 blur 透内容色
     //（Apple Music 参照：封面形状可辨）；GlassFillStrong 保持（SCRIM 档/弹层可读性红线）
     GlassFill = Color(0x26000000),
-    GlassFillStrong = Color(0xB30F0F16),
+    // 2026-11-04 用户真机反馈：0xB3（70%）在独立窗口弹层（AlertDialog/Sheet 无 blur——M3
+    // 单参限制）下文字密集页透字严重（更新弹窗压在设置页上，底层文字可读）——提到 95%
+    // 守住「弹层可读性红线」；窗口内玻璃有 blur 不受影响，走 GlassFill 15%
+    GlassFillStrong = Color(0xF20F0F16),
     GlassBorder = Color(0x2EFFFFFF),
     GlassBorderHairline = Color(0x1FFFFFFF),  // 返工⑤：12% 白 hairline（GlassBorder 18% 白弱一档，暗色不劣化）
     GlassHighlight = Color(0x14FFFFFF),
@@ -133,7 +136,8 @@ internal val LightPalette = NvPalette(
     // 返工⑤（2026-10-15 第五项反馈）：0x4D→0x55（30%→33% 白）微升一档托浅背景上的玻璃量感，
     // 远离被用户否决的「白板」档（0xB3=70% 红线；上限 0x59 不越）
     GlassFill = Color(0x55FFFFFF),
-    GlassFillStrong = Color(0xE6FFFFFF),
+    // 2026-11-04 同暗色口径：独立窗口弹层无 blur，0xE6（90%）在浅色密集页仍透字 → 97%
+    GlassFillStrong = Color(0xF7FFFFFF),
     GlassBorder = Color(0x33FFFFFF),
     GlassBorderHairline = Color(0x14000000),  // 返工⑤：8% 黑 hairline（亮色黑基——白描边浅背景不可辨）
     GlassHighlight = Color(0x0A000000),
