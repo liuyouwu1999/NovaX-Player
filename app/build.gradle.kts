@@ -18,12 +18,14 @@ val keystoreProps = Properties().apply {
 // 方案数学性质由 ReleaseVersionSchemeTest 锁定（跨日严格单调、2147 年内不溢出）。
 // 注意：AGP 9 新 Variant API 已无 per-output 重命名能力（javap 实证），产物名维持 AGP 默认，
 // 对外分发命名在归档时手工完成（docs/RELEASE.md §3）。
-// v1.0.0.17 发包：nvReleaseDate=20261102、nvReleaseIndex=0（当日首版，基础码 2026110200）。
-// 内容 = 外部机构审查整改一期+二期：SFTP 信任解耦（编辑保指纹/删源=唯一重置）、NvSecrets 三态
-// 口令 API+知情降级+明文角标自愈、SFTP sshj×Android"BC"提供器撞名修复（现代 Android SFTP
-// 全面挂的预存缺陷根治）、播放策略单调钟、CI release-verify（R8/lintVital/签名守卫）+dev 变体
-// 签名守卫补齐、Room schema 快照+Robolectric 迁移自动化、日志脱敏（userinfo/throwable+六热点
-// +兜底页错误白名单化）、外部 ACTION_VIEW scheme 白名单；全量 1269 绿+三星真机验收全过。
+// v1.0.0.18 发包：nvReleaseDate=20261104、nvReleaseIndex=0（当日首版，基础码 2026110400）。
+// 内容 = 三期整改（机构独立专项）：durationHint 世代守卫（切集后慢查库晚回填旧集时长魂穿
+// 根治）、通知切集 next 侧 canSwitch 守卫（单文件队列蓝牙/AVRCP 误弹越界提示根治）、裸日志
+// 脱敏收尾（18+1 处走 redactor，tag/类名/栈帧保留）、内部命令判别收口 isNovaxCommandUri
+// （全仓 8 调用点）、§3.4/§3.6 审计+许可证对账+docs/RELEASE.md 发版冒烟清单固化；
+// 全量 1283 绿+模拟器冒烟+三星/小米双真机验收。
+// 旧 v1.0.0.17=20261102 0（外部机构审查整改一期+二期：SFTP 信任解耦/口令三态/BC 撞名修复/
+// 单调钟/CI release-verify/Room schema+迁移测试/日志脱敏/外部 scheme 白名单）。
 // 历史：v1.0.0.16=202611014x（封面文件丢失自检：cacheDir 被清后永久静默占位的根治）；
 // v1.0.0.15=202611013x（GIF 动图查看器自动播放，coil-gif 3.3.0；文件页缩略图
 // 保持静态首帧，用户拍板只在查看器动）；
@@ -31,8 +33,8 @@ val keystoreProps = Properties().apply {
 // 整体路由兜底页+起播看门狗）；
 // v1.0.0.13=202611011x（AVI 误嗅劫持+视频轨缺失自动转软解+切集路由回主播放器）；
 // v1.0.0.12=202611010x（长按倍速黑闪修复）。
-val nvVersionName = "1.0.0.17"
-val nvReleaseDate = 20261102
+val nvVersionName = "1.0.0.18"
+val nvReleaseDate = 20261104
 val nvReleaseIndex = 0
 val nvVersionBase: Int = run {
     // T11 评审移交：双守卫 + long 运算。Int 直乘在日期误改（多打一位/改超 21474836 年）时
