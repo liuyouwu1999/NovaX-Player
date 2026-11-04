@@ -1,11 +1,23 @@
 # NovaX 发版流程文档（三期 §3.4 固化首版）
 
-> 本文档固化 2026-11-03 三期安全整改 §3.4「发版 R8 冒烟清单」（spec：`docs/superpowers/specs/2026-11-03-phase3-hardening-design.md` §3.2-4）。
+> 本文档固化 2026-11-03 三期安全整改 §3.4「发版 R8 冒烟清单」（出处 spec 在私有仓归档，公开仓不含内部文档）。
 > **§3.4 验收 = 下方清单逐项打勾。** 后续发版沿用本清单；增补条目时在本文件追加并注明来源 spec/任务。
 
 发版主干流程（既有惯例，不在本清单重复展开）：
 版本号/版本码定档（nvVersionBase/nvReleaseIndex）→ 双变体构建 → `aapt dump badging` 核验 versionCode/Name → 归档 `_release/`（gitignored）+ SHA256SUMS → 安全终审 + gitleaks → push + tag → `gh release`（走代理）。
 发布前红线速查：严禁 `git push --tags`；拷贝文件后 `git update-index --chmod=+x gradlew`；终审必须在 push 之前做。
+
+### SHA256SUMS 双文件约定（2026-11-04 起，v1.0.0.19 补丁实证）
+
+每个 Release **必须同时上传两份校验和文件**（内容相同、命名不同）：
+
+1. `SHA256SUMS-<版本>.txt`（带版本号）——本仓归档惯例，人类可辨；
+2. `SHA256SUMS.txt`（固定名）——**旧版本 app 的应用内更新器依赖它**：v1.0.0.18 及更早的更新器
+   精确匹配固定名（v1.0.0.19 起更新器双口径兼容，见 UpdateRepository.isSumsAsset）。
+   缺固定名 → 旧 app「无法获取校验文件，不提供应用内安装」（v1.0.0.19 发版当日 vivo 实证）。
+
+生成：`sha256sum NovaX-<版本>-*.apk > SHA256SUMS-<版本>.txt && cp SHA256SUMS-<版本>.txt SHA256SUMS.txt`，
+`gh release create/upload` 时两份都带上。
 
 ---
 
