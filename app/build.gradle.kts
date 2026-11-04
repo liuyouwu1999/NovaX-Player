@@ -18,7 +18,9 @@ val keystoreProps = Properties().apply {
 // 方案数学性质由 ReleaseVersionSchemeTest 锁定（跨日严格单调、2147 年内不溢出）。
 // 注意：AGP 9 新 Variant API 已无 per-output 重命名能力（javap 实证），产物名维持 AGP 默认，
 // 对外分发命名在归档时手工完成（docs/RELEASE.md §3）。
-// v1.0.0.18 发包：nvReleaseDate=20261104、nvReleaseIndex=0（当日首版，基础码 2026110400）。
+// v1.0.0.19 发包：nvReleaseDate=20261104、nvReleaseIndex=1（当日第二版，基础码 2026110410）。
+// 内容 = 应用内更新两处真机实证修复：SUMS 资产名双口径（带版本号命名识别，修复应用内安装
+// 被误禁）+ 独立窗口弹层近不透明（GlassFillStrong 70%→95%/90%→97%，透字根治）。
 // 内容 = 三期整改（机构独立专项）：durationHint 世代守卫（切集后慢查库晚回填旧集时长魂穿
 // 根治）、通知切集 next 侧 canSwitch 守卫（单文件队列蓝牙/AVRCP 误弹越界提示根治）、裸日志
 // 脱敏收尾（18+1 处走 redactor，tag/类名/栈帧保留）、内部命令判别收口 isNovaxCommandUri
@@ -33,9 +35,9 @@ val keystoreProps = Properties().apply {
 // 整体路由兜底页+起播看门狗）；
 // v1.0.0.13=202611011x（AVI 误嗅劫持+视频轨缺失自动转软解+切集路由回主播放器）；
 // v1.0.0.12=202611010x（长按倍速黑闪修复）。
-val nvVersionName = "1.0.0.18"
+val nvVersionName = "1.0.0.19"
 val nvReleaseDate = 20261104
-val nvReleaseIndex = 0
+val nvReleaseIndex = 1
 val nvVersionBase: Int = run {
     // T11 评审移交：双守卫 + long 运算。Int 直乘在日期误改（多打一位/改超 21474836 年）时
     // 会静默回绕，require 拦不住；先升 long 再校验，配置期即炸而非产出错版号。
