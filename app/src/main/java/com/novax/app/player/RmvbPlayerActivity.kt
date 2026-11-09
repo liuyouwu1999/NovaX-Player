@@ -317,6 +317,18 @@ class RmvbPlayerActivity : ComponentActivity() {
     private var meteredNetCallback: android.net.ConnectivityManager.NetworkCallback? = null
     private var meteredPauseJob: kotlinx.coroutines.Job? = null
 
+    /** 断网自动重连（2026-11-09 审计 A3 / spec B-3）：共用主播放器的 NvAutoReconnect 纯逻辑；
+     * onRetry 走手动重试同路径（retryFromError——看门狗重挂/计量闸/coverCaptured 裁决自然生效）。
+     * 武装点=setup IOException / 上游看门狗 fail（lastUpstreamError≠null=网络域）；触发点=
+     * 设备 NetworkCallback.onAvailable + 代理 onUpstreamRecovered（服务器恢复时设备网络未变，
+     * 回调不触发，代理恢复是主形态）。预算 3 次，Playing 重置。 */
+    private val autoReconnect = NvAutoReconnect(
+        onRetry = { runOnUiThread { retryFromError() } },
+        onAutoRetry = { attempt -> Log.w("NvQSwitch", "rmvb auto reconnect attempt=$attempt") },
+    )
+    private var autoReconnectNetCallback: android.net.ConnectivityManager.NetworkCallback? = null
+    private var autoReconnectProbeJob: kotlinx.coroutines.Job? = null
+
     /** 本次 playback 会话起播瞬间活动网络是否计量（spec §4.2，与 PlaybackService 同语义）。
      *  四条装载链全部有闸门背书，openAndPlay 开头无条件重快照；默认 false 宁拦勿放。 */
     private var playbackStartMetered: Boolean = false
@@ -459,6 +471,7 @@ class RmvbPlayerActivity : ComponentActivity() {
         hideSystemBars()
         // 2026-09-28 审计 P0-2：播放中网络切计量的兜底暂停（见 registerMeteredWatch）
         registerMeteredWatch()
+        registerAutoReconnectWatch()
         // 2026-10-17：只读监听系统旋转锁定——播放中下拉切换即时生效（锁定→收拢当前朝向，解锁→恢复重力）
         rotationLockObserver = object : android.database.ContentObserver(
             android.os.Handler(android.os.Looper.getMainLooper()),
@@ -623,6 +636,36 @@ class RmvbPlayerActivity : ComponentActivity() {
                 cb,
             )
             meteredNetCallback = cb
+        }
+    }
+
+    /** 武装后探测器（审计 A3，计划修正三）：每 10s 假定上游可能已恢复，喂一次 onNetworkAvailable
+     *  （NvAutoReconnect 去重：未武装/预算尽 no-op，预算 3 次天然有界；Playing 重置后探测自然停）。
+     *  必要性：服务器死亡后 VLC 多直接 EncounteredError 退出拉流——代理空闲后 onUpstreamRecovered
+     *  与设备 NetworkCallback（LAN 未变）都不会再触发，本探测是「服务器恢复→自动续播」的唯一触发器。 */
+    private fun ensureAutoReconnectProbe() {
+        if (autoReconnectProbeJob?.isActive == true) return
+        autoReconnectProbeJob = lifecycleScope.launch {
+            while (isActive && autoReconnect.armed) {
+                kotlinx.coroutines.delay(10_000)
+                autoReconnect.onNetworkAvailable()
+            }
+        }
+    }
+
+    /** 设备级网络恢复监听（审计 A3）：onAvailable → 武装态自动重试；未武装/预算尽 no-op。
+     *  registerDefaultNetworkCallback 不带 executor → 回调默认主线程。配对注册/注销随 meteredNetCallback 先例。 */
+    private fun registerAutoReconnectWatch() {
+        val cm = getSystemService(Context.CONNECTIVITY_SERVICE) as? android.net.ConnectivityManager
+            ?: return
+        val cb = object : android.net.ConnectivityManager.NetworkCallback() {
+            override fun onAvailable(network: android.net.Network) {
+                autoReconnect.onNetworkAvailable()
+            }
+        }
+        runCatching {
+            cm.registerDefaultNetworkCallback(cb)
+            autoReconnectNetCallback = cb
         }
     }
 
@@ -843,6 +886,12 @@ class RmvbPlayerActivity : ComponentActivity() {
                                     },
                                     detail,
                                 )
+                                // 审计 A3（计划修正四）：代理上游故障=网络域实证，即刻武装+探测器。
+                                // 上游死亡后 VLC 三形态皆有可能：EncounteredError（arms 在事件点）、
+                                // 退化 EndReached time=0/len=0（被 nearEnd 门忽略=死气黑屏，事件点全被
+                                // 绕过——冒烟实证形态）、冻住等看门狗；三形态共用本武装点最稳。
+                                autoReconnect.onFatalError(true)
+                                if (autoReconnect.armed) ensureAutoReconnectProbe()
                             }
                         }
                     }
@@ -855,6 +904,9 @@ class RmvbPlayerActivity : ComponentActivity() {
                                 val reason = lastUpstreamError
                                 lastUpstreamError = null
                                 if (uiError != null && uiError == reason) uiError = null
+                                // 审计 A3：上游/服务器恢复=兜底页「网络恢复」主形态（设备网络未变时
+                                // NetworkCallback.onAvailable 不触发）——武装态自动重试，未武装 no-op
+                                autoReconnect.onNetworkAvailable()
                             }
                         }
                     }
@@ -949,7 +1001,10 @@ class RmvbPlayerActivity : ComponentActivity() {
                 NvPrivacyRedactor.redactText("setup failed", null),
                 NvPrivacyRedactor.redactThrowable(e),
             )
-            fail(setupFailText(e))
+                    // 审计 A3：setup 网络 IOException（本地路径/外部入口）武装自动重连
+                    autoReconnect.onFatalError(isRmvbNetworkRecoverable(e))
+                    if (autoReconnect.armed) ensureAutoReconnectProbe()
+                    fail(setupFailText(e))
         }
     }
 
@@ -1286,6 +1341,8 @@ class RmvbPlayerActivity : ComponentActivity() {
             when (event.type) {
                 MediaPlayer.Event.Playing -> {
                     uiPlaying = true
+                    // 审计 A3：起播成功重置自动重连预算（同一次观看多次断网各自全额）
+                    autoReconnect.onPlaybackStarted()
                     // §2 收口:任何成功起播(从 Ended 重启必发 Playing——:1404 反例仅限
                     // 「播放中换 media」)清写库门标记
                     fakeTailReplayPending = false
@@ -1405,7 +1462,15 @@ class RmvbPlayerActivity : ComponentActivity() {
                         if (autoNext) advanceQueue(1)
                     }
                 }
-                MediaPlayer.Event.EncounteredError -> fail(getString(R.string.player_err_vlc_decode))
+                MediaPlayer.Event.EncounteredError -> {
+                    // 审计 A3：EncounteredError 无错误码——纯解码放弃（无上游故障待用）不武装；
+                    // 但 lastUpstreamError≠null 时 VLC 是因上游死亡而放弃（网络域）→ 武装。
+                    // （冒烟实证：上游 connect/read 失败后 VLC 2s 内即 EncounteredError，
+                    //  看门狗的 playing-frozen 条件来不及满足——本路径是网络死亡的主武装点）
+                    autoReconnect.onFatalError(lastUpstreamError != null)
+                    if (autoReconnect.armed) ensureAutoReconnectProbe()
+                    fail(getString(R.string.player_err_vlc_decode))
+                }
                 MediaPlayer.Event.Buffering -> {
                     // VLC4：事件字段改为 getter（event.buffering → getBuffering()）
                     // rawBuffering 无条件记录（变速冲刷守卫/取证计数用）；uiBuffering（中心
@@ -1914,6 +1979,12 @@ class RmvbPlayerActivity : ComponentActivity() {
                 }
                 if (android.os.SystemClock.elapsedRealtime() - lastMoveAt > STALL_CONFIRM_MS && uiError == null) {
                     Log.w("NvPerf", "rmvb stall confirmed: no move for ${STALL_CONFIRM_MS}ms")
+                    // 审计 A3：上游故障待用（lastUpstreamError≠null）= 网络域错误 → 武装自动重连
+                    //（恢复触发=代理 onUpstreamRecovered / 设备 onAvailable）；纯卡死不武装。
+                    // 计划缺陷修正：远程源上游死亡的真实 fail 落点是本看门狗——setup catch 只罩
+                    // 本地/外部入口，简报原接法（仅两处）对「NAS 掉电播放中」主场景永不武装。
+                    autoReconnect.onFatalError(lastUpstreamError != null)
+                    if (autoReconnect.armed) ensureAutoReconnectProbe()
                     fail(lastUpstreamError ?: getString(R.string.player_err_stalled))
                 }
             }
@@ -2012,6 +2083,13 @@ class RmvbPlayerActivity : ComponentActivity() {
                 ?.let { cm -> runCatching { cm.unregisterNetworkCallback(cb) } }
         }
         meteredNetCallback = null
+        autoReconnectNetCallback?.let { cb ->
+            (getSystemService(Context.CONNECTIVITY_SERVICE) as? android.net.ConnectivityManager)
+                ?.let { cm -> runCatching { cm.unregisterNetworkCallback(cb) } }
+        }
+        autoReconnectNetCallback = null
+        autoReconnectProbeJob?.cancel()
+        autoReconnectProbeJob = null
         flushHistory()
         stopHeartbeat()
         loopJob?.cancel()
@@ -2403,7 +2481,11 @@ class RmvbPlayerActivity : ComponentActivity() {
                         // 2026-09-25 新增：重试（对齐主播放器）——从出错前位置重走管线
                         NvPrimaryButton(
                             text = stringResource(R.string.player_retry),
-                            onClick = { retryFromError() },
+                            onClick = {
+                                // 审计 A3：手动重试与自动重试互斥（退出武装态，防网络恢复事件竞发）
+                                autoReconnect.onManualRetry()
+                                retryFromError()
+                            },
                             modifier = Modifier.height(44.dp),
                         )
                         Spacer(Modifier.height(12.dp))
