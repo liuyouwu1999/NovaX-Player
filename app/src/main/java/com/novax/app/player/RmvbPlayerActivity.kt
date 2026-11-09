@@ -987,16 +987,25 @@ class RmvbPlayerActivity : ComponentActivity() {
             // fd/Uri 构造细节（content fd 所有权、file:// 双前缀防御）在 NvVlcEngine.openMedia
             val media = vlcEngine.openMedia(uri)
             // 2026-09-20 与主播放器同步（自动加载同名字幕开关，默认开）：本地文件时挂同目录
-            // 同名 .srt 外挂字幕（libVLC addSlave 从属轨）；远程源暂不支持（代理只代理媒体流）
+            // 外挂字幕（libVLC addSlave 从属轨）；远程源暂不支持（代理只代理媒体流）
+            // 2026-11-09 审计 A11（spec B-5）：改用共用评分件 scanLocalSubtitles——六格式
+            // srt/ass/ssa/sub/vtt/idx 全支持（原硬编码只认同名 .srt），score 降序取最优；
+            // 目录列举是磁盘 IO 包 IO（评审 P2-4）
             if (playerPrefsSnapshot()?.get(KEY_SUB_AUTO_LOAD) ?: true) {
                 if (uri.startsWith("/")) {
-                    val srt = java.io.File(uri.substringBeforeLast('/') + "/" +
-                        uri.substringAfterLast('/').substringBeforeLast('.') + ".srt")
-                    if (srt.isFile) {
-                        media.addSlave(org.videolan.libvlc.interfaces.IMedia.Slave(
-                            org.videolan.libvlc.interfaces.IMedia.Slave.Type.Subtitle, 1,
-                            android.net.Uri.fromFile(srt).toString()))
-                        Log.d("NvRmvb", "srt attached: ${srt.name}")
+                    val best = withContext(Dispatchers.IO) {
+                        scanLocalSubtitles(uri)
+                    }.firstOrNull()
+                    if (best != null) {
+                        runCatching {
+                            media.addSlave(org.videolan.libvlc.interfaces.IMedia.Slave(
+                                org.videolan.libvlc.interfaces.IMedia.Slave.Type.Subtitle, 1,
+                                android.net.Uri.fromFile(java.io.File(best.path)).toString()))
+                        }.onFailure {
+                            Log.w("NvRmvb", "subtitle attach failed(本地)",
+                                com.novax.app.data.privacy.NvPrivacyRedactor.redactThrowable(it))
+                        }
+                        Log.d("NvRmvb", "subtitle attached: ${best.path.substringAfterLast('/')}")
                     }
                 }
             }
