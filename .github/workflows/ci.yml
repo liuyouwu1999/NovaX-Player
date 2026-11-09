@@ -21,13 +21,21 @@ on:
   pull_request:
   workflow_dispatch:
 
+# 2026-11-09 审计 D6：最小权限 + 同引用去重（GITHUB_TOKEN 默认可能含写权限；连推取消旧跑）
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
 
-      - uses: actions/setup-java@v4
+      - uses: actions/setup-java@cf277c60eb25467037889841efdb72551f06f6c3 # v4
         with:
           distribution: temurin
           # 2026-11-02 JDK 17→21：Robolectric 的 SDK 36 android-all 包要求 Java 21，
@@ -35,14 +43,14 @@ jobs:
           # Kotlin/AGP 字节码目标仍是 17（jvmTarget），仅运行工具链升级。
           java-version: '21'
 
-      - uses: gradle/actions/setup-gradle@v6
+      - uses: gradle/actions/setup-gradle@8da46b539cd8fe6ab27ca75128919a18d757604c # v6
 
       - name: Build (debug, all ABIs) and unit tests
         run: ./gradlew assembleDebug testDebugUnitTest --stacktrace
 
       - name: Upload test reports on failure
         if: failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: test-reports
           path: |
@@ -53,14 +61,14 @@ jobs:
   release-verify:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
 
-      - uses: actions/setup-java@v4
+      - uses: actions/setup-java@cf277c60eb25467037889841efdb72551f06f6c3 # v4
         with:
           distribution: temurin
           java-version: '21'
 
-      - uses: gradle/actions/setup-gradle@v6
+      - uses: gradle/actions/setup-gradle@8da46b539cd8fe6ab27ca75128919a18d757604c # v6
 
       - name: Generate one-shot CI keystore (verify-only, never the release key)
         run: |
