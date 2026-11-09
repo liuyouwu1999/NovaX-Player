@@ -319,9 +319,10 @@ class RmvbPlayerActivity : ComponentActivity() {
 
     /** 断网自动重连（2026-11-09 审计 A3 / spec B-3）：共用主播放器的 NvAutoReconnect 纯逻辑；
      * onRetry 走手动重试同路径（retryFromError——看门狗重挂/计量闸/coverCaptured 裁决自然生效）。
-     * 武装点=setup IOException / 上游看门狗 fail（lastUpstreamError≠null=网络域）；触发点=
-     * 设备 NetworkCallback.onAvailable + 代理 onUpstreamRecovered（服务器恢复时设备网络未变，
-     * 回调不触发，代理恢复是主形态）。预算 3 次，Playing 重置。 */
+     * 武装点四路：①onUpstreamFailure 即刻（网络域实证，覆盖退化 EndReached 死气态——主导）
+     * ②EncounteredError 且 lastUpstreamError≠null ③上游看门狗 fail ④setup IOException；
+     * 触发点=代理 onUpstreamRecovered（健康门）+设备 NetworkCallback.onAvailable+武装探测器。
+     * 预算 3 次，Playing 重置。 */
     private val autoReconnect = NvAutoReconnect(
         onRetry = { runOnUiThread { retryFromError() } },
         onAutoRetry = { attempt -> Log.w("NvQSwitch", "rmvb auto reconnect attempt=$attempt") },
@@ -642,25 +643,37 @@ class RmvbPlayerActivity : ComponentActivity() {
     /** 武装后探测器（审计 A3，计划修正三）：每 10s 假定上游可能已恢复，喂一次 onNetworkAvailable
      *  （NvAutoReconnect 去重：未武装/预算尽 no-op，预算 3 次天然有界；Playing 重置后探测自然停）。
      *  必要性：服务器死亡后 VLC 多直接 EncounteredError 退出拉流——代理空闲后 onUpstreamRecovered
-     *  与设备 NetworkCallback（LAN 未变）都不会再触发，本探测是「服务器恢复→自动续播」的唯一触发器。 */
+     *  与设备 NetworkCallback（LAN 未变）都不会再触发，本探测是「服务器恢复→自动续播」的唯一触发器。
+     *  评审 Important-1/Minor-1 健康门：tick 时流已自愈健康（故障未上屏且在播）→ 解除武装而非
+     *  重启健康管线（自愈型抖动「全程无感」不变式）；预算尽（armed 因 onNetworkAvailable 不清）
+     *  时 cap 循环防空转。 */
     private fun ensureAutoReconnectProbe() {
         if (autoReconnectProbeJob?.isActive == true) return
         autoReconnectProbeJob = lifecycleScope.launch {
             while (isActive && autoReconnect.armed) {
                 kotlinx.coroutines.delay(10_000)
+                if (!isActive || !autoReconnect.armed) break
+                if (uiError == null && uiPlaying) {
+                    autoReconnect.onPlaybackStarted()
+                    break
+                }
+                if (autoReconnect.attempts >= 3) break   // NvAutoReconnect 默认预算 3
                 autoReconnect.onNetworkAvailable()
             }
         }
     }
 
     /** 设备级网络恢复监听（审计 A3）：onAvailable → 武装态自动重试；未武装/预算尽 no-op。
-     *  registerDefaultNetworkCallback 不带 executor → 回调默认主线程。配对注册/注销随 meteredNetCallback 先例。 */
+     *  registerDefaultNetworkCallback 不带 executor → 回调在进程级 ConnectivityThread（后台线程，
+     *  非主线程——评审 Important-2 纠正）；状态机状态非 volatile，经 main handler post 桥接
+     *  （对齐 PlayerScreen.kt 同款先例）。配对注册/注销随 meteredNetCallback 先例。 */
     private fun registerAutoReconnectWatch() {
         val cm = getSystemService(Context.CONNECTIVITY_SERVICE) as? android.net.ConnectivityManager
             ?: return
+        val mainHandler = android.os.Handler(android.os.Looper.getMainLooper())
         val cb = object : android.net.ConnectivityManager.NetworkCallback() {
             override fun onAvailable(network: android.net.Network) {
-                autoReconnect.onNetworkAvailable()
+                mainHandler.post { autoReconnect.onNetworkAvailable() }
             }
         }
         runCatching {
@@ -904,9 +917,16 @@ class RmvbPlayerActivity : ComponentActivity() {
                                 val reason = lastUpstreamError
                                 lastUpstreamError = null
                                 if (uiError != null && uiError == reason) uiError = null
-                                // 审计 A3：上游/服务器恢复=兜底页「网络恢复」主形态（设备网络未变时
-                                // NetworkCallback.onAvailable 不触发）——武装态自动重试，未武装 no-op
-                                autoReconnect.onNetworkAvailable()
+                                if (uiError == null && uiPlaying) {
+                                    // 评审 Important-1 健康门：故障未上屏且流已自愈（自愈型抖动常见
+                                    // 路径，:899 注释）→ 无事可恢复，解除武装+重置预算，防探测器对
+                                    // 健康流执行全管线重启（「全程无感」不变式，:872 注释）
+                                    autoReconnect.onPlaybackStarted()
+                                } else {
+                                    // 审计 A3：上游/服务器恢复=兜底页「网络恢复」主形态（设备网络未变时
+                                    // NetworkCallback.onAvailable 不触发）——武装态自动重试，未武装 no-op
+                                    autoReconnect.onNetworkAvailable()
+                                }
                             }
                         }
                     }
@@ -1001,10 +1021,10 @@ class RmvbPlayerActivity : ComponentActivity() {
                 NvPrivacyRedactor.redactText("setup failed", null),
                 NvPrivacyRedactor.redactThrowable(e),
             )
-                    // 审计 A3：setup 网络 IOException（本地路径/外部入口）武装自动重连
-                    autoReconnect.onFatalError(isRmvbNetworkRecoverable(e))
-                    if (autoReconnect.armed) ensureAutoReconnectProbe()
-                    fail(setupFailText(e))
+            // 审计 A3：setup 网络 IOException（本地路径/外部入口）武装自动重连
+            autoReconnect.onFatalError(isRmvbNetworkRecoverable(e))
+            if (autoReconnect.armed) ensureAutoReconnectProbe()
+            fail(setupFailText(e))
         }
     }
 
