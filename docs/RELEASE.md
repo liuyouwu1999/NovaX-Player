@@ -5,6 +5,7 @@
 
 发版主干流程（既有惯例，不在本清单重复展开）：
 版本号/版本码定档（nvVersionBase/nvReleaseIndex）→ 双变体构建 → `aapt dump badging` 核验 versionCode/Name → 归档 `_release/`（gitignored）+ SHA256SUMS → 安全终审 + gitleaks → push + tag → `gh release`（走代理）。
+- push main + tag 后盯 CI（main 与 tag 两跑）双绿才算发版完成——v1.0.0.17 教训固化；CI 红禁止发 Release。
 发布前红线速查：严禁 `git push --tags`；拷贝文件后 `git update-index --chmod=+x gradlew`；终审必须在 push 之前做。
 
 ### SHA256SUMS 双文件约定（2026-11-04 起，v1.0.0.19 补丁实证）
