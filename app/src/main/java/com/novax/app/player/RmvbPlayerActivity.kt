@@ -2175,8 +2175,8 @@ class RmvbPlayerActivity : ComponentActivity() {
                     }
                 }
                 // 审计 A12：音画/字幕偏移恢复（读值存字段，应用在 Playing——vlcPlayer 未启动恒 null）
-                uiAvOffsetMs = (saved[KEY_AV_OFFSET_MS] ?: 0).coerceIn(-2_000, 2_000)
-                uiSubDelayMs = (saved[KEY_SUB_DELAY_MS] ?: 0L).coerceIn(-2_000L, 2_000L)
+                uiAvOffsetMs = (saved[KEY_AV_OFFSET_MS] ?: 0).coerceIn(-NvAvOffsetAudioProcessor.MAX_OFFSET_MS, NvAvOffsetAudioProcessor.MAX_OFFSET_MS)
+                uiSubDelayMs = (saved[KEY_SUB_DELAY_MS] ?: 0L).coerceIn(-NvAvOffsetAudioProcessor.MAX_OFFSET_MS.toLong(), NvAvOffsetAudioProcessor.MAX_OFFSET_MS.toLong())
             }
         }
         // 2026-09-20 画面旋转：屏幕尺寸（px，onSizeChanged 跟随折叠/显示变更刷新）
@@ -3219,8 +3219,8 @@ class RmvbPlayerActivity : ComponentActivity() {
         R.string.player_aspect_4_3,
     )
     /** 审计 A12（spec B-6）：音画/字幕偏移会话值（ms；恢复读填充，面板步进改，Playing 应用） */
-    private var uiAvOffsetMs: Int = 0
-    private var uiSubDelayMs: Long = 0L
+    private var uiAvOffsetMs by mutableIntStateOf(0)
+    private var uiSubDelayMs by mutableLongStateOf(0L)
 
     private val aspectScales = listOf(
         MediaPlayer.ScaleType.SURFACE_BEST_FIT,
@@ -3254,14 +3254,14 @@ class RmvbPlayerActivity : ComponentActivity() {
     /** 审计 A12：音画偏移步进（±delta ms，clamp ±2s 对齐 NvAvOffsetAudioProcessor.MAX_OFFSET_MS）；
      * 即时生效 + 持久化（putPlayerPref suspend → lifecycleScope）。 */
     private fun adjustAvOffset(deltaMs: Int) {
-        uiAvOffsetMs = (uiAvOffsetMs + deltaMs).coerceIn(-2_000, 2_000)
+        uiAvOffsetMs = (uiAvOffsetMs + deltaMs).coerceIn(-NvAvOffsetAudioProcessor.MAX_OFFSET_MS, NvAvOffsetAudioProcessor.MAX_OFFSET_MS)
         vlcPlayer?.setAudioDelay(delayMsToVlc(uiAvOffsetMs.toLong()))
         lifecycleScope.launch { runCatching { putPlayerPref(KEY_AV_OFFSET_MS, uiAvOffsetMs) } }
     }
 
     /** 审计 A12：字幕偏移步进（同上；KEY_SUB_DELAY_MS 主播放器同键） */
     private fun adjustSubDelay(deltaMs: Int) {
-        uiSubDelayMs = (uiSubDelayMs + deltaMs).coerceIn(-2_000L, 2_000L)
+        uiSubDelayMs = (uiSubDelayMs + deltaMs).coerceIn(-NvAvOffsetAudioProcessor.MAX_OFFSET_MS.toLong(), NvAvOffsetAudioProcessor.MAX_OFFSET_MS.toLong())
         vlcPlayer?.setSpuDelay(delayMsToVlc(uiSubDelayMs))
         lifecycleScope.launch { runCatching { putPlayerPref(KEY_SUB_DELAY_MS, uiSubDelayMs) } }
     }
