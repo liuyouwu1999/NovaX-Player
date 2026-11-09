@@ -2078,7 +2078,7 @@ class RmvbPlayerActivity : ComponentActivity() {
                         // 2026-09-20 亮度基准（进入 MODE_BRIGHTNESS 首事件归一化：-1=跟随系统 → 读系统亮度）
                         var startBrightness = Float.NaN
                         // BUG-C-R4-01：基准点只在 down 时记一次——原实现在 MODE_NONE 期间
-                        // 逐事件重锚 downX/downY，dx/dy 恒 0，「abs(dx)>24f」永假，
+                        // 逐事件重锚 downX/downY，dx/dy 恒 0，「abs(dx)>slopPx」永假，
                         // 进度/亮度/音量滑动手势全部不可达（与主播放器 down 一次性锚点同款）
                         val downX = first.position.x   // 模式判定与 seek 基准（亮度用 gestureStartY，见下）
                         // 2026-09-19 下滑锁定倍速：以按下点为位移基准；本次手势一次性触发。
@@ -2086,6 +2086,8 @@ class RmvbPlayerActivity : ComponentActivity() {
                         val gestureStartY = first.position.y
                         val epochAtDown = speedShiftEpoch
                         val speedLockPx = 80.dp.toPx()
+                        // 单指模式判定阈值 24dp（审计 A2：与主播放器 PlayerGestures slopPx 同口径）
+                        val slopPx = 24.dp.toPx()
                         var speedLockFired = false
                         // 双指缩放起点（二指接管瞬间快照；距离比/中点位移都以此为基准）
                         var zoomStart = uiZoom
@@ -2098,7 +2100,7 @@ class RmvbPlayerActivity : ComponentActivity() {
                             val dx = change.position.x - downX
                             val dy = change.position.y - gestureStartY   // 纵向累计位移（2026-09-20 起亮度/音量共用此基准）
                             // ---- 二指接管（主播放器 SlideEnd.Takeover 同语义）：任意单指态下
-                            // 第二指落下即转缩放——首指先漂移过 24px 也必须能进；长按倍速
+                            // 第二指落下即转缩放——首指先漂移过 24dp 也必须能进；长按倍速
                             // 生效期间互斥（倍速优先）。从 SEEK 接管时收起预览气泡且不提交 seek。
                             if (mode != MODE_ZOOM && !features.speedShiftActive && !speedLockFired &&
                                 ev.changes.count { it.pressed } >= 2
@@ -2116,10 +2118,10 @@ class RmvbPlayerActivity : ComponentActivity() {
                                 zoomStartMidY = (pts[0].position.y + pts[1].position.y) / 2f
                             }
                             // ---- 单指模式判定（BUG-C-R4-01 一次性锚点）：MODE_NONE 期间位移超
-                            // 24px 按主轴分向——横滑 seek、左半屏亮度、右半屏音量（二指接管后
+                            // 24dp 按主轴分向——横滑 seek、左半屏亮度、右半屏音量（二指接管后
                             // mode 已非 NONE，本块自然跳过）
                             if (mode == MODE_NONE && !features.speedShiftActive && !speedLockFired &&
-                                (abs(dx) > 24f || abs(dy) > 24f)
+                                (abs(dx) > slopPx || abs(dy) > slopPx)
                             ) {
                                 mode = if (abs(dx) > abs(dy)) MODE_SEEK else
                                     (if (downX < size.width / 2f) MODE_BRIGHTNESS else MODE_VOLUME)
