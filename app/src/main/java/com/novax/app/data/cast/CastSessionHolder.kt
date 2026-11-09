@@ -17,6 +17,23 @@ import kotlinx.coroutines.withTimeoutOrNull
 import java.net.InetAddress
 
 /**
+ * 读满 [n] 字节或至 EOF（语义 = InputStream.readNBytes，但后者 API 33+、minSdk 26 不可用——
+ * 2026-11-09 审计 D1：Android 8~12 投屏远程源 NoSuchMethodError 崩溃）。
+ * 允许短读：可读预检只需证明能读 1 字节；DV 嗅探对任意长度数组搜标记，短读行为与
+ * readNBytes 一致。读取量上限由 openStreamBlocking(maxBlockBytes) 流侧约束，此处不分块。
+ */
+internal fun readExactly(input: java.io.InputStream, n: Int): ByteArray {
+    val buf = ByteArray(n)
+    var off = 0
+    while (off < n) {
+        val read = input.read(buf, off, n - off)
+        if (read < 0) break
+        off += read
+    }
+    return if (off == n) buf else buf.copyOf(off)
+}
+
+/**
  * 投屏会话装配单例（App 无 DI 框架，NvScannerHolder 同款惯例）：
  * 首次 init 绑定 jUPnP 服务、建会话 scope；cast 入口统一走 [cast]。
  * 生命周期 = 进程（spec C13 §6：进程被杀即会话消失，电视端停在上一帧，可接受）。
@@ -465,16 +482,16 @@ object CastSessionHolder {
                     if (source == null) return@withContext false
                     // ① 可读预检：开流读 1 字节证明连通（块流上限 256KB，防读放大，B2 纪律）
                     repo.openStreamBlocking(source, media.path, 0, maxBlockBytes = 256 * 1024)
-                        .use { it.readNBytes(1) }
+                        .use { readExactly(it, 1) }
                     android.util.Log.d("NvCast", "片源预检 OK（${source.type} ${source.nickname}）")
                     // ② DV 嗅探（review M6）：命中仅提醒，不拦截；未知大小时无尾偏移，只嗅头部
                     if (isDvExt) {
                         val head = repo.openStreamBlocking(source, media.path, 0, maxBlockBytes = 256 * 1024)
-                            .use { it.readNBytes(256 * 1024) }
+                            .use { readExactly(it, 256 * 1024) }
                         val tail = if (media.sizeBytes > 0) {
                             val tailOff = (media.sizeBytes - 256 * 1024).coerceAtLeast(0)
                             repo.openStreamBlocking(source, media.path, tailOff, maxBlockBytes = 256 * 1024)
-                                .use { it.readNBytes(256 * 1024) }
+                                .use { readExactly(it, 256 * 1024) }
                         } else ByteArray(0)
                         val hit = CastCodecSniff.isDolbyVision(head, tail)
                         android.util.Log.d("NvCast", "DV 嗅探完成: $hit")

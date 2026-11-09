@@ -46,39 +46,6 @@
     </issue>
 
     <issue
-        id="NewApi"
-        message="Call requires API level 33 (current min is 26): `java.io.InputStream#readNBytes`"
-        errorLine1="                            .use { it.readNBytes(256 * 1024) }"
-        errorLine2="                                      ~~~~~~~~~~">
-        <location
-            file="src/main/java/com/novax/app/data/cast/CastSessionHolder.kt"
-            line="250"
-            column="39"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 33 (current min is 26): `java.io.InputStream#readNBytes`"
-        errorLine1="                                .use { it.readNBytes(256 * 1024) }"
-        errorLine2="                                          ~~~~~~~~~~">
-        <location
-            file="src/main/java/com/novax/app/data/cast/CastSessionHolder.kt"
-            line="254"
-            column="43"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 28 (current min is 26): `android.content.pm.PackageInfo#getLongVersionCode`"
-        errorLine1="    &quot;${info.versionName} (${info.longVersionCode})&quot;"
-        errorLine2="                                 ~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/novax/app/ui/settings/SettingsScreen.kt"
-            line="142"
-            column="34"/>
-    </issue>
-
-    <issue
         id="OldTargetApi"
         message="Not targeting the latest versions of Android; compatibility modes apply. Consider testing and updating this version. Consult the `android.os.Build.VERSION_CODES` javadoc for details."
         errorLine1="        targetSdk = 36"
