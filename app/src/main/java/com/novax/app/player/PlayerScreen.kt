@@ -1276,9 +1276,10 @@ fun PlayerScreen(
         }
     }
 
-    // 控制层 4s 自动隐藏
-    LaunchedEffect(controlsVisible, controlsTick) {
-        if (controlsVisible && !locked) {
+    // 控制层 4s 自动隐藏（2026-11-09 审计 A1 统一：暂停/缓冲中常驻，与兜底页 keepControls 同口径；
+    // isPlaying 必须进 key 集——通知栏/耳机键/睡眠定时等外部暂停不 bump controlsTick，只加条件挡不住）
+    LaunchedEffect(controlsVisible, controlsTick, isPlaying) {
+        if (controlsVisible && !locked && isPlaying) {
             delay(CONTROL_AUTO_HIDE_MS)
             controlsVisible = false
         }
@@ -1965,7 +1966,7 @@ fun PlayerScreen(
                         onSpeed = { sheet = PlayerSheet.SPEED },
                         // 2026-10-08 半锁两级：半锁开 = 0→半锁→全锁；半锁关 = 一下直进全锁。
                         // 全锁钉朝向（半锁不钉），解锁=左下角锁图标双击
-                        // 2026-10-10 S1 诊断:五行矩阵全绿(证据 E:/tmp/s1-diag/),LaunchedEffect(controlsVisible, controlsTick) 交互重武装语义已满足 spec §1.3,不加代码
+                        // 2026-10-10 S1 诊断:五行矩阵全绿(证据 E:/tmp/s1-diag/),LaunchedEffect(controlsVisible, controlsTick) 交互重武装语义已满足 spec §1.3,不加代码 2026-11-09 审计 A1 后本 effect 带 isPlaying key+门（暂停常驻），旧记录勿按此回退。
                         // 2026-10-10 用户需求「按下半锁，进度条立刻马上收起来，别等四秒」：半锁开即收控制层
                         //（升全锁改走左下角角标长按,原「控制层暂不收、可再点」口径退役）
                         onLock = {

@@ -3203,7 +3203,7 @@ class RmvbPlayerActivity : ComponentActivity() {
         // uiPlaying 门计时器,暂停/换集间隙(uiPlaying=false)下控制层永不收、角标不现身、
         // 双击解锁不可达;且收起后 Event.Playing/skip/rotate 等复活路径无任务再武装(永久常驻)。
         // 统一:半锁期重武装一次性无门任务(距最近一次半锁期交互 4s 必收);非半锁期保持
-        // uiPlaying 门(暂停常驻=既有设计)。升全锁置 uiHalfLocked=false 后残留任务自然 no-op。
+        // uiPlaying 门(暂停常驻=两侧统一口径（2026-11-09 审计 A1）)。升全锁置 uiHalfLocked=false 后残留任务自然 no-op。
         controlsHideJob?.cancel()
         controlsHideJob = lifecycleScope.launch {
             delay(4_000)
