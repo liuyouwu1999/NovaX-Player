@@ -207,7 +207,8 @@
     <string name="player_err_vlc_decode">libVLC can\'t decode this file (damaged/unsupported container or encoding)</string>
     <string name="player_err_stalled">Playback stalled: no data arriving for a long time</string>
     <string name="player_resumed_toast">Resumed from last position</string>
-    <string name="player_rmvb_no_subtitles">No subtitle track found · For a local video, put a same-named .srt in the same folder</string>
+    <string name="player_rmvb_no_subtitles">No subtitle track found · For a local video, put a same-named subtitle file (.srt/.ass/…) in the same folder</string>
+    <string name="player_rmvb_av_offset">Audio/video sync</string>
     <string name="player_sub_track_num">Subtitle %1$s</string>
     <string name="player_rmvb_no_audio">No available audio track found</string>
     <string name="player_audio_track_num">Audio track %1$s</string>

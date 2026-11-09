@@ -93,6 +93,13 @@ internal fun aspectModeToIndex(mode: AspectMode): Int = when (mode) {
 }
 
 /**
+ * ms → libVLC delay 参数换算（spec B-6 / 2026-11-09 审计 A12）。libvlc eap29 绑定实测
+ * setAudioDelay(long)/setSpuDelay(long)，参数为微秒族；符号与主播放器同向（正=延后，
+ * 参考 NvAvOffsetAudioProcessor 负=音频提前）。若真机实测单位非微秒，只改本函数一处。
+ */
+internal fun delayMsToVlc(delayMs: Long): Long = delayMs * 1000L
+
+/**
  * 静态片尾裁决（2026-10-12 假终治理 spec §4.1）：续播位是否落在 libvlc 实测片尾区间。
  * [reportedLenMs] 必须与 seek 目标同一坐标系（libvlc 运行时 length），不用库内 metadata——
  * RM 头标时长虚标是本治理的根因。len≤0（长度未知）或 pos≤0（无续播位）一律 false 不裁决。

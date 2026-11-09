@@ -1377,6 +1377,9 @@ class RmvbPlayerActivity : ComponentActivity() {
                     // 恢复只改 uiAspectIndex 不驱动画面，必须显式应用（均幂等）
                     vlcPlayer?.rate = uiSpeed
                     vlcPlayer?.setVideoScale(aspectScales[uiAspectIndex])
+                    // 审计 A12：偏移起播应用（int 键显式 toLong；换算纯函数单测钉死；幂等）
+                    vlcPlayer?.setAudioDelay(delayMsToVlc(uiAvOffsetMs.toLong()))
+                    vlcPlayer?.setSpuDelay(delayMsToVlc(uiSubDelayMs))
                     // §2 收口:任何成功起播(从 Ended 重启必发 Playing——:1404 反例仅限
                     // 「播放中换 media」)清写库门标记
                     fakeTailReplayPending = false
@@ -2171,6 +2174,9 @@ class RmvbPlayerActivity : ComponentActivity() {
                         uiAspectIndex = aspectModeToIndex(mode)
                     }
                 }
+                // 审计 A12：音画/字幕偏移恢复（读值存字段，应用在 Playing——vlcPlayer 未启动恒 null）
+                uiAvOffsetMs = (saved[KEY_AV_OFFSET_MS] ?: 0).coerceIn(-2_000, 2_000)
+                uiSubDelayMs = (saved[KEY_SUB_DELAY_MS] ?: 0L).coerceIn(-2_000L, 2_000L)
             }
         }
         // 2026-09-20 画面旋转：屏幕尺寸（px，onSizeChanged 跟随折叠/显示变更刷新）
@@ -2791,6 +2797,18 @@ class RmvbPlayerActivity : ComponentActivity() {
                             uiShowSubSheet = false
                         }
                     }
+                    // 2026-11-09 审计 A12（spec B-6）：音画/字幕偏移两行——无条件渲染（无轨道也可调）；
+                    // 变更即时 setAudioDelay/setSpuDelay + 持久化复用主播放器同键
+                    OffsetAdjustRow(
+                        label = stringResource(R.string.player_rmvb_av_offset),
+                        valueMs = uiAvOffsetMs.toLong(),
+                        onDelta = { d -> adjustAvOffset(d) },
+                    )
+                    OffsetAdjustRow(
+                        label = stringResource(R.string.player_subtitle_delay),
+                        valueMs = uiSubDelayMs,
+                        onDelta = { d -> adjustSubDelay(d) },
+                    )
                 }
             }
 
@@ -3200,6 +3218,10 @@ class RmvbPlayerActivity : ComponentActivity() {
         R.string.player_aspect_16_9,
         R.string.player_aspect_4_3,
     )
+    /** 审计 A12（spec B-6）：音画/字幕偏移会话值（ms；恢复读填充，面板步进改，Playing 应用） */
+    private var uiAvOffsetMs: Int = 0
+    private var uiSubDelayMs: Long = 0L
+
     private val aspectScales = listOf(
         MediaPlayer.ScaleType.SURFACE_BEST_FIT,
         MediaPlayer.ScaleType.SURFACE_FIT_SCREEN,
@@ -3226,6 +3248,62 @@ class RmvbPlayerActivity : ComponentActivity() {
     private fun persistPlaybackSpeed(speed: Float) {
         lifecycleScope.launch {
             runCatching { putPlayerPref(KEY_LAST_SPEED, speed) }
+        }
+    }
+
+    /** 审计 A12：音画偏移步进（±delta ms，clamp ±2s 对齐 NvAvOffsetAudioProcessor.MAX_OFFSET_MS）；
+     * 即时生效 + 持久化（putPlayerPref suspend → lifecycleScope）。 */
+    private fun adjustAvOffset(deltaMs: Int) {
+        uiAvOffsetMs = (uiAvOffsetMs + deltaMs).coerceIn(-2_000, 2_000)
+        vlcPlayer?.setAudioDelay(delayMsToVlc(uiAvOffsetMs.toLong()))
+        lifecycleScope.launch { runCatching { putPlayerPref(KEY_AV_OFFSET_MS, uiAvOffsetMs) } }
+    }
+
+    /** 审计 A12：字幕偏移步进（同上；KEY_SUB_DELAY_MS 主播放器同键） */
+    private fun adjustSubDelay(deltaMs: Int) {
+        uiSubDelayMs = (uiSubDelayMs + deltaMs).coerceIn(-2_000L, 2_000L)
+        vlcPlayer?.setSpuDelay(delayMsToVlc(uiSubDelayMs))
+        lifecycleScope.launch { runCatching { putPlayerPref(KEY_SUB_DELAY_MS, uiSubDelayMs) } }
+    }
+
+    /** 审计 A12：偏移调节行（字幕/音频面板共用形态）：label 左、−50/当前值/+50 右。
+     *  样式随面板既有件（padding/色板/字号对齐 NvSheetListItem 族）；步进 50ms 点按。 */
+    @Composable
+    private fun OffsetAdjustRow(label: String, valueMs: Long, onDelta: (Int) -> Unit) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 6.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Text(
+                label,
+                style = NvTypography.BodyMedium,
+                color = NvColors.TextPrimary,
+                modifier = Modifier.weight(1f),
+            )
+            Text(
+                "−50",
+                style = NvTypography.LabelLarge,
+                color = NvColors.Primary,
+                modifier = Modifier
+                    .clickable { onDelta(-50) }
+                    .padding(horizontal = 12.dp, vertical = 8.dp),
+            )
+            Text(
+                String.format(java.util.Locale.US, "%+d", valueMs) + " ms",
+                style = NvTypography.LabelMedium,
+                color = NvColors.TextSecondary,
+                modifier = Modifier.padding(end = 12.dp),
+            )
+            Text(
+                "+50",
+                style = NvTypography.LabelLarge,
+                color = NvColors.Primary,
+                modifier = Modifier
+                    .clickable { onDelta(50) }
+                    .padding(horizontal = 12.dp, vertical = 8.dp),
+            )
         }
     }
 

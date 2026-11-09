@@ -207,7 +207,8 @@
     <string name="player_err_vlc_decode">libVLC 無法解碼該檔案（容器或編碼損壞/不支援）</string>
     <string name="player_err_stalled">播放卡住：資料長時間未到達</string>
     <string name="player_resumed_toast">已從上次位置繼續播放</string>
-    <string name="player_rmvb_no_subtitles">未偵測到字幕軌 · 本地影片可在同目錄放同名 .srt</string>
+    <string name="player_rmvb_no_subtitles">未偵測到字幕軌 · 本地影片可在同目錄放同名字幕檔（.srt/.ass 等）</string>
+    <string name="player_rmvb_av_offset">音畫偏移</string>
     <string name="player_sub_track_num">字幕 %1$s</string>
     <string name="player_rmvb_no_audio">未偵測到可用音軌</string>
     <string name="player_audio_track_num">音軌 %1$s</string>

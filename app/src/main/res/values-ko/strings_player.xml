@@ -207,7 +207,8 @@
     <string name="player_err_vlc_decode">libVLC에서 이 파일을 디코딩할 수 없습니다(컨테이너 또는 인코딩 손상/미지원)</string>
     <string name="player_err_stalled">재생이 멈췄습니다: 데이터가 오랫동안 도착하지 않습니다</string>
     <string name="player_resumed_toast">마지막 위치에서 이어서 재생했습니다</string>
-    <string name="player_rmvb_no_subtitles">자막 트랙을 찾지 못했습니다 · 로컬 동영상은 같은 폴더에 같은 이름의 .srt를 두면 로드할 수 있습니다</string>
+    <string name="player_rmvb_no_subtitles">자막 트랙을 찾지 못했습니다 · 로컬 동영상은 같은 폴더에 같은 이름의 자막 파일(.srt/.ass 등)을 두면 로드할 수 있습니다</string>
+    <string name="player_rmvb_av_offset">음성/영상 싱크</string>
     <string name="player_sub_track_num">자막 %1$s</string>
     <string name="player_rmvb_no_audio">사용 가능한 오디오 트랙을 찾지 못했습니다</string>
     <string name="player_audio_track_num">오디오 트랙 %1$s</string>

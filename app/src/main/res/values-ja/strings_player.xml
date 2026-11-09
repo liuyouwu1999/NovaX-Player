@@ -207,7 +207,8 @@
     <string name="player_err_vlc_decode">libVLC はこのファイルをデコードできません（コンテナまたはエンコーディングの破損/未対応）</string>
     <string name="player_err_stalled">再生が停止しました: データが長時間届きません</string>
     <string name="player_resumed_toast">前回の位置から再生を再開しました</string>
-    <string name="player_rmvb_no_subtitles">字幕トラックが見つかりません · ローカル動画は同じフォルダーに同名の .srt を置くと読み込めます</string>
+    <string name="player_rmvb_no_subtitles">字幕トラックが見つかりません · ローカル動画は同じフォルダーに同名の字幕ファイル（.srt/.ass など）を置くと読み込めます</string>
+    <string name="player_rmvb_av_offset">音声と映像のずれ</string>
     <string name="player_sub_track_num">字幕 %1$s</string>
     <string name="player_rmvb_no_audio">利用可能な音声トラックが見つかりません</string>
     <string name="player_audio_track_num">音声トラック %1$s</string>
