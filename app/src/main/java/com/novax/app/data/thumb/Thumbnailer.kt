@@ -24,6 +24,7 @@ import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withTimeout
@@ -64,6 +65,21 @@ import kotlinx.coroutines.withContext
  *
  * 无 DI 框架，单例访问点见 [NvThumbHolder]。
  */
+
+/**
+ * DAO 兜底（2026-11-09 审计 B1）：DB 故障（磁盘满/损坏类）只记日志不杀进程、不毒化状态机；
+ * [kotlinx.coroutines.CancellationException] 必须透传——重扫 cancel（backgroundPasses.remove
+ * ?.cancel()）时本 scope 的 collect/first 会抛 CE，吞掉会让已取消 pass 继续跑 claim DB 写。
+ */
+internal inline fun <T> daoGuard(log: (Throwable) -> Unit, block: () -> T): T? = try {
+    block()
+} catch (ce: kotlinx.coroutines.CancellationException) {
+    throw ce
+} catch (t: Throwable) {
+    log(t)
+    null
+}
+
 class Thumbnailer(
     private val context: Context,
     private val repo: NvSourceRepository,
@@ -71,7 +87,17 @@ class Thumbnailer(
     /** sourceId → 源配置（media_items 不冗余源连接信息；默认走 SourceDao.getById） */
     private val sourceProvider: suspend (Long) -> SourceEntity?,
     private val io: CoroutineDispatcher = Dispatchers.IO,
-    private val scope: CoroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.IO),
+    // 2026-11-09 审计 B1：scope 补 CEH——DB 故障类未捕获异常原本直接杀进程（Android 未捕获
+    // 异常默认行为），现统一 W 级落日志兜底；SupervisorJob 保证单 worker 崩不连坐其余协程
+    private val scope: CoroutineScope = CoroutineScope(
+        SupervisorJob() + Dispatchers.IO + CoroutineExceptionHandler { _, t ->
+            android.util.Log.w(
+                "NvThumb",
+                "thumb bg coroutine uncaught exception (CEH fallback, no crash)",
+                NvPrivacyRedactor.redactThrowable(t),
+            )
+        },
+    ),
     /** 后台渐进抽帧限速器（≤1 个/秒；注入便于单测） */
     private val backgroundRateLimiter: RateLimiter = RateLimiter(BACKGROUND_MIN_INTERVAL_MS),
     /** 计量网络闸门（2026-09-28 偷跑流量事故）：返回 true = 允许抽帧。生产注入
@@ -115,9 +141,17 @@ class Thumbnailer(
      * @param background true=扫描完成后的后台渐进抽帧：低优先级（排在全部前台请求之后）
      */
     suspend fun requestThumb(mediaItemId: Long, background: Boolean = false, priority: Int? = null) {
-        if (recovered.compareAndSet(false, true)) dao.resetStaleRunning()
+        // 审计 B1（2026-11-09）：对账与行读取均 daoGuard 兜底——DB 故障（磁盘满/损坏类）只记
+        // 日志早退不杀进程；null 早退语义与既有「行不存在」分支一致
+        if (recovered.compareAndSet(false, true)) {
+            daoGuard(log = { android.util.Log.w("NvThumb", "resetStaleRunning failed", NvPrivacyRedactor.redactThrowable(it)) }) {
+                dao.resetStaleRunning()
+            } ?: return
+        }
         // 先读状态再认领：FAILED 的兜底扩展名走 claimThumbForRetry 通道
-        val item = dao.findById(mediaItemId)
+        val item = daoGuard(log = { android.util.Log.w("NvThumb", "findById failed", NvPrivacyRedactor.redactThrowable(it)) }) {
+            dao.findById(mediaItemId)
+        }
         // 2026-09-21 审计 P3：原 Log.w 每卡 4-5 条（release 全保留，且打印完整 NAS 路径）——
         // 降为 Log.d（R8 剥除），claim 失败的静默路径不再产生任何 release 日志
         android.util.Log.d("NvThumb", "requestThumb: id=$mediaItemId state=${item?.thumbState}")
@@ -193,12 +227,17 @@ class Thumbnailer(
 
     /** 渐进循环：库排序顺序（NAME）快照 → 逐个跳过非 NONE → 限速后低优先级入队 */
     private suspend fun progressivePass(sourceId: Long) {
-        val rows = dao.observeLibrary(
-            sourceId,
-            "ALL",   // 2026-09-15 分段重构：后台渐进抽帧覆盖全部视频，不分段
-            watched = -1,
-            sort = "NAME",
-        ).first()
+        // 审计 B1（2026-11-09）：DAO 段 daoGuard 兜底——DB 故障放弃本轮 pass（下次扫描 DONE /
+        // 网络恢复重启 pass 会再触发）；CE 必须透传：重扫 cancel（backgroundPasses.remove
+        // ?.cancel()）时 first() 抛 CE，吞掉会让已取消的 pass 继续跑下方循环的 claim DB 写
+        val rows = daoGuard(log = { android.util.Log.w("NvThumb", "observeLibrary failed", NvPrivacyRedactor.redactThrowable(it)) }) {
+            dao.observeLibrary(
+                sourceId,
+                "ALL",   // 2026-09-15 分段重构：后台渐进抽帧覆盖全部视频，不分段
+                watched = -1,
+                sort = "NAME",
+            ).first()
+        } ?: return
         for (row in rows) {
             val item = row.item
             // 性能修复（热源截断）：VIDEO（摄像头切片主力，2846 条）绝不后台全量渐进抽帧——
@@ -737,6 +776,9 @@ class Thumbnailer(
         var proxy: com.novax.app.player.NvRmvbProxy? = null
         var libVlc: LibVLC? = null
         var mp: MediaPlayer? = null
+        // 审计 B2（2026-11-09）：media 提到 try 外——原先 try 内 val media 异常路径无人
+        // release，native Media 对象泄漏原先靠 finalizer 兜底
+        var media: Media? = null
             val tmpDir = File(context.cacheDir, "thumbs/rmvb")
             // 旁路抽帧的临时实体 id 恒 0——拼 nanoTime 防并发覆盖（库内路径 id 唯一不受影响）
             val dst = File(tmpDir, "${item.id}_${System.nanoTime()}.mkv")
@@ -758,7 +800,7 @@ class Thumbnailer(
 
             libVlc = LibVLC(context, arrayListOf("--aout=dummy"))
             mp = MediaPlayer(libVlc)
-            val media = Media(libVlc, uri).apply {
+            media = Media(libVlc, uri).apply {
                 setHWDecoderEnabled(true, false)
                 // 只转码前 5 秒 → h264 + mkv（簇结构：截断文件仍可读）；音频不转（省 CPU，抽帧不需要）
                 addOption(":sout=#transcode{vcodec=h264,vb=300}:std{access=file,mux=mkv,dst='${dst.absolutePath.replace("'", "\'")}'}")
@@ -815,6 +857,9 @@ class Thumbnailer(
             runCatching { libVlc?.release() }
             proxy?.stop()
             runCatching { dst.delete() }
+            // BUG-C-R4-09 同型先例（RmvbPlayerActivity.kt:935-937）：Media 引用即时释放，
+            // 不再靠 finalizer 兜底（审计 B2）——正常/异常/超时路径统一在此收口
+            runCatching { media?.release() }
         }
     }
 
