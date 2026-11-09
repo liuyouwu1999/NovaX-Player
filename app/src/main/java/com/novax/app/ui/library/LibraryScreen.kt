@@ -826,7 +826,7 @@ private fun ReadyContent(
                     verticalArrangement = Arrangement.spacedBy(NvSpacing.L),
                 ) {
                     items(state.items, key = { it.item.id }) { row ->
-                        MediaCard(state, row, viewModel)
+                        MediaCard(row, viewModel)
                     }
                 }
             } else {
@@ -877,9 +877,11 @@ private fun SeriesGroupCard(group: LibrarySeriesGroup, viewModel: LibraryViewMod
     )
 }
 
-/** 网格卡片（C12 §4.3 状态机全在 NvMediaPosterCard 内） */
+/** 网格卡片（C12 §4.3 状态机全在 NvMediaPosterCard 内）
+ *  2026-11-09 审计 F1：删未使用的 state 参数——state 每次扫描进度更新都换新实例，网格卡片
+ *  以它为入参意味着库页扫描期所有可见卡片整片失效重组（纯死参，函数体本就零引用）。 */
 @Composable
-private fun MediaCard(state: LibraryUiState, row: MediaItemWithWatch, viewModel: LibraryViewModel) {
+private fun MediaCard(row: MediaItemWithWatch, viewModel: LibraryViewModel) {
     val context = LocalContext.current
     NvMediaPosterCard(
         title = row.item.scrapedTitle ?: row.item.name,
