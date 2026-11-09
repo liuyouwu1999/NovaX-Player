@@ -1363,6 +1363,11 @@ class RmvbPlayerActivity : ComponentActivity() {
                     uiPlaying = true
                     // 审计 A3：起播成功重置自动重连预算（同一次观看多次断网各自全额）
                     autoReconnect.onPlaybackStarted()
+                    // 审计 A4（spec B-4）：起播应用恢复的倍速/画面比例——rate 现只在选档/换集
+                    // 等路径设置，首次起播无应用点；setVideoScale 全文件仅 cycleAspect 一处调用，
+                    // 恢复只改 uiAspectIndex 不驱动画面，必须显式应用（均幂等）
+                    vlcPlayer?.rate = uiSpeed
+                    vlcPlayer?.setVideoScale(aspectScales[uiAspectIndex])
                     // §2 收口:任何成功起播(从 Ended 重启必发 Playing——:1404 反例仅限
                     // 「播放中换 media」)清写库门标记
                     fakeTailReplayPending = false
@@ -2143,6 +2148,21 @@ class RmvbPlayerActivity : ComponentActivity() {
         // 2026-09-18：快进/快退步长随设置（novax_double_tap_seek_seconds，双击手势与底栏按钮共用）
         LaunchedEffect(Unit) {
             runCatching { context.playerPrefsStore.data.first() }.onSuccess { applyPrefs(it) }
+            // 2026-11-09 审计 A4（spec B-4）：倍速/画面比例跨会话恢复——挂起直读 DataStore
+            //（不信 prefsCache 冷缓存，本页未预热 :868 注释；一次性时点，onResume 不重读防
+            //  覆盖本会话手动改档）。倍速受主播放器同门 KEY_SPEED_MODE=="remember"（默认
+            //  fixed 不恢复=不制造漂移）；比例经 aspectModeToIndex 反向映射（不对合点单测钉死）
+            val saved = runCatching { context.playerPrefsStore.data.first() }.getOrNull()
+            if (saved != null) {
+                if ((saved[KEY_SPEED_MODE] ?: "fixed") == "remember") {
+                    saved[KEY_LAST_SPEED]?.let { uiSpeed = it.coerceIn(0.5f, 3f) }
+                }
+                saved[KEY_ASPECT_MODE]?.let { savedMode ->
+                    runCatching { AspectMode.valueOf(savedMode) }.getOrNull()?.let { mode ->
+                        uiAspectIndex = aspectModeToIndex(mode)
+                    }
+                }
+            }
         }
         // 2026-09-20 画面旋转：屏幕尺寸（px，onSizeChanged 跟随折叠/显示变更刷新）
         var screenWpx by remember { mutableIntStateOf(context.resources.displayMetrics.widthPixels) }
@@ -2828,6 +2848,7 @@ class RmvbPlayerActivity : ComponentActivity() {
                             selected = abs(uiSpeed - s) < 0.01f,
                             onClick = {
                                 uiSpeed = s
+                                persistPlaybackSpeed(s)   // 审计 A4：倍速跨会话记忆（remember 档恢复）
                                 // 2026-09-19：显式选速优先——清掉长按倍速生效/下滑锁定态（与主播放器对齐）
                                 features.speedShiftActive = false
                                 features.speedShiftLocked = false
@@ -2867,6 +2888,7 @@ class RmvbPlayerActivity : ComponentActivity() {
                         onValueChangeFinished = {
                             val s = snapPlaybackSpeed(fine)
                             uiSpeed = s
+                            persistPlaybackSpeed(s)   // 审计 A4：倍速跨会话记忆（remember 档恢复）
                             features.speedShiftActive = false
                             features.speedShiftLocked = false
                             logSpeedBoostEnd()
@@ -3181,8 +3203,21 @@ class RmvbPlayerActivity : ComponentActivity() {
         uiAspectIndex = (uiAspectIndex + 1) % aspectScales.size
         resetZoom()   // 比例变了内容足迹随之变，缩放/平移口径失效，先归位
         vlcPlayer?.setVideoScale(aspectScales[uiAspectIndex])
+        // 2026-11-09 审计 A4：比例跨会话持久化（putPlayerPref 是 suspend，选档回调非协程）
+        lifecycleScope.launch {
+            runCatching {
+                putPlayerPref(KEY_ASPECT_MODE, aspectIndexToZoomMode(uiAspectIndex).name)
+            }
+        }
         toast(getString(R.string.player_aspect_toast, getString(aspectLabelRes[uiAspectIndex])))
         keepControls()
+    }
+
+    /** 审计 A4：倍速跨会话持久化（对齐主播放器 recordLastSpeed 语义；两处选档回调共用） */
+    private fun persistPlaybackSpeed(speed: Float) {
+        lifecycleScope.launch {
+            runCatching { putPlayerPref(KEY_LAST_SPEED, speed) }
+        }
     }
 
     /** 按方向模式应用朝向（0=横屏 1=竖屏 2=自动·重力 FULL_SENSOR） */

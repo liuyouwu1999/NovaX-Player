@@ -80,6 +80,19 @@ internal fun aspectIndexToZoomMode(index: Int): AspectMode = when (index) {
 }
 
 /**
+ * AspectMode → aspectScales 下标（spec B-4 / 2026-11-09 审计 A4）：跨会话恢复画面比例的
+ * 反向映射，与 [aspectIndexToZoomMode] 在 0/2/3/4 四档互逆。唯一不对合点=下标 1
+ * （SURFACE_FIT_SCREEN 映射到 FILL 后无法区分 FIT_SCREEN/FILL，恢复取 SURFACE_FILL=2），
+ * 单测钉死。FIT_SCREEN 档只在用户本会话显式轮换时可达，跨会话恢复不会落到该档。
+ */
+internal fun aspectModeToIndex(mode: AspectMode): Int = when (mode) {
+    AspectMode.FILL -> 2          // SURFACE_FILL
+    AspectMode.R16_9 -> 3         // SURFACE_16_9
+    AspectMode.R4_3 -> 4          // SURFACE_4_3
+    else -> 0                     // AspectMode.FIT = SURFACE_BEST_FIT（保比例 letterbox）
+}
+
+/**
  * 静态片尾裁决（2026-10-12 假终治理 spec §4.1）：续播位是否落在 libvlc 实测片尾区间。
  * [reportedLenMs] 必须与 seek 目标同一坐标系（libvlc 运行时 length），不用库内 metadata——
  * RM 头标时长虚标是本治理的根因。len≤0（长度未知）或 pos≤0（无续播位）一律 false 不裁决。
