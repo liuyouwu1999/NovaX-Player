@@ -18,5 +18,8 @@ class MediaExtensionsTest {
         assertTrue(MediaExtensions.VIDEO == ScanRules.VIDEO_EXTS && ScanRules.VIDEO_EXTS == NvFileRouter.VIDEO_EXTS)
         assertTrue(MediaExtensions.IMAGE == ScanRules.IMAGE_EXTS && ScanRules.IMAGE_EXTS == NvFileRouter.IMAGE_EXTS)
         assertTrue(MediaExtensions.AUDIO == NvFileRouter.AUDIO_EXTS)
+        // 评审 T12 Minor-1：两条转发别名同钉（残存的唯一漂移入口）
+        assertTrue(com.novax.app.player.RmvbPlayerActivity.FALLBACK_EXTENSIONS == MediaExtensions.FALLBACK)
+        assertTrue(com.novax.app.data.thumb.Thumbnailer.LIBVLC_THUMB_EXTS == MediaExtensions.LIBVLC_THUMB_EXTS)
     }
 }
