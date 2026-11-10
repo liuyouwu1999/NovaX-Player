@@ -18,6 +18,7 @@ val keystoreProps = Properties().apply {
 // 方案数学性质由 ReleaseVersionSchemeTest 锁定（跨日严格单调、2147 年内不溢出）。
 // 注意：AGP 9 新 Variant API 已无 per-output 重命名能力（javap 实证），产物名维持 AGP 默认，
 // 对外分发命名在归档时手工完成（docs/RELEASE.md §3）。
+// v1.0.0.22=202611100x（兜底页断网自动重连+暂停控制层两侧统一+兜底倍速/比例记忆+六格式字幕+音画偏移+质量顺手清）。
 // v1.0.0.21=202611090x（投屏 readNBytes 崩溃修复+缩略图健壮性+库页重组优化+CI/发版文档加固）。
 // v1.0.0.20 发包：nvReleaseDate=20261104、nvReleaseIndex=2（当日第三版，基础码 2026110420）。
 // 内容 = sums 正文回退（文件下载域名不可达时从 release body ```sha256 围栏解析校验和，
@@ -37,8 +38,8 @@ val keystoreProps = Properties().apply {
 // 整体路由兜底页+起播看门狗）；
 // v1.0.0.13=202611011x（AVI 误嗅劫持+视频轨缺失自动转软解+切集路由回主播放器）；
 // v1.0.0.12=202611010x（长按倍速黑闪修复）。
-val nvVersionName = "1.0.0.21"
-val nvReleaseDate = 20261109
+val nvVersionName = "1.0.0.22"
+val nvReleaseDate = 20261110
 val nvReleaseIndex = 0
 val nvVersionBase: Int = run {
     // T11 评审移交：双守卫 + long 运算。Int 直乘在日期误改（多打一位/改超 21474836 年）时
