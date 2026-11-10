@@ -109,6 +109,22 @@ object ThumbCache {
      */
     private fun sweepTempCaches(context: Context) {
         TEMP_SUBDIRS.forEach { name -> sweepDirByAge(File(context.cacheDir, name)) }
+        sweepThumbDeadCorners(context.cacheDir)
+    }
+
+    /**
+     * 清扫死角并入（2026-11-09 审计 F7 / spec B-10）：①cacheDir 根的 `thumb_relay_*`
+     * 中转文件（SDK<29 抽帧中转，正常 finally 即删——进程中途被杀才残留，此前永不清理）；
+     * ②`thumbs/rmvb` 子目录（libVLC 兜底转码 mkv，同残因；enforce 只扫 thumbs 顶层 .jpg、
+     * sweepTempCaches 只扫 4 个命名子目录，两处都覆盖不到它）。均按 TEMP_MAX_AGE_MS 按龄清扫，
+     * 根下非前缀文件不碰。JVM 可测（吃 cacheDir File）。
+     */
+    internal fun sweepThumbDeadCorners(cacheDir: File) {
+        val cutoff = System.currentTimeMillis() - TEMP_MAX_AGE_MS
+        cacheDir.listFiles()?.forEach { f ->
+            if (f.isFile && f.name.startsWith("thumb_relay_") && f.lastModified() < cutoff) f.delete()
+        }
+        sweepDirByAge(File(cacheDir, "thumbs/rmvb"))
     }
 
     /**
