@@ -13,6 +13,7 @@ import com.novax.app.data.update.UpdateDownloader
 import com.novax.app.data.update.UpdateRepository
 import com.novax.app.novaxUiPrefs
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.setMain
@@ -68,7 +69,7 @@ class UpdateViewModelStateMachineTest {
             .joinToString("") { "%02x".format(it) }
 
     /** 组 release JSON：指定内容哈希 → 四 ABI 资产 + SHA256SUMS.txt 资产 */
-    private fun releaseJsonWithSums(contentSha: String): String {
+    private fun releaseJsonWithSums(): String {
         val assets = abis.joinToString(",") { abi ->
             """{"name": "${assetName(abi)}", "browser_download_url": "https://example.com/$abi.apk"}"""
         } + "," + """{"name": "SHA256SUMS.txt", "browser_download_url": "$sumsUrl"}"""
@@ -83,7 +84,7 @@ class UpdateViewModelStateMachineTest {
     private fun vm(downloader: UpdateDownloader, contentSha: String, version: String = "1.0.0.1"): UpdateViewModel {
         val http = FakeHttp(
             mapOf(
-                "https://api.github.com/repos/liuyouwu1999/NovaX-Player/releases/latest" to releaseJsonWithSums(contentSha),
+                "https://api.github.com/repos/liuyouwu1999/NovaX-Player/releases/latest" to releaseJsonWithSums(),
                 sumsUrl to sumsBody(contentSha),
             ),
         )
@@ -93,7 +94,6 @@ class UpdateViewModelStateMachineTest {
     private fun tempFile(content: String): File =
         File(app.cacheDir, "upd_${content.hashCode()}.apk").apply { writeText(content) }
 
-    private fun dmRunning(f: File) = UpdateDmState(1, 1, 1, f.absolutePath)
     private fun dmDone(f: File) = UpdateDmState(8, 4, 4, f.absolutePath)
 
     /** IO 线程竞态兜底：轮询等状态转移 */
@@ -139,6 +139,12 @@ class UpdateViewModelStateMachineTest {
         val s = awaitState(vm) { it is UpdateUiState.VerifyFailed }
         assertTrue("终态=VerifyFailed，实际=$s", s is UpdateUiState.VerifyFailed)
         assertTrue("损坏文件已删", !f.exists())
+        // 评审 Minor-1：清键断言（clearDownloadKeys 双键均清）
+        val prefs = kotlinx.coroutines.runBlocking {
+            app.novaxUiPrefs.data.first()
+        }
+        assertTrue("downloadId 键已清", prefs[KEY_UPDATE_DOWNLOAD_ID] == null)
+        assertTrue("pendingVersion 键已清", prefs[KEY_UPDATE_PENDING_VERSION] == null)
     }
 
     @Test
@@ -159,14 +165,13 @@ class UpdateViewModelStateMachineTest {
         val dl = FakeDownloader(ArrayDeque())
         // sumsUrl 无 fixture → SUMS 拉取失败 → sums=null → canInstall=false
         val http = FakeHttp(
-            mapOf("https://api.github.com/repos/liuyouwu1999/NovaX-Player/releases/latest" to releaseJsonWithSums(shaOf("X"))),
+            mapOf("https://api.github.com/repos/liuyouwu1999/NovaX-Player/releases/latest" to releaseJsonWithSums()),
         )
         val vm = UpdateViewModel(app, UpdateRepository(http), dl, "1.0.0.1")
         vm.manualCheck()
         val s = awaitState(vm) { it is UpdateUiState.AvailableShow }
         assertTrue("canInstall=false（SUMS 缺失）", (s as UpdateUiState.AvailableShow).check.canInstall.not())
-        vm.startDownload()
-        Thread.sleep(200)
+        vm.startDownload()   // guard 在 launch 前同步 ?: return——确定性 no-op
         assertTrue("停在 AvailableShow 不动", vm.state.value is UpdateUiState.AvailableShow)
         assertFalse("enqueue 未发生", dl.enqueued.isNotEmpty())
     }
@@ -188,7 +193,10 @@ class UpdateViewModelStateMachineTest {
 
     @Test
     fun `恢复模式_异tag补查拒绝_回Idle`() {
-        val dl = FakeDownloader(ArrayDeque())
+        val f = tempFile("WRONGTAG")
+        // 评审 Important-1：脚本必须出 SUCCESSFUL 才能真实触达 settle→fetchCheckFor 的
+        // tag 失配拒绝分支（空脚本=查无记录路径，与异 tag 零因果=假覆盖）
+        val dl = FakeDownloader(ArrayDeque(listOf(dmDone(f))))
         val vm = vm(dl, shaOf("X"))
         injectPersisted(43L, "v9.9.9")
         vm.onAboutEnter()
@@ -197,5 +205,6 @@ class UpdateViewModelStateMachineTest {
             it is UpdateUiState.ReadyToInstall || it is UpdateUiState.NeedPermission
         }
         assertTrue("异 tag 不进入待装族，实际=$s", s is UpdateUiState.Idle)
+        assertTrue("异 tag 文件按 pendingVersion 保护保留", f.exists())
     }
 }
