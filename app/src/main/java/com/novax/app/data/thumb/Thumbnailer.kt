@@ -951,11 +951,11 @@ class Thumbnailer(
         internal const val FRAME_MIN_STDDEV = 10.0
 
         /**
-         * libVLC 抽帧兜底适用的扩展名：视频容器（MMR 抽不了）——RmvbPlayerActivity
-         * .FALLBACK_EXTENSIONS 的视频子集；2026-10-26 兜底表补的 wma/ape/aiff 为纯音频，
-         * 永不入库抽帧，不在此列。
+         * libVLC 抽帧兜底适用的扩展名：视频容器（MMR 抽不了）——FALLBACK 的视频子集
+         * （2026-11-09 审计 A6：委托 data/playback MediaExtensions 单一权威表）；
+         * 2026-10-26 兜底表补的 wma/ape/aiff 为纯音频，永不入库抽帧，不在此列。
          */
-        internal val LIBVLC_THUMB_EXTS = setOf("rm", "rmvb", "wmv", "asf")
+        internal val LIBVLC_THUMB_EXTS get() = com.novax.app.data.playback.MediaExtensions.LIBVLC_THUMB_EXTS
 
         /** libVLC 抽帧硬超时（含代理握手/容器探测/软解起播/截帧） */
         internal const val LIBVLC_EXTRACT_TIMEOUT_MS = 20_000L

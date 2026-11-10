@@ -47,22 +47,14 @@ object ScanRules {
     )
 
     /**
-     * 视频扩展名（小写）：与 ui/viewers NvFileRouter.VIDEO_EXTS 严格一致——
+     * 视频扩展名（小写）：2026-11-09 审计 A6（spec B-8）委托 data/playback MediaExtensions
+     * 单一权威表（原手抄副本与 NvFileRouter 靠注释人肉同步，历史上已实际漏过）；
      * 索引过的文件点击必有去处（播放器），FileRouter 判 UNKNOWN 的扩展名绝不入库。
-     * 2026-10-26 补 m4v：入库+抽帧封面与其他视频同口径（用户反馈 m4v 曾不入库无封面）。
      */
-    val VIDEO_EXTS: Set<String> = setOf(
-        "mp4", "mkv", "avi", "mov", "wmv", "flv", "webm", "ts",
-        "m2ts", "mpg", "mpeg", "3gp", "ogv", "rm", "rmvb", "m4v",
-    )
+    val VIDEO_EXTS: Set<String> get() = com.novax.app.data.playback.MediaExtensions.VIDEO
 
-    /**
-     * 图片扩展名（小写）：与 NvFileRouter.IMAGE_EXTS 严格一致（jpg/jpeg/png/webp/bmp/gif/heic）。
-     * 图片入索引 kind=IMAGE：不抽帧（thumbnailPath 直接 = 文件路径）、durationMs=0。
-     */
-    val IMAGE_EXTS: Set<String> = setOf(
-        "jpg", "jpeg", "png", "webp", "bmp", "gif", "heic",
-    )
+    /** 图片扩展名（小写）：委托 MediaExtensions。图片入索引 kind=IMAGE 不抽帧。 */
+    val IMAGE_EXTS: Set<String> get() = com.novax.app.data.playback.MediaExtensions.IMAGE
 
     /**
      * 精确排除的目录/文件名（NAS 系统垃圾 + 代码仓库垃圾，C12 §二.2）：

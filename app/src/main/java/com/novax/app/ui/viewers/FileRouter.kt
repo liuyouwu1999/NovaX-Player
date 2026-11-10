@@ -18,24 +18,16 @@ object NvFileRouter {
     /** 未知类型外发确认阈值：>512MB 先确认「先下载到本机缓存再打开」 */
     const val SHARE_CONFIRM_BYTES: Long = 512L * 1024 * 1024
 
-    val VIDEO_EXTS = setOf(
-        "mp4", "mkv", "avi", "mov", "wmv", "flv", "webm", "ts",
-        "m2ts", "mpg", "mpeg", "3gp", "ogv", "rm", "rmvb", "m4v",
-    )
-    val IMAGE_EXTS = setOf("jpg", "jpeg", "png", "gif", "webp", "bmp", "heic")
+    // 2026-11-09 审计 A6（spec B-8）：委托 data/playback MediaExtensions 单一权威表
+    //（旧常量名保留=既有引用面零改动；一致性由 MediaExtensionsTest 钉死）
+    val VIDEO_EXTS get() = com.novax.app.data.playback.MediaExtensions.VIDEO
+    val IMAGE_EXTS get() = com.novax.app.data.playback.MediaExtensions.IMAGE
     val TEXT_EXTS = setOf(
         "txt", "log", "md", "srt", "ass", "ssa", "vtt", "ini", "conf", "json", "xml", "csv",
     )
 
-    /**
-     * 音频扩展名：2026-10-26 补全——此前仅 7 种，m4b/wma/ape 等点开弹「用其他应用打开」。
-     * media3 不支持的容器（wma/ape/aiff）由 RmvbPlayerActivity.FALLBACK_EXTENSIONS 转 VLC。
-     * m4p 不收（苹果 DRM，收了也播不出，弹播放错误更困惑）。
-     */
-    val AUDIO_EXTS = setOf(
-        "mp3", "flac", "wav", "m4a", "aac", "ogg", "opus",
-        "m4b", "oga", "mka", "wma", "ape", "aiff", "aif",
-    )
+    /** 音频扩展名：委托 MediaExtensions（2026-10-26 补全史见权威表 kdoc） */
+    val AUDIO_EXTS get() = com.novax.app.data.playback.MediaExtensions.AUDIO
 
     /**
      * 取小写扩展名：无扩展名 / 以点结尾 / 隐藏文件（".gitignore"）→ ""（走 UNKNOWN）。

@@ -3555,23 +3555,14 @@ class RmvbPlayerActivity : ComponentActivity() {
         private const val MODE_ZOOM: Byte = 4
 
         /**
-         * 兜底扩展名集：ExoPlayer 无对应容器/解码支持的格式（PlayerActivity 路由判定唯一依据）。
-         * 2026-10-26 补 wma/ape/aiff/aif：随音频路由表补全（NvFileRouter.AUDIO_EXTS）一并收编，
-         * VLC 原生可播；m4b/mka/oga 走 media3（MP4/Matroska/Ogg 容器，ExoPlayer 支持）不在此表。
-         * 2026-11-01 v1.0.0.14 补 avi：XviD 族老编码在 media3 软解码器（c2.android.mpeg4）上
-         * 实测「出格式不出帧」（真机 vivo frames=0、画面冻在首帧而音频正常走），VLC 的
-         * MPEG-4 Part 2 软解则是看家本领——AVI 整体路由兜底页。v1.0.0.13 的嗅探提位与
-         * 检测安全网保留（media3 侧任何残留 AVI 路径仍有兜底）。
+         * 兜底扩展名集与判定（审计 A6 / spec B-8）：迁往 data/playback MediaExtensions
+         * 单一权威表（PlaybackService/PlayerActivity 消费点同批改引用）。判定语义与容错
+         * 钉死在 MediaExtensionsTest；本 companion 仅留转发别名防外散引用漂移。
          */
-        val FALLBACK_EXTENSIONS = setOf("rm", "rmvb", "wmv", "asf", "wma", "ape", "aiff", "aif", "avi")
+        val FALLBACK_EXTENSIONS get() = com.novax.app.data.playback.MediaExtensions.FALLBACK
 
-        fun isFallbackTarget(pathOrUrl: String): Boolean {
-            // 尾部空格/点容错与 NvFileRouter.extensionOf 同式（2026-10-26）：否则脏尾巴文件
-            //（"x.wma "）以 AUDIO/VIDEO 身份进播放器却匹配不上兜底集，留在 media3 必播错
-            val name = pathOrUrl.substringBefore('?').substringAfterLast('/')
-                .trim().trimEnd('.', ' ')
-            return name.substringAfterLast('.', "").lowercase() in FALLBACK_EXTENSIONS
-        }
+        fun isFallbackTarget(pathOrUrl: String): Boolean =
+            com.novax.app.data.playback.MediaExtensions.isFallbackTarget(pathOrUrl)
 
         fun start(
             context: Activity,
