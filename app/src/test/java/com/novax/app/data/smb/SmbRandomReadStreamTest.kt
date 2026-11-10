@@ -272,7 +272,9 @@ class SmbRandomReadStreamTest {
         }
         val s = SmbRandomReadStream(slow, maxReadSize = 1024, startPosition = 0, maxBlockBytes = 1024, log = {})
         readFully(s, 1024) // 块 0 整块读 → 投递块 1 预读（进入慢速在途读）
-        Thread.sleep(150)  // 让预读线程进入 1~2 次在途慢读
+        // 2026-11-10 审计 E7：固定 sleep 改条件轮询——可观察条件=预读线程已发起 ≥1 次
+        // 慢速在途读（readsAt1024 计数）；既有 awaitTrue 同款纪律
+        assertTrue("预读线程应已进入在途慢读", awaitTrue(2_000) { readsAt1024.get() >= 1 })
         val t0 = System.nanoTime()
         s.close()          // 加固后：先停预读线程（join ≤200ms）再关句柄
         val closeMs = (System.nanoTime() - t0) / 1_000_000

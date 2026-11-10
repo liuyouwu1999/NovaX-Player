@@ -1,6 +1,7 @@
 package com.novax.app.data.scanner
 
 import com.novax.app.data.NvFileEntry
+import kotlinx.coroutines.withTimeout
 import com.novax.app.data.db.MediaItemDao
 import com.novax.app.data.db.MediaItemEntity
 import com.novax.app.data.db.MediaItemWithWatch
@@ -64,7 +65,11 @@ class MediaScannerBfsTest {
         scanner.scanAll(listOf(1L, 2L).map { SourceEntity(id = it, type = SourceType.SMB, nickname = "test", shareOrPath = "media") })
         entered.await()
         scanner.cancelAll()
-        kotlinx.coroutines.delay(350)
+        // 2026-11-10 审计 E7：固定 sleep 改条件轮询——可观察条件=源 1 落 CANCELLED
+        //（cancelAll 传播完成）；超时 5s，慢 CI 不再靠固定 350ms 赌传播速度
+        withTimeout(5_000) {
+            while (states.states[1L]?.status != ScanStatus.CANCELLED) kotlinx.coroutines.delay(10)
+        }
         assertEquals(listOf(1L), calls)
         assertEquals(ScanStatus.CANCELLED, states.states[1L]?.status)
     }
