@@ -1759,6 +1759,9 @@ class RmvbPlayerActivity : ComponentActivity() {
         uiVideoW = 0
         uiVideoH = 0
         uiVideoRotation = 0
+        // 2026-11-09 审计 B7：换集复位封面截帧闩——新集应可截新封面（首播 Playing 截帧）；
+        // stopRebuildAndPlay 同集重试「刻意不补」语义不变（:1801 注释只覆盖重播同目标）
+        coverCaptured = false
         logSpeedBoostEnd()                // 换集打断的倍速段照常收口打印
         // 2026-09-19：换集清倍速生效/锁定态并复位速率（libVLC 的 rate 跨 Media 存留）
         // 2026-09-28 审计 A：复位口径收敛到 PlaybackFeatures.resetForEpisodeSwitch

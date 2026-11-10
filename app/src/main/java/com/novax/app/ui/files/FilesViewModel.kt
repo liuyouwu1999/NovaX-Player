@@ -915,7 +915,7 @@ class FilesViewModel(
         val existing = com.novax.app.data.thumb.NvThumbHolder.get(appContext)
             .browserThumbFileFor(sourceId, path, sizeBytes)
         if (existing.exists()) {
-            _browserThumbs.value = _browserThumbs.value + (path to existing.absolutePath)
+            _browserThumbs.update { it + (path to existing.absolutePath) }
             return
         }
         if (!browserThumbInFlight.add("$sourceId:$path")) return
@@ -923,7 +923,7 @@ class FilesViewModel(
             try {
                 val out = com.novax.app.data.thumb.NvThumbHolder.get(appContext)
                     .extractBrowserThumb(sourceId, path, sizeBytes)
-                if (out != null) _browserThumbs.value = _browserThumbs.value + (path to out.absolutePath)
+                if (out != null) _browserThumbs.update { it + (path to out.absolutePath) }
             } finally {
                 browserThumbInFlight.remove("$sourceId:$path")
                 browserThumbJobs.remove(path)
@@ -1018,7 +1018,7 @@ class FilesViewModel(
         val existing = com.novax.app.data.thumb.NvThumbHolder.get(appContext)
             .browserThumbFileFor(sourceId, "img:$path", sizeBytes)
         if (existing.exists()) {
-            _browserThumbs.value = _browserThumbs.value + (path to existing.absolutePath)
+            _browserThumbs.update { it + (path to existing.absolutePath) }
             return
         }
         if (!browserImageInFlight.add("$sourceId:$path")) return
@@ -1026,7 +1026,7 @@ class FilesViewModel(
             try {
                 val out = com.novax.app.data.thumb.NvThumbHolder.get(appContext)
                     .extractBrowserImageThumb(sourceId, path, sizeBytes)
-                if (out != null) _browserThumbs.value = _browserThumbs.value + (path to out.absolutePath)
+                if (out != null) _browserThumbs.update { it + (path to out.absolutePath) }
             } finally {
                 browserImageInFlight.remove("$sourceId:$path")
                 browserThumbJobs.remove(path)
@@ -2445,6 +2445,8 @@ class FilesViewModel(
         wizardBrowseJob = viewModelScope.launch {
             val result = try {
                 repo.list(entity, joinToPath(breadcrumb))
+            } catch (ce: kotlinx.coroutines.CancellationException) {
+                throw ce   // 2026-11-09 审计 B4：取消透传（对齐 listDirInternal :1688 先例）——原吞 CE 会把取消落成错误横幅
             } catch (e: Throwable) {
                 Result.failure(e)
             }
