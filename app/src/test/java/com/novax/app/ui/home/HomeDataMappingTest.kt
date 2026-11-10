@@ -290,3 +290,35 @@ class HomeDataMappingTest {
         assertEquals("/t.jpg", fav.toFavoriteRow("/t.jpg").thumbPath)
     }
 }
+
+// ---------- 2026-11-09 审计 A5（spec B-7）自生产源迁入：三个 mock 映射仅测试引用 ----------
+// 原在 HomeDataMapping.kt，随 mock 死代码簇收口迁至测试源集（生产 HomeViewModel 已零 mock）。
+
+/**
+ * 首页收藏行 = 真收藏（前，observeAll 已按 addedAt DESC）+ 假收藏（后，按原顺序追加）。
+ * 去重键 (sourceId, path)：用户对假影片点收藏后该条升级为「真」，只在真区出现一次。
+ */
+fun mergeFavorites(real: List<FavoriteEntity>, mock: List<MockMediaRepository.PosterEntry>): List<FavoriteRow> {
+    val coveredMockIds = real.filter { it.sourceId == null }.map { it.path }.toSet()
+    return real.map { it.toFavoriteRow() } +
+        mock.filter { it.id !in coveredMockIds }.map { it.toFavoriteRow() }
+}
+
+fun MockMediaRepository.PosterEntry.toFavoriteRow(): FavoriteRow = FavoriteRow(
+    key = favoriteKey(null, id),
+    title = title,
+    subtitle = subtitle,
+    posterUrl = posterUrl,
+    entity = null,
+    mockId = id,
+)
+
+fun MockMediaRepository.ContinueItem.toContinueRow(): ContinueRow = ContinueRow(
+    key = favoriteKey(null, id),
+    title = title,
+    // episodeLabel=null（电影样片）→ chip=null 不渲染空胶囊（评审 fix#1 回归）
+    chip = episodeLabel?.let { UiMessage(R.string.home_chip_text, listOf(it)) },
+    progress = progress,
+    imageUrl = backdropUrl,
+    mockId = id,
+)

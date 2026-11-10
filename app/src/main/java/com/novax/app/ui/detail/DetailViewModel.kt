@@ -96,6 +96,10 @@ class DetailViewModel(app: Application) : AndroidViewModel(app) {
 
     private val appContext = app.applicationContext
 
+    /** 审计 A5（spec B-7）：内置样片（mock）仅 debug 构建可达——对齐 MainActivity 播放分支同款门 */
+    private val isDebugBuild =
+        (appContext.applicationInfo.flags and android.content.pm.ApplicationInfo.FLAG_DEBUGGABLE) != 0
+
     private val _state = MutableStateFlow<NvDetailUiState>(NvDetailUiState.Loading)
     val state: StateFlow<NvDetailUiState> = _state.asStateFlow()
 
@@ -107,10 +111,10 @@ class DetailViewModel(app: Application) : AndroidViewModel(app) {
         _state.value = NvDetailUiState.Loading
         viewModelScope.launch {
             val realId = mediaId.substringBefore('#').toLongOrNull()
-            _state.value = if (realId != null) {
-                buildRealState(mediaId, realId)
-            } else {
-                buildMockState(mediaId)
+            _state.value = when {
+                realId != null -> buildRealState(mediaId, realId)
+                isDebugBuild -> buildMockState(mediaId)
+                else -> NvDetailUiState.Error(appContext.getString(R.string.player_err_source_gone))
             }
         }
     }
@@ -156,9 +160,11 @@ class DetailViewModel(app: Application) : AndroidViewModel(app) {
                     }
                 }
                 _state.value = buildRealState(mediaId, realId)
-            } else {
+            } else if (isDebugBuild) {
                 delay(1200)
                 _state.value = buildMockState(mediaId)
+            } else {
+                _state.value = NvDetailUiState.Error(appContext.getString(R.string.player_err_source_gone))
             }
         }
     }

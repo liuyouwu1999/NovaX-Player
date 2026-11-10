@@ -83,16 +83,6 @@ fun continueProgress(entity: WatchHistoryEntity): Float =
 fun favoriteKey(sourceId: Long?, path: String): String =
     "${sourceId ?: "n"}:$path"
 
-/**
- * 首页收藏行 = 真收藏（前，observeAll 已按 addedAt DESC）+ 假收藏（后，按原顺序追加）。
- * 去重键 (sourceId, path)：用户对假影片点收藏后该条升级为「真」，只在真区出现一次。
- */
-fun mergeFavorites(real: List<FavoriteEntity>, mock: List<MockMediaRepository.PosterEntry>): List<FavoriteRow> {
-    val coveredMockIds = real.filter { it.sourceId == null }.map { it.path }.toSet()
-    return real.map { it.toFavoriteRow() } +
-        mock.filter { it.id !in coveredMockIds }.map { it.toFavoriteRow() }
-}
-
 fun FavoriteEntity.toFavoriteRow(thumbnailPath: String? = null): FavoriteRow = FavoriteRow(
     key = favoriteKey(sourceId, path),
     title = title,
@@ -101,15 +91,6 @@ fun FavoriteEntity.toFavoriteRow(thumbnailPath: String? = null): FavoriteRow = F
     entity = this,
     mockId = null,
     thumbPath = thumbnailPath,
-)
-
-fun MockMediaRepository.PosterEntry.toFavoriteRow(): FavoriteRow = FavoriteRow(
-    key = favoriteKey(null, id),
-    title = title,
-    subtitle = subtitle,
-    posterUrl = posterUrl,
-    entity = null,
-    mockId = id,
 )
 
 // ---------- UI 行模型（真/假统一，点击行为由 entity/mockId 是否为空决定） ----------
@@ -148,16 +129,6 @@ fun WatchHistoryEntity.toContinueRow(thumbnailPath: String?): ContinueRow = Cont
     imageUrl = null,
     thumbPath = thumbnailPath,
     entity = this,
-)
-
-fun MockMediaRepository.ContinueItem.toContinueRow(): ContinueRow = ContinueRow(
-    key = favoriteKey(null, id),
-    title = title,
-    // episodeLabel=null（电影样片）→ chip=null 不渲染空胶囊（评审 fix#1 回归）
-    chip = episodeLabel?.let { UiMessage(R.string.home_chip_text, listOf(it)) },
-    progress = progress,
-    imageUrl = backdropUrl,
-    mockId = id,
 )
 
 /** 收藏行 */
