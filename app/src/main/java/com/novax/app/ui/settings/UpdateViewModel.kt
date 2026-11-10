@@ -87,15 +87,24 @@ sealed interface UpdateUiState {
  * MainActivity else 分支用裸 `viewModel()`、onResume 用 `by viewModels()`——三者同属
  * Activity 的 ViewModelStore，天然同一实例；「设置行点击检查 → Activity 层弹窗」链路由此成立。
  */
-class UpdateViewModel(app: Application) : AndroidViewModel(app) {
+// 2026-11-10 审计 E3（spec C-1）：repo/downloader 构造注入（默认值=原 inline 构造，生产组装
+// 零变化）；@JvmOverloads 生成 (Application) 单参重载兜住默认 AndroidViewModelFactory 反射。
+// 不引入 DI 框架、不动 NvGraph。
+class UpdateViewModel @JvmOverloads constructor(
+    app: Application,
+    repo: UpdateRepository = UpdateRepository(OkHttpReleaseHttp()),
+    downloader: UpdateDownloader = UpdateDownloader(app.applicationContext),
+    /** 测试缝：Robolectric 默认包无 versionName（null→空串→恒 UpToDate），状态机测试显式给值 */
+    versionNameOverride: String? = null,
+) : AndroidViewModel(app) {
 
     private val appContext: Context = app.applicationContext
 
-    private val repo = UpdateRepository(OkHttpReleaseHttp())
-    private val downloader = UpdateDownloader(appContext)
+    private val repo: UpdateRepository = repo
+    private val downloader: UpdateDownloader = downloader
 
     /** 本地版本名（裸 versionName，供比较/清理；展示用 versionLabel() 带 (code) 后缀） */
-    private val versionName: String = runCatching {
+    private val versionName: String = versionNameOverride ?: runCatching {
         app.packageManager.getPackageInfo(app.packageName, 0).versionName ?: ""
     }.getOrDefault("")
 
