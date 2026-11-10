@@ -1,7 +1,6 @@
 package com.novax.app.ui.home
 
 import com.novax.app.R
-import com.novax.app.data.MockMediaRepository
 import com.novax.app.data.db.FavoriteEntity
 import com.novax.app.data.db.WatchHistoryEntity
 import com.novax.app.ui.components.UiMessage
