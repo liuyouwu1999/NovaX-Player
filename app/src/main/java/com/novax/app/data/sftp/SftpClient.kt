@@ -66,8 +66,11 @@ class SftpClient(
         // 这里禁用其 BC 注册，并把可能已被缓存的名字记账纠回平台默认 JCE（conscrypt，算法
         // 齐全）。幂等；SFTP 是全 app 唯一 sshj 加密消费方，接线放此即可
         // （SftpTransportProviderWiringTest 锚定）。
-        SecurityUtils.setRegisterBouncyCastle(false)
+        // 2026-11-10 升级 0.41.2（审计 D2）：setSecurityProvider(null) 在 0.41.2 会连带把
+        // registerBouncyCastle 重置为 null（=注册开关回默认，字节码实证 setSecurityProvider
+        // offset 4-10）——顺序必须「先纠记账、后禁注册」，否则禁用被下一条覆盖，注册回潮。
         SecurityUtils.setSecurityProvider(null)
+        SecurityUtils.setRegisterBouncyCastle(false)
     }
 
     private val pool = ConcurrentHashMap<String, PooledEntry>()

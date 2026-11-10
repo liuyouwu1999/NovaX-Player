@@ -253,11 +253,14 @@ dependencies {
     // smbj 依赖 slf4j：Android 上必须绑定 slf4j-android，否则 NoClassDefFoundError
     implementation("org.slf4j:slf4j-android:1.7.36")
 
-    // 2026-09-29 SFTP 源（sshj，与 smbj 同作者 hierynomus；0.38.0 为该库最终稳定线）：
+    // 2026-09-29 SFTP 源（sshj，与 smbj 同作者 hierynomus）：
     // 读路径复用 SmbRandomReadStream 管线（SftpReadHandle 适配 RandomReadHandle）。
     // minSdk 26 自带 java.time/API26+，sshj 无需 coreLibraryDesugaring；传递依赖
-    // bouncycastle/eddsa 与现有树无冲突（编译/打包核实，见 SftpClient kdoc）
-    implementation("com.hierynomus:sshj:0.38.0")
+    // bouncycastle/eddsa 与现有树无冲突（编译/打包核实，见 SftpClient kdoc）。
+    // 2026-11-10 升级 0.38.0→0.41.2（审计 D2）：原注释「0.38.0 为最终稳定线」已失效——
+    // 上游 2026 年活跃发版至 0.41.2；动因=算法协商改进（或修复老设备缺 X25519 族的
+    // KEX 失败，挂账小米 Note9 实证）；升级须回归 SFTP 全链（模拟器冒烟+真机）。
+    implementation("com.hierynomus:sshj:0.41.2")
 
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.10.2")
 
