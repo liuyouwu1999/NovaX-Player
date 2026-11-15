@@ -48,6 +48,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -458,7 +459,8 @@ internal fun NvPlayerBottomBar(
     /** 2026-10-07 band 计量修正：透传滑块热区高度（原量整个控制层 Column 致 band 半屏宽，见 NvChapterSlider） */
     onSliderBandPx: (Float) -> Unit = {},
 ) {
-    Column(Modifier.fillMaxWidth().padding(bottom = 10.dp)) {
+    // 2026-11-15 经典档紧凑化：bottom 10→6dp（spec §3.1，布局与比例零变化）
+    Column(Modifier.fillMaxWidth().padding(bottom = 6.dp)) {
         NvChapterSlider(
             positionMs = positionMs,
             bufferedMs = bufferedMs,
@@ -507,16 +509,20 @@ internal fun NvPlayerBottomBar(
  * 3 键均分——超出即收缩，保证左右簇与居中暂停键永不相触（3×btn + 2×gap ≤ (宽-暂停键)/2）。
  */
 internal fun nvNarrowControlMetrics(maxWidth: Dp): Pair<Dp, Dp> {
+    // 2026-11-15 经典档紧凑化（spec §3.1）：pause 62/56/50 → 50/45/40，btn 52/46/42 → 42/38/36
     val pauseSize = when {
-        maxWidth >= 380.dp -> 62.dp
-        maxWidth >= 330.dp -> 56.dp
-        else -> 50.dp
+        maxWidth >= 380.dp -> 50.dp
+        maxWidth >= 330.dp -> 45.dp
+        else -> 40.dp
     }
     val clusterGap = 2.dp
     val sideBtnCap = ((maxWidth - pauseSize) / 2 - clusterGap * 2) / 3f
-    val btn = minOf(if (maxWidth >= 380.dp) 52.dp else if (maxWidth >= 330.dp) 46.dp else 42.dp, sideBtnCap)
+    val btn = minOf(if (maxWidth >= 380.dp) 42.dp else if (maxWidth >= 330.dp) 38.dp else 36.dp, sideBtnCap)
     return pauseSize to btn
 }
+
+/** 窄幅行图标：btn×0.48，最小档（36dp）视觉过小 → 固定 18dp 下限（spec §3.1 / 评审 P2-1）。 */
+internal fun nvRowIconFor(btn: Dp): Dp = (btn * 0.48f).coerceAtLeast(18.dp)
 
 @Composable
 internal fun NvPlayerControlRow(
@@ -541,7 +547,8 @@ internal fun NvPlayerControlRow(
             // Column(bottom=10)+2=12dp，磨砂填充后暴露明显。改不对称 padding：bottom 抬到
             // 14dp——七键仍共控制行中线（整行同步上移），主播放器圆钮距屏底 24dp、RMVB 14dp，
             // 横屏/竖屏/窄幅三档同函数一并生效；maxWidth 口径不变（nvNarrowControlMetrics 不受影响）
-            .padding(start = 16.dp, end = 16.dp, top = 2.dp, bottom = 14.dp),
+            // 2026-11-15 紧凑化：top 2→1 / bottom 14→9（spec §3.1，布局与比例零变化）
+            .padding(start = 16.dp, end = 16.dp, top = 1.dp, bottom = 9.dp),
     ) {
         val wide = maxWidth >= 480.dp
 
@@ -652,25 +659,25 @@ internal fun NvPlayerControlRow(
         }
 
         if (wide) {
-            // 横屏/宽幅：原版全行等距（尺寸=2026-09-19 档位 60/72/28，暂停图标 34dp 原值）
+            // 横屏/宽幅：原版全行等距（2026-11-15 紧凑化：侧键 60/28→48/24，暂停 72/34→58/30，spec §3.1）
             Row(
                 Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                LockSlot(60.dp, 28.dp)
-                PrevSlot(60.dp, 28.dp)
-                RewindSlot(60.dp, 28.dp)
-                PauseSlot(72.dp, 34.dp)
-                ForwardSlot(60.dp, 28.dp)
-                NextSlot(60.dp, 28.dp)
-                SpeedSlot(60.dp, 28.dp)
+                LockSlot(48.dp, 24.dp)
+                PrevSlot(48.dp, 24.dp)
+                RewindSlot(48.dp, 24.dp)
+                PauseSlot(58.dp, 30.dp)
+                ForwardSlot(48.dp, 24.dp)
+                NextSlot(48.dp, 24.dp)
+                SpeedSlot(48.dp, 24.dp)
             }
         } else {
             // 窄幅（竖屏/分屏竖栏）：三段中心锚定——暂停绝对居中，左右簇贴边防裁键
             //（档位唯一口径见 [nvNarrowControlMetrics]，NvChapterSlider 进度条对齐共用同一函数）
             val (pauseSize, btn) = nvNarrowControlMetrics(maxWidth)
-            val rowIcon = btn * 0.48f
+            val rowIcon = nvRowIconFor(btn)
             val clusterGap = 2.dp
 
             // 暂停主键：绝对居中（屏幕中线），任何窄幅宽度/档位下不再偏移
@@ -822,20 +829,21 @@ internal fun NvChapterSlider(
         val trackInset = if (rowBasis < 480.dp) nvNarrowControlMetrics(rowBasis).second * 0.26f else 0.dp
         Column(Modifier.fillMaxWidth().padding(horizontal = 16.dp + trackInset)) {
         // 2026-09-18 用户反馈「进度条判定区域还是有点小」：热区 48dp → 56dp（4dp 轨道仍垂直居中）
+        // 2026-11-15 紧凑化 56→48（用户拍板，spec §3.1）
         // 2026-10-07 band 计量修正（见 [onSliderBandPx]）：滑块热区高度 +24dp 触摸 slop 余量
         // band 计量借外部 Density（onGloballyPositioned 回调无 Density/组合作用域）
         val density = LocalDensity.current
         Box(
             Modifier
                 .fillMaxWidth()
-                .height(56.dp)
+                .height(48.dp)
                 .onGloballyPositioned {
                     onSliderBandPx(with(density) { (it.size.height + 24.dp.roundToPx()).toFloat() })
                 },
         ) {
             // 时间行移到进度条上方（2026-09-19 用户需求：时间在杆上方左侧）；原先在热区盒外，
             // 与垂直居中的轨道视觉间隔 ~28dp——2026-10-16 用户反馈「离进度条太远太靠上」，
-            // 移入盒内贴轨展示（不占列高、不缩 56dp 热区）
+            // 移入盒内贴轨展示（不占列高、不缩热区高度）
             Text(
                 if (durationMs > 0) "${formatTime(positionMs)} / ${formatTime(durationMs)}"
                 else stringResource(R.string.player_live, formatTime(positionMs)),
@@ -893,12 +901,12 @@ internal fun NvChapterSlider(
                         }
                     }
                     // 2026-09-20 用户需求：轨道锚定热区底部，贴近按钮行。热区不再加 padding
-                    //（审核纠正：bottom padding 会把绘制区推回顶部），绘制区 = 56dp 全高
+                    //（审核纠正：bottom padding 会把绘制区推回顶部），绘制区 = 全高（2026-11-15 紧凑化后 48dp）
             ) {
                 val w = size.width
                 val th = trackHeight.toPx()
-                // 轨道中心锚定距热区底 14dp（热态拇指半径 11dp,最远到约 26.5dp < 56dp 不裁切）；
-                // tap/drag 手势挂在 Modifier 链上覆盖整 56dp 热区且只读 x，不受绘制 y 影响
+                // 轨道中心锚定距热区底 14dp（热态拇指半径 11dp,最远到约 26.5dp < 48dp 不裁切）；
+                // tap/drag 手势挂在 Modifier 链上覆盖整 48dp 热区且只读 x，不受绘制 y 影响
                 val trackCenterY = size.height - 14.dp.toPx()
                 val trackTop = trackCenterY - th / 2f
                 val trackCorner = CornerRadius(th / 2f)
@@ -957,6 +965,9 @@ internal fun NvChapterSlider(
                     color = NvColors.TextPrimary,
                     modifier = Modifier
                         .align(Alignment.TopCenter)
+                        // 2026-11-15 紧凑化：48dp 热区下旋钮顶 23dp vs 气泡底 30dp 重叠 7dp，
+                        // 上移消重叠——评审 P1-2（气泡是 Text 非 Canvas 绘制，故用 offset 而非 y 坐标减算）
+                        .offset(y = (-8).dp)
                         // Liquid Glass（spec §10 浮层清单 3/12）：SurfaceElevated 0.9 实底→nvGlassSurface
                         .nvGlassSurface(NvColors.GlassFill, NvShape.Input)
                         .padding(horizontal = 10.dp, vertical = 6.dp),
