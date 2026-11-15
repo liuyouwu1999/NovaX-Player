@@ -1775,6 +1775,83 @@ fun PlayerScreen(
         // 现拆成两块对齐的 AnimatedVisibility——顶栏走屏幕上缘、底栏走屏幕下缘（主流播放器同款），
         // 两块 visible 共用同一局部量保证同相位；时长/缓动统一走 NvMotion（主+RMVB 两播放器一致）。
         val controlsShown = controlsVisible && !locked && errorMessage == null
+        // T6 极简样式分发（spec 2026-11-15 §5.2 分发点）：样式键实时读（rememberPlayerPrefs 消费
+        // 模式，缺失/脏值回退 classic）。契约 = 状态+回调从下方顶/底栏现有调用点平移——CLASSIC 分支
+        // 不切契约（直调原组件，减小回归面），MINIMAL 分支消费（STREAMING 分支 T7 接）
+        val controlStyle = parseControlStyle(playerPrefs?.get(KEY_CONTROL_STYLE))
+        // 进度条松手 seek（从 NvPlayerBottomBar onSeek 平移：坏索引/不可跳片源拒绝并一次性提示）
+        val sliderSeek: (Long) -> Unit = { target ->
+            if (!player.isCurrentMediaItemSeekable) {
+                if (!unseekableToastShown) {
+                    unseekableToastShown = true
+                    Toast.makeText(context, context.getString(R.string.player_unseekable_toast), Toast.LENGTH_SHORT).show()
+                }
+                controlsTick++
+            } else {
+                // 绝对落点（进度条松手）：同样经统一入口，已释放引擎时改投活跃引擎
+                seekViaEngine(target, true)
+                controlsTick++
+            }
+        }
+        // 锁键（从 NvPlayerBottomBar onLock 平移：半锁两级 / 全锁钉朝向，语义逐字同源）
+        val lockFromControls: () -> Unit = {
+            val halfOn = playerPrefs?.get(KEY_HALF_LOCK_ENABLED) ?: true
+            when (nextLockLevel(if (halfLocked) LOCK_HALF else LOCK_NONE, halfOn)) {
+                LOCK_HALF -> {
+                    halfLocked = true
+                    controlsVisible = false
+                    // 升全锁入口=角标长按（口径随「立即收起」，2026-10-10）
+                    Toast.makeText(context, context.getString(R.string.player_half_lock_toast), Toast.LENGTH_SHORT).show()
+                }
+                else -> {
+                    pinCurrentOrientation()
+                    locked = true
+                    halfLocked = false
+                    controlsVisible = false
+                    Toast.makeText(context, context.getString(R.string.player_locked_toast), Toast.LENGTH_SHORT).show()
+                }
+            }
+            controlsTick++
+        }
+        val controlContract = NvControlContract(
+            positionMs = positionMs,
+            bufferedMs = bufferedMs,
+            durationMs = durationMs,
+            isPlaying = isPlaying,
+            speed = speed,
+            lockMode = if (locked) 2 else if (halfLocked) 1 else 0,
+            skipSec = playerPrefs?.get(KEY_DOUBLE_TAP_SEC) ?: DEFAULT_DOUBLE_TAP_SEC,
+            hasPrev = onPrevVideo != null,
+            hasNext = onNextVideo != null,
+            title = title,
+            hasQuality = isJellyfinSource,
+            onBack = onBack,
+            onTogglePlay = {
+                // 同款活跃引擎兜底（与双击中间区共用入口）
+                togglePlayViaEngine()
+                controlsTick++
+            },
+            onSkipBy = { delta ->
+                seekViaEngine(delta, false)
+                controlsTick++
+            },
+            onPrev = { onPrevVideo?.invoke() },
+            onNext = { onNextVideo?.invoke() },
+            onSpeed = { sheet = PlayerSheet.SPEED },
+            onLock = lockFromControls,
+            onSubtitle = { sheet = PlayerSheet.SUBTITLE },
+            onAudio = { sheet = PlayerSheet.AUDIO },
+            onAspect = { sheet = PlayerSheet.ASPECT },
+            onOrientation = cycleOrientation,
+            onVideoMirror = toggleVideoMirror,
+            onVideoRotate = rotateVideo,
+            onPip = onEnterPip ?: {},
+            onQuality = if (isJellyfinSource) ({ sheet = PlayerSheet.QUALITY }) else ({}),
+            onInfo = { sheet = PlayerSheet.INFO },
+            onCast = if (playUrl != null) ({ showCastSheet = true }) else ({}),
+            onMore = { sheet = PlayerSheet.MORE },
+            onSeek = sliderSeek,
+        )
         // 顶栏：顶部渐变遮罩 + 顶栏，从上缘滑入/滑出
         AnimatedVisibility(
             visible = controlsShown,
@@ -1789,31 +1866,36 @@ fun PlayerScreen(
                     .fillMaxWidth()
                     .background(Brush.verticalGradient(listOf(NvColors.ScrimStrong, Color.Transparent))),
             ) {
-                NvPlayerTopBar(
-                    title = title,
-                    subtitle = subtitle,
-                    hasSubtitleTracks = hasTextTracks,
-                    onBack = onBack,
-                    onSubtitle = { sheet = PlayerSheet.SUBTITLE },
-                    onAudio = { sheet = PlayerSheet.AUDIO },
-                    onAspect = { sheet = PlayerSheet.ASPECT },
-                    // 2026-09-18：画面旋转恢复独立顶栏按键（0/90/180/270 循环）；无视频流时点了无效果
-                    onVideoRotate = rotateVideo,
-                    // 2026-10-11:画面镜像开关(独立顶栏按键,先例:旋转合并进面板被否决)
-                    videoMirrored = videoMirrored,
-                    onVideoMirror = toggleVideoMirror,
-                    onOrientation = cycleOrientation,
-                    // 2026-09-18：画中画从底栏上移顶栏（底栏中心对称化）
-                    onPip = onEnterPip,
-                    // M3 清晰度面板入口（仅 Jellyfin 源显示；非 Jellyfin 传 null → 按钮隐藏，UI 零变化）
-                    onQuality = if (isJellyfinSource) ({ sheet = PlayerSheet.QUALITY }) else null,
-                    // 2026-09-15 用户需求：视频信息（分辨率/帧率/编码）
-                    onInfo = { sheet = PlayerSheet.INFO },
-                    // 2026-09-17 功能项：AB 循环 + 睡眠定时（低频聚合到「更多」）
-                    onMore = { sheet = PlayerSheet.MORE },
-                    // C13 §5 入口三：播放器顶栏投屏（有播放 URL 才显示）
-                    onCast = if (playUrl != null) ({ showCastSheet = true }) else null,
-                )
+                // T6 样式分发（spec §5.2 分发点②）：极简=细顶栏（返回+标题+总时长+更多键，
+                // P0-1 极简档唯一功能入口）；经典（及 T7 前的 streaming 落点）=既有顶栏直调零变化
+                when (controlStyle) {
+                    NvControlStyle.MINIMAL -> MinimalTopBar(controlContract)
+                    else -> NvPlayerTopBar(
+                        title = title,
+                        subtitle = subtitle,
+                        hasSubtitleTracks = hasTextTracks,
+                        onBack = onBack,
+                        onSubtitle = { sheet = PlayerSheet.SUBTITLE },
+                        onAudio = { sheet = PlayerSheet.AUDIO },
+                        onAspect = { sheet = PlayerSheet.ASPECT },
+                        // 2026-09-18：画面旋转恢复独立顶栏按键（0/90/180/270 循环）；无视频流时点了无效果
+                        onVideoRotate = rotateVideo,
+                        // 2026-10-11:画面镜像开关(独立顶栏按键,先例:旋转合并进面板被否决)
+                        videoMirrored = videoMirrored,
+                        onVideoMirror = toggleVideoMirror,
+                        onOrientation = cycleOrientation,
+                        // 2026-09-18：画中画从底栏上移顶栏（底栏中心对称化）
+                        onPip = onEnterPip,
+                        // M3 清晰度面板入口（仅 Jellyfin 源显示；非 Jellyfin 传 null → 按钮隐藏，UI 零变化）
+                        onQuality = if (isJellyfinSource) ({ sheet = PlayerSheet.QUALITY }) else null,
+                        // 2026-09-15 用户需求：视频信息（分辨率/帧率/编码）
+                        onInfo = { sheet = PlayerSheet.INFO },
+                        // 2026-09-17 功能项：AB 循环 + 睡眠定时（低频聚合到「更多」）
+                        onMore = { sheet = PlayerSheet.MORE },
+                        // C13 §5 入口三：播放器顶栏投屏（有播放 URL 才显示）
+                        onCast = if (playUrl != null) ({ showCastSheet = true }) else null,
+                    )
+                }
             }
         }
         // C13 §5 入口三：投屏设备选择——选中即以当前进度起播到电视，随后走正常退出
@@ -1868,131 +1950,156 @@ fun PlayerScreen(
                 slideOutVertically(tween(NvMotion.DurationNormal, easing = NvMotion.CurveAccelerate)) { it },
             modifier = Modifier.align(Alignment.BottomCenter),
         ) {
-            Column(
-                Modifier.fillMaxWidth(),
-            ) {
-                // 无字幕提示横幅（顶在底栏上方）
-                AnimatedVisibility(visible = showNoSubtitleBanner && controlsVisible, enter = fadeIn(), exit = fadeOut()) {
-                    Box(Modifier.padding(horizontal = 16.dp, vertical = 4.dp)) {
-                        Text(
-                            stringResource(R.string.player_no_subtitle_banner),
-                            style = NvTypography.LabelMedium,
-                            color = NvColors.TextSecondary,
-                            modifier = Modifier
-                                .clip(NvShape.Input)
-                                .background(NvColors.SurfaceElevated)
-                                .padding(horizontal = 12.dp, vertical = 8.dp),
-                        )
+            // T6 样式分发（spec §5.2 分发点②）：极简底栏唯一内容 = line 进度条一行——原位顶替门控外
+            // 常驻细线（二轮 P1-2 防双线裁决）；无 ControlRow（spec §3.2 中央与底部无按钮行：暂停=
+            // 双击手势，其余功能经顶栏更多键）；章节刻度不上 3dp 细轨（T3 审查备忘 chapters=emptyList）。
+            // else 分支（经典/T7 前的 streaming 落点）= 既有底栏整体平移，内容逐字不动
+            when (controlStyle) {
+                NvControlStyle.MINIMAL -> NvChapterSlider(
+                    positionMs = positionMs,
+                    bufferedMs = bufferedMs,
+                    durationMs = durationMs,
+                    chapters = emptyList(),
+                    onSeek = sliderSeek,
+                    // 进度条一旦开始被拖动，父层手势 seek 浮层立即收起（与经典档同口径）
+                    onDragStart = { showSeekPreview = false },
+                    // band 计量：滑块热区高度喂父层手势退场判定（T3：line/classic 两模式同口径）
+                    onSliderBandPx = { controlsBandHeightPx = it },
+                    visual = NvSliderVisual.LINE,
+                )
+                else -> Column(
+                    Modifier.fillMaxWidth(),
+                ) {
+                    // 无字幕提示横幅（顶在底栏上方）
+                    AnimatedVisibility(visible = showNoSubtitleBanner && controlsVisible, enter = fadeIn(), exit = fadeOut()) {
+                        Box(Modifier.padding(horizontal = 16.dp, vertical = 4.dp)) {
+                            Text(
+                                stringResource(R.string.player_no_subtitle_banner),
+                                style = NvTypography.LabelMedium,
+                                color = NvColors.TextSecondary,
+                                modifier = Modifier
+                                    .clip(NvShape.Input)
+                                    .background(NvColors.SurfaceElevated)
+                                    .padding(horizontal = 12.dp, vertical = 8.dp),
+                            )
+                        }
                     }
-                }
-                // 「还原画面」按钮（2026-09-15 用户需求）：缩放态时出现，随底栏同进退——
-                // 2026-09-20 从独立 align 块移入本 Column（横幅之下、渐变之上），
-                // 横幅显隐时按钮与底栏同高度变化，不再有固定 152dp 的脱节位置
-                AnimatedVisibility(visible = zoomed, enter = fadeIn(tween(NvMotion.DurationFast)), exit = fadeOut(tween(NvMotion.DurationFast))) {
-                    Box(Modifier.fillMaxWidth().padding(bottom = 8.dp), contentAlignment = Alignment.Center) {
-                        // Liquid Glass（spec §10 浮层清单 6/12，评审整改补列）：还原画面钮
-                        // SurfaceElevated 0.92 实底→NvGlassChip（原 clickable 迁入 onClick）
-                        NvGlassChip(
-                            onClick = { resetZoom() },
-                            shape = NvShape.Dialog,
-                        ) {
-                            Row(
-                                Modifier.padding(horizontal = 16.dp, vertical = 9.dp),
-                                verticalAlignment = Alignment.CenterVertically,
+                    // 「还原画面」按钮（2026-09-15 用户需求）：缩放态时出现，随底栏同进退——
+                    // 2026-09-20 从独立 align 块移入本 Column（横幅之下、渐变之上），
+                    // 横幅显隐时按钮与底栏同高度变化，不再有固定 152dp 的脱节位置
+                    AnimatedVisibility(visible = zoomed, enter = fadeIn(tween(NvMotion.DurationFast)), exit = fadeOut(tween(NvMotion.DurationFast))) {
+                        Box(Modifier.fillMaxWidth().padding(bottom = 8.dp), contentAlignment = Alignment.Center) {
+                            // Liquid Glass（spec §10 浮层清单 6/12，评审整改补列）：还原画面钮
+                            // SurfaceElevated 0.92 实底→NvGlassChip（原 clickable 迁入 onClick）
+                            NvGlassChip(
+                                onClick = { resetZoom() },
+                                shape = NvShape.Dialog,
                             ) {
-                                Icon(Icons.Filled.Refresh, null, Modifier.size(16.dp), tint = NvColors.Primary)
-                                Spacer(Modifier.width(6.dp))
-                                Text(stringResource(R.string.player_reset_picture), style = NvTypography.LabelMedium, color = NvColors.TextPrimary)
+                                Row(
+                                    Modifier.padding(horizontal = 16.dp, vertical = 9.dp),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                ) {
+                                    Icon(Icons.Filled.Refresh, null, Modifier.size(16.dp), tint = NvColors.Primary)
+                                    Spacer(Modifier.width(6.dp))
+                                    Text(stringResource(R.string.player_reset_picture), style = NvTypography.LabelMedium, color = NvColors.TextPrimary)
+                                }
                             }
                         }
                     }
-                }
-                // 底部渐变遮罩 + 底栏。2026-09-16 UI 审计 P1：原渐变只盖底栏自身且末端仅 70% 黑，
-                // 亮画面（白墙/雪景）下白色图标与 20% 白轨道几乎隐形——加浓到 90% 黑、上探 40dp 过渡
-                Box(
-                    Modifier
-                        .fillMaxWidth()
-                        .background(
-                            Brush.verticalGradient(
-                                0f to Color.Transparent,
-                                0.45f to NvColors.Scrim,
-                                1f to NvColors.ScrimStrong,
-                            ),
-                        )
-                        .padding(top = 40.dp),
-                ) {
-                    NvPlayerBottomBar(
-                        positionMs = positionMs,
-                        bufferedMs = bufferedMs,
-                        durationMs = durationMs,
-                        isPlaying = isPlaying,
-                        speed = speed,
-                        onTogglePlay = {
-                            // 同款活跃引擎兜底（与双击中间区共用入口）
-                            togglePlayViaEngine()
-                            controlsTick++
-                        },
-                        onSeek = { target ->
-                            // 2026-09-30 兜底防线：坏索引 MKV 由 NvFallbackSeekExtractor 降级 seek
-                            // （估算+Cluster 重同步）覆盖「Unseekable+长度已知」；长度未知等极端
-                            // 片源时间线仍 unseekable——此时 seek 会被 Unseekable SeekMap 落回开头
-                            // （真机实证 Rob.B.Hood），与其静默破坏播放位置，不如明确告知并拒绝
-                            if (!player.isCurrentMediaItemSeekable) {
-                                if (!unseekableToastShown) {
-                                    unseekableToastShown = true
-                                    Toast.makeText(context, context.getString(R.string.player_unseekable_toast), Toast.LENGTH_SHORT).show()
+                    // 底部渐变遮罩 + 底栏。2026-09-16 UI 审计 P1：原渐变只盖底栏自身且末端仅 70% 黑，
+                    // 亮画面（白墙/雪景）下白色图标与 20% 白轨道几乎隐形——加浓到 90% 黑、上探 40dp 过渡
+                    Box(
+                        Modifier
+                            .fillMaxWidth()
+                            .background(
+                                Brush.verticalGradient(
+                                    0f to Color.Transparent,
+                                    0.45f to NvColors.Scrim,
+                                    1f to NvColors.ScrimStrong,
+                                ),
+                            )
+                            .padding(top = 40.dp),
+                    ) {
+                        NvPlayerBottomBar(
+                            positionMs = positionMs,
+                            bufferedMs = bufferedMs,
+                            durationMs = durationMs,
+                            isPlaying = isPlaying,
+                            speed = speed,
+                            onTogglePlay = {
+                                // 同款活跃引擎兜底（与双击中间区共用入口）
+                                togglePlayViaEngine()
+                                controlsTick++
+                            },
+                            onSeek = { target ->
+                                // 2026-09-30 兜底防线：坏索引 MKV 由 NvFallbackSeekExtractor 降级 seek
+                                // （估算+Cluster 重同步）覆盖「Unseekable+长度已知」；长度未知等极端
+                                // 片源时间线仍 unseekable——此时 seek 会被 Unseekable SeekMap 落回开头
+                                // （真机实证 Rob.B.Hood），与其静默破坏播放位置，不如明确告知并拒绝
+                                if (!player.isCurrentMediaItemSeekable) {
+                                    if (!unseekableToastShown) {
+                                        unseekableToastShown = true
+                                        Toast.makeText(context, context.getString(R.string.player_unseekable_toast), Toast.LENGTH_SHORT).show()
+                                    }
+                                    controlsTick++
+                                    return@NvPlayerBottomBar
+                                }
+                                // 绝对落点（进度条松手）：同样经统一入口，已释放引擎时改投活跃引擎
+                                seekViaEngine(target, true)
+                                controlsTick++
+                            },
+                            // 2026-09-18：快进/快退步长（设置档位，按钮小字随档位；与双击手势共用一步长）
+                            skipSec = playerPrefs?.get(KEY_DOUBLE_TAP_SEC) ?: DEFAULT_DOUBLE_TAP_SEC,
+                            lockMode = if (locked) 2 else if (halfLocked) 1 else 0,
+                            // 相对 seek（底栏 ±Ns 按钮），与手势滑动同路径：取活跃引擎当前位置
+                            onSkipBy = { delta ->
+                                seekViaEngine(delta, false)
+                                controlsTick++
+                            },
+                            // 2026-09-15 修复：进度条一旦开始被拖动，父层手势 seek 浮层立即收起
+                            //（子节点接管本次滑动，两套 seek 预览不得共存；见 runHorizontalSeek）
+                            onDragStart = { showSeekPreview = false },
+                            // 2026-10-07 band 计量修正：band=滑块热区自身（原量整个控制层 Column，
+                            // 竖屏量出 693px≈半屏高，屏幕中下部拖动全被 band 误拒——真机探针实证）
+                            onSliderBandPx = { controlsBandHeightPx = it },
+                            onSpeed = { sheet = PlayerSheet.SPEED },
+                            // 2026-10-08 半锁两级：半锁开 = 0→半锁→全锁；半锁关 = 一下直进全锁。
+                            // 全锁钉朝向（半锁不钉），解锁=左下角锁图标双击
+                            // 2026-10-10 S1 诊断:五行矩阵全绿(证据 E:/tmp/s1-diag/),LaunchedEffect(controlsVisible, controlsTick) 交互重武装语义已满足 spec §1.3,不加代码 2026-11-09 审计 A1 后本 effect 带 isPlaying key+门（暂停常驻），旧记录勿按此回退。
+                            // 2026-10-10 用户需求「按下半锁，进度条立刻马上收起来，别等四秒」：半锁开即收控制层
+                            //（升全锁改走左下角角标长按,原「控制层暂不收、可再点」口径退役）
+                            onLock = {
+                                val halfOn = playerPrefs?.get(KEY_HALF_LOCK_ENABLED) ?: true
+                                when (nextLockLevel(if (halfLocked) LOCK_HALF else LOCK_NONE, halfOn)) {
+                                    LOCK_HALF -> {
+                                        halfLocked = true
+                                        controlsVisible = false
+                                        // 2026-10-10 精简+口径随「立即收起」更新（升全锁入口=角标长按）
+                                        Toast.makeText(context, context.getString(R.string.player_half_lock_toast), Toast.LENGTH_SHORT).show()
+                                    }
+                                    else -> {
+                                        pinCurrentOrientation()
+                                        locked = true
+                                        halfLocked = false
+                                        controlsVisible = false
+                                        Toast.makeText(context, context.getString(R.string.player_locked_toast), Toast.LENGTH_SHORT).show()
+                                    }
                                 }
                                 controlsTick++
-                                return@NvPlayerBottomBar
-                            }
-                            // 绝对落点（进度条松手）：同样经统一入口，已释放引擎时改投活跃引擎
-                            seekViaEngine(target, true)
-                            controlsTick++
-                        },
-                        // 2026-09-18：快进/快退步长（设置档位，按钮小字随档位；与双击手势共用一步长）
-                        skipSec = playerPrefs?.get(KEY_DOUBLE_TAP_SEC) ?: DEFAULT_DOUBLE_TAP_SEC,
-                        lockMode = if (locked) 2 else if (halfLocked) 1 else 0,
-                        // 相对 seek（底栏 ±Ns 按钮），与手势滑动同路径：取活跃引擎当前位置
-                        onSkipBy = { delta ->
-                            seekViaEngine(delta, false)
-                            controlsTick++
-                        },
-                        // 2026-09-15 修复：进度条一旦开始被拖动，父层手势 seek 浮层立即收起
-                        //（子节点接管本次滑动，两套 seek 预览不得共存；见 runHorizontalSeek）
-                        onDragStart = { showSeekPreview = false },
-                        // 2026-10-07 band 计量修正：band=滑块热区自身（原量整个控制层 Column，
-                        // 竖屏量出 693px≈半屏高，屏幕中下部拖动全被 band 误拒——真机探针实证）
-                        onSliderBandPx = { controlsBandHeightPx = it },
-                        onSpeed = { sheet = PlayerSheet.SPEED },
-                        // 2026-10-08 半锁两级：半锁开 = 0→半锁→全锁；半锁关 = 一下直进全锁。
-                        // 全锁钉朝向（半锁不钉），解锁=左下角锁图标双击
-                        // 2026-10-10 S1 诊断:五行矩阵全绿(证据 E:/tmp/s1-diag/),LaunchedEffect(controlsVisible, controlsTick) 交互重武装语义已满足 spec §1.3,不加代码 2026-11-09 审计 A1 后本 effect 带 isPlaying key+门（暂停常驻），旧记录勿按此回退。
-                        // 2026-10-10 用户需求「按下半锁，进度条立刻马上收起来，别等四秒」：半锁开即收控制层
-                        //（升全锁改走左下角角标长按,原「控制层暂不收、可再点」口径退役）
-                        onLock = {
-                            val halfOn = playerPrefs?.get(KEY_HALF_LOCK_ENABLED) ?: true
-                            when (nextLockLevel(if (halfLocked) LOCK_HALF else LOCK_NONE, halfOn)) {
-                                LOCK_HALF -> {
-                                    halfLocked = true
-                                    controlsVisible = false
-                                    // 2026-10-10 精简+口径随「立即收起」更新（升全锁入口=角标长按）
-                                    Toast.makeText(context, context.getString(R.string.player_half_lock_toast), Toast.LENGTH_SHORT).show()
-                                }
-                                else -> {
-                                    pinCurrentOrientation()
-                                    locked = true
-                                    halfLocked = false
-                                    controlsVisible = false
-                                    Toast.makeText(context, context.getString(R.string.player_locked_toast), Toast.LENGTH_SHORT).show()
-                                }
-                            }
-                            controlsTick++
-                        },
-                        onPrev = onPrevVideo,
-                        onNext = onNextVideo,
-                    )
+                            },
+                            onPrev = onPrevVideo,
+                            onNext = onNextVideo,
+                        )
+                    }
                 }
             }
+        }
+
+        // T6 极简常驻层（spec §3.2/§5.2 分发点①，门控外=AnimatedVisibility 之外）：贴底细线+
+        // 时间小字，零热区（纯展示不消费触摸）。未锁/半锁显示、全锁/错误态隐藏；唤起时隐藏——
+        // 由上方门控内 line 进度条原位顶替（persistentLayerVisible，二轮 P1-2 防双线裁决）
+        if (controlStyle == NvControlStyle.MINIMAL && persistentLayerVisible(locked, errorMessage != null, controlsShown)) {
+            MinimalPersistentLayer(controlContract, Modifier.align(Alignment.BottomCenter))
         }
 
         // 长按倍速提示（2026-09-18 用户需求，B 站同款）：画面正上方小胶囊，随长按出现/松手消失。

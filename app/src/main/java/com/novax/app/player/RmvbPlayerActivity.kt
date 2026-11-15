@@ -378,6 +378,9 @@ class RmvbPlayerActivity : ComponentActivity() {
     private var uiSkipSec by mutableIntStateOf(15)
     /** 2026-10-08：滑动快进步长（KEY_SWIPE_FULL_PERCENT，整屏=片长百分比 1~50 默认 10）——与主播放器同键 */
     private var uiSwipeFullPercent by mutableIntStateOf(10)
+    /** T6 控制层样式（2026-11-15 spec §3）：novax_control_style，applyPrefs 一次性读入（本页其余
+     *  键同口径，会话内不随设置页热更）；CLASSIC 兜底。MINIMAL=极简常驻层+细顶栏（§3.2） */
+    private var uiControlStyle by mutableStateOf(NvControlStyle.CLASSIC)
     private var uiAspectIndex by mutableIntStateOf(0)
     private var uiShowSpeedSheet by mutableStateOf(false)
     private var uiShowMoreSheet by mutableStateOf(false)
@@ -2620,6 +2623,73 @@ class RmvbPlayerActivity : ComponentActivity() {
                 }
             }
 
+            // T6 极简样式分发（spec 2026-11-15 §5.2 分发点）：契约组装——状态读 ui* 域、回调接本页
+            // 既有同源入口（锁块从 ControlsBottom onLock 平移，语义逐字同源）。CLASSIC 分支不切契约
+            //（ControlsBottom 直调，减小回归面），MINIMAL 消费（STREAMING 分支 T7 接）
+            val controlContract = NvControlContract(
+                positionMs = uiPositionMs,
+                bufferedMs = 0L,   // libVLC 无缓冲位概念（ControlsBottom 进度条同口径）
+                durationMs = uiDurationMs,
+                isPlaying = uiPlaying,
+                speed = uiSpeed,
+                lockMode = if (uiLocked) 2 else if (uiHalfLocked) 1 else 0,
+                skipSec = uiSkipSec,
+                hasPrev = queueIndex > 0,
+                hasNext = queueIndex < queue.lastIndex,
+                title = title,
+                onBack = { finish() },
+                onTogglePlay = {
+                    val mp = vlcPlayer ?: return@NvControlContract
+                    if (mp.isPlaying) mp.pause() else mp.play()
+                },
+                onSkipBy = { delta -> skip(delta) },
+                onPrev = { if (queueIndex > 0) advanceQueue(-1) },
+                onNext = { if (queueIndex < queue.lastIndex) advanceQueue(1) },
+                onSpeed = { uiShowSpeedSheet = true },
+                onLock = {
+                    val halfOn = uiHalfLockOn
+                    when (nextLockLevel(if (uiHalfLocked) LOCK_HALF else LOCK_NONE, halfOn)) {
+                        LOCK_HALF -> {
+                            uiHalfLocked = true
+                            uiControlsVisible = false
+                            toast(getString(R.string.player_half_lock_toast))
+                        }
+                        else -> {
+                            uiPinnedOrientation =
+                                if (resources.configuration.orientation ==
+                                    android.content.res.Configuration.ORIENTATION_PORTRAIT
+                                ) {
+                                    ActivityInfo.SCREEN_ORIENTATION_SENSOR_PORTRAIT
+                                } else {
+                                    ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE
+                                }
+                            requestedOrientation = uiPinnedOrientation
+                            uiLocked = true
+                            uiHalfLocked = false
+                            uiControlsVisible = false
+                            uiLockHintVisible = true
+                            toast(getString(R.string.player_locked_toast))
+                        }
+                    }
+                },
+                onSubtitle = { uiShowSubSheet = true },
+                onAudio = { uiShowAudioSheet = true },
+                onAspect = { cycleAspect() },
+                onOrientation = { toggleOrientation() },
+                onVideoMirror = { toggleVideoMirror() },
+                onVideoRotate = { rotateVideo() },
+                // RMVB 兜底页无 PIP/清晰度/投屏（T5 顶栏收拢同款键集差异）——契约留 no-op 占位
+                onPip = {},
+                onQuality = {},
+                onInfo = { uiShowInfoSheet = true },
+                onCast = {},
+                onMore = { uiShowMoreSheet = true },   // P0-1：极简档唯一功能入口
+                onSeek = { target ->
+                    lastManualSeekAt = android.os.SystemClock.elapsedRealtime()
+                    resumeSeekArmed = false
+                    vlcPlayer?.let { it.time = target.coerceIn(0L, it.length.coerceAtLeast(0L)) }
+                },
+            )
             // 控制层（2026-09-20 动效与主播放器对齐）：顶行从屏幕上缘滑入/滑出、底栏从下缘滑入/滑出，
             // 时长/缓动统一引用 NvMotion（与 PlayerScreen 控制层同源）；两块 visible 同表达式保证同相位
             AnimatedVisibility(
@@ -2639,33 +2709,39 @@ class RmvbPlayerActivity : ComponentActivity() {
                         .fillMaxWidth()
                         .background(Brush.verticalGradient(listOf(NvColors.ScrimStrong, Color.Transparent))),
                 ) {
-                    NvPlayerTopBar(
-                        title = title,
-                        subtitle = null,
-                        // RMVB 现状：字幕键恒白图标（无无轨灰态概念）——传 true 保持收拢前观感
-                        hasSubtitleTracks = true,
-                        onBack = { finish() },
-                        onSubtitle = { uiShowSubSheet = true },
-                        onAudio = { uiShowAudioSheet = true },
-                        onAspect = { cycleAspect() },
-                        onVideoRotate = { rotateVideo() },
-                        videoMirrored = uiMirrored,
-                        onVideoMirror = { toggleVideoMirror() },
-                        onOrientation = { toggleOrientation() },
-                        // 键集（spec §5.3）：RMVB 无 PIP/清晰度/投屏——传 null 不渲染
-                        onPip = null,
-                        onQuality = null,
-                        onCast = null,
-                        onInfo = { uiShowInfoSheet = true },
-                        onMore = { uiShowMoreSheet = true },
-                        // 顺序：RMVB 现状序（音轨在字幕前）——收拢零重排
-                        order = NvTopBarOrderRmvb,
-                        // cd 带当前值口径：与收拢前 ControlsTop 各键字符串逐字一致（含 RMVB 专属更多键说明）
-                        aspectCurrent = stringResource(R.string.player_cd_aspect_current, stringResource(aspectLabelRes[uiAspectIndex])),
-                        mirrorCurrent = stringResource(R.string.player_cd_mirror_current, stringResource(if (uiMirrored) R.string.player_toggle_on else R.string.player_toggle_off)),
-                        rotateCurrent = stringResource(R.string.player_cd_rotate_current, uiVideoRotation),
-                        moreContentDescription = stringResource(R.string.player_cd_more_rmvb),
-                    )
+                    // T6 样式分发（spec §5.2 分发点②）：极简=细顶栏（返回+标题+总时长+更多键，
+                    // P0-1 极简档唯一功能入口，onMore 开 NvPlayerPopup 更多弹层）；经典（及 T7 前
+                    // 的 streaming 落点）=既有共享顶栏直调零变化
+                    when (uiControlStyle) {
+                        NvControlStyle.MINIMAL -> MinimalTopBar(controlContract)
+                        else -> NvPlayerTopBar(
+                            title = title,
+                            subtitle = null,
+                            // RMVB 现状：字幕键恒白图标（无无轨灰态概念）——传 true 保持收拢前观感
+                            hasSubtitleTracks = true,
+                            onBack = { finish() },
+                            onSubtitle = { uiShowSubSheet = true },
+                            onAudio = { uiShowAudioSheet = true },
+                            onAspect = { cycleAspect() },
+                            onVideoRotate = { rotateVideo() },
+                            videoMirrored = uiMirrored,
+                            onVideoMirror = { toggleVideoMirror() },
+                            onOrientation = { toggleOrientation() },
+                            // 键集（spec §5.3）：RMVB 无 PIP/清晰度/投屏——传 null 不渲染
+                            onPip = null,
+                            onQuality = null,
+                            onCast = null,
+                            onInfo = { uiShowInfoSheet = true },
+                            onMore = { uiShowMoreSheet = true },
+                            // 顺序：RMVB 现状序（音轨在字幕前）——收拢零重排
+                            order = NvTopBarOrderRmvb,
+                            // cd 带当前值口径：与收拢前 ControlsTop 各键字符串逐字一致（含 RMVB 专属更多键说明）
+                            aspectCurrent = stringResource(R.string.player_cd_aspect_current, stringResource(aspectLabelRes[uiAspectIndex])),
+                            mirrorCurrent = stringResource(R.string.player_cd_mirror_current, stringResource(if (uiMirrored) R.string.player_toggle_on else R.string.player_toggle_off)),
+                            rotateCurrent = stringResource(R.string.player_cd_rotate_current, uiVideoRotation),
+                            moreContentDescription = stringResource(R.string.player_cd_more_rmvb),
+                        )
+                    }
                 }
             }
 
@@ -2677,7 +2753,29 @@ class RmvbPlayerActivity : ComponentActivity() {
                     slideOutVertically(tween(NvMotion.DurationNormal, easing = NvMotion.CurveAccelerate)) { it },
                 modifier = Modifier.align(Alignment.BottomCenter),
             ) {
-                ControlsBottom()
+                // T6 样式分发（spec §5.2 分发点②）：极简底栏唯一内容 = line 进度条一行（原位顶替
+                // 门控外常驻细线，二轮 P1-2 防双线；无按钮行=spec §3.2，暂停=双击手势、其余经顶栏
+                // 更多键）；章节刻度不上 3dp 细轨（T3 审查备忘）。经典=ControlsBottom 直调零变化
+                when (uiControlStyle) {
+                    NvControlStyle.MINIMAL -> NvChapterSlider(
+                        positionMs = uiPositionMs,
+                        bufferedMs = 0L,
+                        durationMs = uiDurationMs,
+                        chapters = emptyList(),
+                        onSeek = controlContract.onSeek,
+                        visual = NvSliderVisual.LINE,
+                    )
+                    else -> ControlsBottom()
+                }
+            }
+
+            // T6 极简常驻层（spec §3.2/§5.2 分发点①，门控外=AnimatedVisibility 之外）：贴底细线+
+            // 时间小字，零热区。未锁/半锁显示、全锁/错误态隐藏；唤起时隐藏——由上方门控内 line
+            // 进度条原位顶替（persistentLayerVisible，与主播放器对称接线）
+            if (uiControlStyle == NvControlStyle.MINIMAL &&
+                persistentLayerVisible(uiLocked, uiError != null, uiControlsVisible && uiError == null)
+            ) {
+                MinimalPersistentLayer(controlContract, Modifier.align(Alignment.BottomCenter))
             }
 
             // 手势 HUD（2026-09-20 与主播放器同步）：亮度左缘 / 音量右缘竖条（CenterStart/
@@ -3347,6 +3445,8 @@ class RmvbPlayerActivity : ComponentActivity() {
         uiLeftSlowmo = p[KEY_LEFT_SLOWMO] ?: false
         uiMuteHighSpeed = p[KEY_MUTE_ABOVE_2X] ?: DEFAULT_MUTE_ABOVE_2X
         uiHalfLockOn = p[KEY_HALF_LOCK_ENABLED] ?: true
+        // T6：控制层样式（缺失/脏值回退 classic，spec §6 fail-safe）
+        uiControlStyle = parseControlStyle(p[KEY_CONTROL_STYLE])
     }
 
     private fun keepControls() {
