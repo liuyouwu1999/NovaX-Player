@@ -121,6 +121,15 @@
     <string name="player_info_title">동영상 정보</string>
     <string name="player_sheet_more">더보기</string>
 
+    <!-- 더보기 패널 확장(2026-11-15 컨트롤 스타일 T8): 재생 컨트롤 그룹명/컨트롤 스타일 그룹명/
+         스타일 3종 이름 — 두 그룹명 키는 한 단어 차이므로 명시적으로 구분.
+         행 라벨은 기존 player_sheet_*/player_cd_* 키 재사용(새 행 키 없음) -->
+    <string name="player_quick_controls">재생 컨트롤</string>
+    <string name="player_style_group">컨트롤 스타일</string>
+    <string name="player_style_classic">클래식</string>
+    <string name="player_style_minimal">미니멀</string>
+    <string name="player_style_streaming">롱폼 영상</string>
+
     <!-- PlayerSheets: 자막 시트 -->
     <string name="player_subtitles_off">자막 끄기</string>
     <string name="player_embedded_subtitles">내장 자막</string>

@@ -3079,6 +3079,32 @@ class RmvbPlayerActivity : ComponentActivity() {
 
             if (uiShowMoreSheet) {
                 NvPlayerPopup(title = stringResource(R.string.player_sheet_more), onDismiss = { uiShowMoreSheet = false }) {
+                    // T8（spec 2026-11-15 §5.5/§4）：「播放控制」功能全集兜底组——ControlsTop 收拢
+                    // 删除后，比例/方向/镜像/旋转/音轨/字幕/信息等入口在 minimal/streaming 档下的
+                    // 唯一通道就是这组（quickControlsFor 剔 PIP/清晰度/投屏=§5.3 RMVB 键集）；
+                    // 回调接本页契约 controlContract（与顶栏/底栏同源）。面板型入口先收更多弹层：
+                    // 本页各面板是独立 bool，不收会双弹层堆叠（主播放器为单枚举 sheet 自动顶替）
+                    QuickControlsSection(
+                        ids = quickControlsFor(isRmvb = true, hasQuality = false),
+                        skipSec = uiSkipSec,
+                        onAction = { id ->
+                            when (id) {
+                                QuickControlId.SPEED, QuickControlId.SUBTITLE, QuickControlId.AUDIO, QuickControlId.INFO ->
+                                    uiShowMoreSheet = false
+                                else -> {}
+                            }
+                            controlContract.dispatchQuickControl(id)
+                        },
+                    )
+                    // T8：「控制样式」组三选一——uiControlStyle 直写内存态即时换形态
+                    //（applyPrefs 仅初次/回前台重读）+ DataStore 落盘（与主播放器同键同值）
+                    ControlStyleSection(
+                        current = uiControlStyle,
+                        onPick = { style ->
+                            uiControlStyle = style
+                            lifecycleScope.launch { runCatching { putPlayerPref(KEY_CONTROL_STYLE, style.dataStoreValue) } }
+                        },
+                    )
                     NvSheetText(stringResource(R.string.player_ab_loop_section))
                     NvSheetListItem(stringResource(R.string.player_set_loop_a), selected = false) {
                         features.loopAMs = vlcPlayer?.time ?: 0L

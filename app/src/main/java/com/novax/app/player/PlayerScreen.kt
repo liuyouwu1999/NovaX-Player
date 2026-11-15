@@ -2391,11 +2391,25 @@ fun PlayerScreen(
                     onClose = { sheet = null },
                 )
                 // 2026-09-17 功能项：AB 循环 + 睡眠定时
+                // T8（2026-11-15 §5.5/§4）：前置「播放控制」功能全集兜底组 +「控制样式」组——
+                // 回调走 controlContract.dispatchQuickControl（与顶/底栏同源）；QUALITY 行
+                // hasQuality=onQuality 同条件源 isJellyfinSource；样式直写 KEY_CONTROL_STYLE，
+                // playerPrefs 实时流回读 controlStyle 即时换形态（面板选中勾标同帧刷新）
                 PlayerSheet.MORE -> MoreActionsSheet(
                     loopAMs = features.loopAMs,
                     loopBMs = features.loopBMs,
                     sleepMinutes = features.sleepMinutes,
                     sleepRemainingMs = (features.sleepDeadlineMs - System.currentTimeMillis()).takeIf { it > 0 },
+                    quickControls = quickControlsFor(isRmvb = false, hasQuality = isJellyfinSource)
+                        // playUrl==null 极端入口剔投屏行（契约 onCast 本就是 no-op）——对齐
+                        // T7 顶栏 hasCast 防死按钮口径，纯函数签名不为此扩参
+                        .filterNot { it == QuickControlId.CAST && playUrl == null },
+                    quickSkipSec = controlContract.skipSec,
+                    onQuickControl = { id -> controlContract.dispatchQuickControl(id) },
+                    controlStyle = controlStyle,
+                    onControlStylePick = { style ->
+                        uiScope.launch { runCatching { context.putPlayerPref(KEY_CONTROL_STYLE, style.dataStoreValue) } }
+                    },
                     onSetLoopA = {
                         Log.d("NvABLoop", "set A = ${player.currentPosition}")
                         features.loopAMs = player.currentPosition

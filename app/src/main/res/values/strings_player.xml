@@ -121,6 +121,15 @@
     <string name="player_info_title">Video info</string>
     <string name="player_sheet_more">More</string>
 
+    <!-- More sheet groups (2026-11-15 control styles T8): quick controls fallback group +
+         in-playback style picker. Group names differ by one word — keep keys distinct.
+         Row labels reuse existing player_sheet_*/player_cd_* keys (no new row keys). -->
+    <string name="player_quick_controls">Playback controls</string>
+    <string name="player_style_group">Control style</string>
+    <string name="player_style_classic">Classic</string>
+    <string name="player_style_minimal">Minimal</string>
+    <string name="player_style_streaming">Long-form video</string>
+
     <!-- PlayerSheets: subtitle sheet -->
     <string name="player_subtitles_off">Subtitles off</string>
     <string name="player_embedded_subtitles">Embedded subtitles</string>

@@ -121,6 +121,14 @@
     <string name="player_info_title">影片資訊</string>
     <string name="player_sheet_more">更多</string>
 
+    <!-- 更多面板擴容（2026-11-15 控制樣式 T8）：播放控制組名/控制樣式組名/三樣式名——
+         兩組名鍵一字之差須明確區分；行文案複用既有 player_sheet_*/player_cd_* 鍵（零新行鍵） -->
+    <string name="player_quick_controls">播放控制</string>
+    <string name="player_style_group">控制樣式</string>
+    <string name="player_style_classic">經典</string>
+    <string name="player_style_minimal">極簡</string>
+    <string name="player_style_streaming">長影片</string>
+
     <!-- PlayerSheets：字幕面板 -->
     <string name="player_subtitles_off">關閉字幕</string>
     <string name="player_embedded_subtitles">內嵌字幕</string>

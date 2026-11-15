@@ -549,7 +549,72 @@ internal fun AspectRatioSheet(
 }
 
 /**
+ * 「播放控制」组行文案（T8，spec 2026-11-15 §5.5）：全部复用既有键——面板型入口=
+ * player_sheet_* 面板标题，其余=player_cd_* 无参 cd 键（同名词汇）；上/下集用集义键
+ * player_prev/next_episode（StreamingBottomBar 集簇 caption 同键）；快退/快进带秒数
+ * （player_cd_rewind/forward_sec 同款参数）。零新行键（锁行有现成 player_cd_lock）。
+ */
+@Composable
+internal fun quickControlLabel(id: QuickControlId, skipSec: Int): String = when (id) {
+    QuickControlId.LOCK -> stringResource(R.string.player_cd_lock)
+    QuickControlId.PREV -> stringResource(R.string.player_prev_episode)
+    QuickControlId.NEXT -> stringResource(R.string.player_next_episode)
+    QuickControlId.REW -> stringResource(R.string.player_cd_rewind_sec, skipSec)
+    QuickControlId.FWD -> stringResource(R.string.player_cd_forward_sec, skipSec)
+    QuickControlId.SPEED -> stringResource(R.string.player_sheet_speed)
+    QuickControlId.SUBTITLE -> stringResource(R.string.player_sheet_subtitles)
+    QuickControlId.AUDIO -> stringResource(R.string.player_sheet_audio)
+    QuickControlId.ASPECT -> stringResource(R.string.player_sheet_aspect)
+    QuickControlId.ORIENTATION -> stringResource(R.string.player_cd_orientation)
+    QuickControlId.MIRROR -> stringResource(R.string.player_cd_mirror)
+    QuickControlId.ROTATE -> stringResource(R.string.player_cd_rotate)
+    QuickControlId.PIP -> stringResource(R.string.player_cd_pip)
+    QuickControlId.QUALITY -> stringResource(R.string.player_sheet_quality)
+    QuickControlId.CAST -> stringResource(R.string.player_cd_cast)
+    QuickControlId.INFO -> stringResource(R.string.player_info_title)
+}
+
+/**
+ * 「播放控制」组（T8，spec 2026-11-15 §5.5 功能全集兜底，评审 P0-2 裁决）：任何样式
+ * 任何功能必达——经典档与直接按钮重复属有意冗余（B 站/MX 菜单同款）。键集经
+ * [quickControlsFor] 过滤（RMVB 剔 PIP/清晰度/投屏，QUALITY 有质量档才可见）；
+ * 回调由宿主接 [dispatchQuickControl]（与顶/底栏完全同源）。主/RMVB 两侧共用本组。
+ * 组名键 player_quick_controls，与「控制样式」组名键 player_style_group 一字之差
+ * 同面板共存（spec §5.5 防混淆备忘：键与常量必须显式区分）。
+ */
+@Composable
+internal fun QuickControlsSection(
+    ids: List<QuickControlId>,
+    skipSec: Int,
+    onAction: (QuickControlId) -> Unit,
+) {
+    SheetSectionLabel(stringResource(R.string.player_quick_controls))
+    ids.forEach { id ->
+        NvSheetListItem(quickControlLabel(id, skipSec), selected = false, onClick = { onAction(id) })
+    }
+}
+
+/**
+ * 「控制样式」组（T8，spec §4 播放中切换入口）：三行单选，点击经宿主写
+ * KEY_CONTROL_STYLE 即时生效——主播放器=rememberPlayerPrefs 实时流自动重组；
+ * RMVB=宿主直写内存态（applyPrefs 仅初次/回前台重读）。选中态=NvSheetListItem
+ * 既有勾标。与「播放控制」组（player_quick_controls）一字之差，显式区分（spec §5.5）。
+ */
+@Composable
+internal fun ControlStyleSection(
+    current: NvControlStyle,
+    onPick: (NvControlStyle) -> Unit,
+) {
+    SheetSectionLabel(stringResource(R.string.player_style_group))
+    NvSheetListItem(stringResource(R.string.player_style_classic), selected = current == NvControlStyle.CLASSIC) { onPick(NvControlStyle.CLASSIC) }
+    NvSheetListItem(stringResource(R.string.player_style_minimal), selected = current == NvControlStyle.MINIMAL) { onPick(NvControlStyle.MINIMAL) }
+    NvSheetListItem(stringResource(R.string.player_style_streaming), selected = current == NvControlStyle.STREAMING) { onPick(NvControlStyle.STREAMING) }
+}
+
+/**
  * 「更多」面板（2026-09-17 功能项）：AB 循环 + 睡眠定时。
+ * T8（2026-11-15 §5.5/§4）扩容：前置「播放控制」功能全集兜底组 +「控制样式」
+ * 播放中切换组（三样式共用同一份组内容，spec §5.5 实现单一性）。
  * AB 循环走心跳判定（越过 B 点跳回 A），换集/重建引擎自动清空；
  * 睡眠定时跨重建有效，到点暂停。
  */
@@ -559,6 +624,11 @@ internal fun MoreActionsSheet(
     loopBMs: Long,
     sleepMinutes: Int,
     sleepRemainingMs: Long?,
+    quickControls: List<QuickControlId>,
+    quickSkipSec: Int,
+    onQuickControl: (QuickControlId) -> Unit,
+    controlStyle: NvControlStyle,
+    onControlStylePick: (NvControlStyle) -> Unit,
     onSetLoopA: () -> Unit,
     onSetLoopB: () -> Unit,
     onClearLoop: () -> Unit,
@@ -566,6 +636,8 @@ internal fun MoreActionsSheet(
     onClose: () -> Unit,
 ) {
     NvPlayerPopup(title = stringResource(R.string.player_sheet_more), onDismiss = onClose) {
+        QuickControlsSection(quickControls, quickSkipSec, onQuickControl)
+        ControlStyleSection(controlStyle, onControlStylePick)
         SheetSectionLabel(stringResource(R.string.player_ab_loop_section))
         val loopActive = loopAMs >= 0 && loopBMs > loopAMs
         NvSheetListItem(stringResource(R.string.player_set_loop_a), selected = false, onClick = onSetLoopA)
