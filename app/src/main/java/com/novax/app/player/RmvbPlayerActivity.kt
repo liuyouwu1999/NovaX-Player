@@ -2710,10 +2710,13 @@ class RmvbPlayerActivity : ComponentActivity() {
                         .background(Brush.verticalGradient(listOf(NvColors.ScrimStrong, Color.Transparent))),
                 ) {
                     // T6 样式分发（spec §5.2 分发点②）：极简=细顶栏（返回+标题+总时长+更多键，
-                    // P0-1 极简档唯一功能入口，onMore 开 NvPlayerPopup 更多弹层）；经典（及 T7 前
-                    // 的 streaming 落点）=既有共享顶栏直调零变化
+                    // P0-1 极简档唯一功能入口，onMore 开 NvPlayerPopup 更多弹层）；经典=既有共享
+                    // 顶栏直调零变化。T7 长视频风=图标簇平铺顶栏（spec §3.3）——RMVB 宿主
+                    // hasCast=false 自动减投屏键（§5.3 键集参数化思想），字幕/音轨/更多键经契约
+                    // 接本页既有面板入口（uiShowSubSheet/uiShowAudioSheet/uiShowMoreSheet）
                     when (uiControlStyle) {
                         NvControlStyle.MINIMAL -> MinimalTopBar(controlContract)
+                        NvControlStyle.STREAMING -> StreamingTopBar(controlContract, hasCast = false)
                         else -> NvPlayerTopBar(
                             title = title,
                             subtitle = null,
@@ -2755,7 +2758,8 @@ class RmvbPlayerActivity : ComponentActivity() {
             ) {
                 // T6 样式分发（spec §5.2 分发点②）：极简底栏唯一内容 = line 进度条一行（原位顶替
                 // 门控外常驻细线，二轮 P1-2 防双线；无按钮行=spec §3.2，暂停=双击手势、其余经顶栏
-                // 更多键）；章节刻度不上 3dp 细轨（T3 审查备忘）。经典=ControlsBottom 直调零变化
+                // 更多键）；章节刻度不上 3dp 细轨（T3 审查备忘）。T7 长视频风底栏（spec §3.3）=
+                // 贴底线（line 模式拖动加粗 thickenOnDrag）+ 单行底栏。经典=ControlsBottom 直调零变化
                 when (uiControlStyle) {
                     NvControlStyle.MINIMAL -> NvChapterSlider(
                         positionMs = uiPositionMs,
@@ -2765,6 +2769,21 @@ class RmvbPlayerActivity : ComponentActivity() {
                         onSeek = controlContract.onSeek,
                         visual = NvSliderVisual.LINE,
                     )
+                    NvControlStyle.STREAMING -> Column(
+                        Modifier.fillMaxWidth(),
+                    ) {
+                        NvChapterSlider(
+                            positionMs = uiPositionMs,
+                            bufferedMs = 0L,   // libVLC 无缓冲位概念（ControlsBottom 进度条同口径）
+                            durationMs = uiDurationMs,
+                            chapters = emptyList(),
+                            onSeek = controlContract.onSeek,
+                            visual = NvSliderVisual.LINE,
+                            // spec §3.3：贴底线拖动态 3dp→6dp 加粗（CLASSIC 恒忽略该参）
+                            thickenOnDrag = true,
+                        )
+                        StreamingBottomBar(controlContract)
+                    }
                     else -> ControlsBottom()
                 }
             }

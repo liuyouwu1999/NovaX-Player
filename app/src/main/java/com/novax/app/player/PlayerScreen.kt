@@ -1867,9 +1867,12 @@ fun PlayerScreen(
                     .background(Brush.verticalGradient(listOf(NvColors.ScrimStrong, Color.Transparent))),
             ) {
                 // T6 样式分发（spec §5.2 分发点②）：极简=细顶栏（返回+标题+总时长+更多键，
-                // P0-1 极简档唯一功能入口）；经典（及 T7 前的 streaming 落点）=既有顶栏直调零变化
+                // P0-1 极简档唯一功能入口）；经典=既有顶栏直调零变化
+                // T7 长视频风=图标簇平铺顶栏（投屏/字幕/音轨/更多，spec §3.3）——hasCast 对齐
+                // 经典档投屏键口径（playUrl 为 null 的极端入口藏键防死按钮，onCast 契约此时本就是 no-op）
                 when (controlStyle) {
                     NvControlStyle.MINIMAL -> MinimalTopBar(controlContract)
+                    NvControlStyle.STREAMING -> StreamingTopBar(controlContract, hasCast = playUrl != null)
                     else -> NvPlayerTopBar(
                         title = title,
                         subtitle = subtitle,
@@ -1953,7 +1956,8 @@ fun PlayerScreen(
             // T6 样式分发（spec §5.2 分发点②）：极简底栏唯一内容 = line 进度条一行——原位顶替门控外
             // 常驻细线（二轮 P1-2 防双线裁决）；无 ControlRow（spec §3.2 中央与底部无按钮行：暂停=
             // 双击手势，其余功能经顶栏更多键）；章节刻度不上 3dp 细轨（T3 审查备忘 chapters=emptyList）。
-            // else 分支（经典/T7 前的 streaming 落点）= 既有底栏整体平移，内容逐字不动
+            // T7 长视频风底栏（spec §3.3）= 贴底线（line 模式拖动加粗 thickenOnDrag）+ 单行底栏；
+            // else 分支（经典）= 既有底栏整体平移，内容逐字不动
             when (controlStyle) {
                 NvControlStyle.MINIMAL -> NvChapterSlider(
                     positionMs = positionMs,
@@ -1967,6 +1971,24 @@ fun PlayerScreen(
                     onSliderBandPx = { controlsBandHeightPx = it },
                     visual = NvSliderVisual.LINE,
                 )
+                NvControlStyle.STREAMING -> Column(
+                    Modifier.fillMaxWidth(),
+                ) {
+                    NvChapterSlider(
+                        positionMs = positionMs,
+                        bufferedMs = bufferedMs,
+                        durationMs = durationMs,
+                        chapters = emptyList(),
+                        onSeek = sliderSeek,
+                        // 与 MINIMAL 分支同口径：拖动开始收父层手势 seek 浮层 + band 喂手势退场判定
+                        onDragStart = { showSeekPreview = false },
+                        onSliderBandPx = { controlsBandHeightPx = it },
+                        visual = NvSliderVisual.LINE,
+                        // spec §3.3：贴底线拖动态 3dp→6dp 加粗（CLASSIC 恒忽略该参）
+                        thickenOnDrag = true,
+                    )
+                    StreamingBottomBar(controlContract)
+                }
                 else -> Column(
                     Modifier.fillMaxWidth(),
                 ) {
