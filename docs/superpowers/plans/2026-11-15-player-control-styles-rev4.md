@@ -41,9 +41,9 @@
 - Consumes: 仓内 `snapPlaybackSpeed`（PlaybackSpeed.kt）、SpeedSheet.onPick 提交链（PlayerScreen.kt 约 L2352-2356）、RMVB vlcPlayer.rate 链（约 L1362/L3014）。
 - Produces: 契约新字段 `val onSetSpeed: (Float) -> Unit = {}`；两侧实现函数（主侧建议 `fun applyPickedSpeed(picked: Float)` 提取自 onPick 重复段供面板与三件套共用；RMVB 侧复用其既有 setSpeed 链）——R3 三件套经 `c.onSetSpeed(nvSpeedStep(...))` 提交。
 
-- [ ] **Step 1: 扩契约测试（先红）**——NvControlContractTest 加用例：`onSetSpeed 默认 no-op 不崩`（`c.onSetSpeed(1.5f)` 无异常）+ 字段存在性。
+- [ ] **Step 1: 扩契约测试（先红）**——NvControlContractTest 加用例：`onSetSpeed 默认 no-op 不崩`（`c.onSetSpeed(1.5f)` 无异常）+ 字段存在性。（提交语义四/五要素 JVM 不可测——锚定靠本步提取消重+独立复审+R6 冒烟运行时锚定，如实声明）
 - [ ] **Step 2: 跑测试确认红**（`--tests "com.novax.app.player.NvControlContractTest"`）
-- [ ] **Step 3: 实现**——契约加 `val onSetSpeed: (Float) -> Unit = {}`（KDoc 注明提交语义=SpeedSheet.onPick 同款）；主侧：从 PlayerScreen 的 SpeedSheet onPick 回调体（约 L2349-2357）提取 `applyPickedSpeed(picked: Float)`（setPlaybackSpeed + 清 speedShiftActive/speedShiftLocked + applySpeedMute + recordLastSpeed 四要素原序），onPick 与契约 onSetSpeed 都调它（消重，终审 M3 顺手部分落地）；RMVB 侧：契约 onSetSpeed 接其现有倍速提交链（vlcPlayer 空守卫 + rate + uiSpeed + 自适应冲刷）。
+- [ ] **Step 3: 实现**——契约加 `val onSetSpeed: (Float) -> Unit = {}`（KDoc 注明提交语义=SpeedSheet.onPick 同款）。**主侧**：从 PlayerScreen 的 SpeedSheet onPick 回调体（约 L2349-2357）提取 `applyPickedSpeed(picked: Float)`，**五动作原序**：`speed = picked`（本地 UI 态手动赋值——缺此三件套标签不刷新）+ 清 speedShiftActive/speedShiftLocked + engine.setPlaybackSpeed(pitched) + applySpeedMute + recordLastSpeed；`sheet = null` 留在 onPick 调用处（三件套不关面板）。**RMVB 侧**：L3014-3033（八档 chips）与 L3052-3071（细调滑杆）是**两份重复提交段**——提取共享提交函数（要素全列：uiSpeed 赋值 + persistPlaybackSpeed + 清 speedShift 双态 + logSpeedBoostEnd + 解旧 boost 静音 setVolume(100) + rampRate 冲刷（非裸 vlcPlayer.rate）+ ≥3x 应用静音），八档/滑杆/契约 onSetSpeed 三处共用；`uiShowSpeedSheet=false` 留调用处。
 - [ ] **Step 4: 全量绿 + assembleDebug**
 - [ ] **Step 5: Commit** `feat(player): 契约扩 onSetSpeed 直设倍速——两侧提交语义与 SpeedSheet.onPick 同款(主侧提取 applyPickedSpeed 消重)`
 
@@ -74,7 +74,7 @@
 - Produces: `fun nvSpeedStep(current: Float, delta: Float): Float = snapPlaybackSpeed(current + delta)`；`@Composable MinimalSideRail(c)`（左列：锁三态图标/CC 字幕/齿轮更多）；`@Composable MinimalSpeedRail(c)`（右列：⊕/speed 标签非 1x 高亮+点击重置/⊖）；组件内**垂直定位=父 Box align Center + offset(y = 屏高×6%)**（56% 中心实测口径）。
 
 - [ ] **Step 1: 步进测试（先红）**：`nvSpeedStep(1.0f, +0.1f)==1.1f`；连点漂移 `listOf(1.0,1.1,…,2.0)` 十步全档精确（防 0.30000004）；上界 clamp `nvSpeedStep(5.0f, +0.1f)==5.0f`；下界 `nvSpeedStep(0.1f, -0.1f)==0.1f`；重置语义（组件层）`delta=-current`→1.0 不必测（重置走 onSetSpeed(1f)）。
-- [ ] **Step 2: 红** → **Step 3: 实现**——nvSpeedStep 一行复用；两 Rail 组件：46dp 圆 `background(Color.Black.copy(alpha=0.55f), CircleShape)` 白 icon 24dp，Column 间距 12dp；锁图标三分支与 NvPlayerControlRow.LockSlot 同口径（Outlines/Filled 同款）。
+- [ ] **Step 2: 红** → **Step 3: 实现**——nvSpeedStep 一行复用；两 Rail 组件：46dp 圆 `background(Color.Black.copy(alpha=0.55f), CircleShape)` 白 icon 24dp，Column 间距 12dp；锁图标三分支与 NvPlayerControlRow.LockSlot 同口径（Outlines/Filled 同款）。**垂直定位统一在调用侧**（R4 接线）：`align(CenterStart/CenterEnd) + offset(y = 屏高×6%)`（组件内不做定位；56% 中心=Center+6% 偏移等价）。**i18n（本步落）**：⊕/⊖/中间钮重置三个 contentDescription 新键（如 `player_speed_plus/minus/reset`）五语言；锁/CC 字幕/齿轮复用现有 `player_cd_lock`/`player_sheet_subtitle`/`player_sheet_more` 不新增。
 - [ ] **Step 4: 全量绿 + assembleDebug**
 - [ ] **Step 5: Commit** `feat(player): 极简左右侧钮列——左(锁三态/CC字幕/齿轮更多) 右(倍速三件套⊕±0.1⊖ 复用 snapPlaybackSpeed 防漂移/中间点击重置)`
 
@@ -90,7 +90,7 @@
 - Produces: `fun minimalBottomSlots(narrow: Boolean): List<MinimalSlot>`（`enum MinimalSlot { LOCK, PREV, REW, PAUSE, FWD, NEXT, ASPECT }`；窄幅去 LOCK+ASPECT）；`@Composable MinimalBottomBar(c)`（黑色半透明横条，slots 等距 Arrangement.SpaceEvenly，PREV/NEXT 灰置=enabled:false 不隐藏）。
 
 - [ ] **Step 1: 槽位测试（先红）**：宽幅七槽含 LOCK/ASPECT；窄幅五槽无 LOCK/ASPECT（Review Focus 4）。
-- [ ] **Step 2: 红** → **Step 3: 实现**——组件 + 两侧接线：MINIMAL 分支底栏由"仅 line 进度条"改为 `Column { NvChapterSlider(LINE…不变); MinimalBottomBar(contract) }`；唤起态 root Box 加左右 Rail（`align(Alignment.CenterStart/CenterEnd).offset(y = 6%屏高)`，全锁/半锁时 Rail 随控制层 AnimatedVisibility 同隐藏——挂在既有顶/底栏 AnimatedVisibility 之外独立一个同 visible 的 AnimatedVisibility，fade 同款）。
+- [ ] **Step 2: 红** → **Step 3: 实现**——组件 + 两侧接线：MINIMAL 分支底栏由"仅 line 进度条"改为 `Column { MinimalBottomBar(contract); NvChapterSlider(LINE…不变) }`（**七钮黑条在上、line 进度条贴底在下**——spec §3.2 布局图钉死顺序，细线保贴底缘与常驻线原位顶替语义；主侧 slider 的 onDragStart/onSliderBandPx 参数原样保留）；唤起态 root Box 加左右 Rail（**调用侧** `align(CenterStart/CenterEnd) + offset(y = 屏高×6%)`，挂独立 AnimatedVisibility 复用 controlsShown 同 visible——全锁/半锁随控制层同隐藏，fade 同款）。
 - [ ] **Step 4: 全量绿 + assembleDebug**
 - [ ] **Step 5: Commit** `feat(player): 极简底栏七钮黑条(等距/上下集灰置/窄幅五钮)+左右侧钮列两侧接线——MINIMAL 分支 rev4 形态完成`
 
@@ -103,7 +103,7 @@
 - Consumes: NvPlayerBlue（R2 产出）。
 - Produces: 预览卡 MINIMAL 分支=顶条两端蓝块+左缘三点竖排+右缘三点竖排+底部一行七点+贴缘细线（spec §7 rev4 示意）。
 
-- [ ] **Step 1: 重画 Canvas MINIMAL 分支**（120×68dp 画布内按比例缩放各锚定元素；蓝块用 NvPlayerBlue）
+- [ ] **Step 1: 重画 Canvas MINIMAL 分支**（120×68dp 画布内按比例缩放各锚定元素；蓝块用 NvPlayerBlue；**注意现有 drawTopStrip 是三档共用在 when 之前调用**——MINIMAL 分支须改为分支内自绘顶条（两端蓝块），不走共用顶条，防"返回点+标题线"残留）。蓝块圆角 10.dp 系计划层补值（spec 未钉死圆角，L67 授权合理取值）。
 - [ ] **Step 2: 全量绿 + assembleDebug**
 - [ ] **Step 3: Commit** `feat(settings): 极简预览卡 rev4 重画——蓝块顶条+双侧竖排点+七点底行`
 
@@ -116,7 +116,7 @@
 - Consumes: R1-R5 全部；三星 SM-F9160 已连接（adb serial R5CN909G3PD）。
 
 - [ ] **Step 1: 全量单测绿 + gitleaks**（git 模式零泄漏）
-- [ ] **Step 2: assembleRelease arm64 → adb install -r**（同签名覆盖）
+- [ ] **Step 2: 构建+装机**——`./gradlew :app:assembleRelease` 后取 `app/build/outputs/apk/release/app-arm64-v8a-release.apk`（AGP9 打包任务已合并族无单 ABI 任务，全量构建取 arm64 产物）；`adb install -r`（同签名覆盖，serial R5CN909G3PD）。
 - [ ] **Step 3: 真机冒烟清单**（每项截图）：
   1. minimal 唤起态全貌（横屏）：蓝块✕/位置时间/标题/剩余时间/蓝块⋯/左三圆钮/右三圆钮/七钮底条/贴底线——与用户归档截图（`_research/player_ui/nplayer/user_photo_2026-11-15.jpg`）并排对照
   2. 倍速三件套：连点 ⊕ 十下（1.0→2.0 全档无漂移）+ 中间钮点击重置 1x + ⊖ 递减 + 非 1x 高亮
@@ -126,11 +126,13 @@
   6. 窄幅竖屏五钮底条（折叠屏竖屏或 wm size 模拟 360dp）
   7. RMVB 侧同形态（播 rmvb_smoke.rmvb）
   8. 中央区无遮挡（带字幕视频唤起态）+ 侧钮列与内嵌字幕叠压观察记录（设计接受项）
+  9. **Review Focus #1 运行时锚定**：①三件套设速 1.5x → 重启 app 验证 recordLastSpeed 记忆保留（仍 1.5x）；②≥3x 档验证静音生效（applySpeedMute/persist 链）
+  10. §3.4 功能对等表 minimal rev4 列逐项核对（18 入口，含窄幅锁/比例经更多的兜底路径）
 - [ ] **Step 4: README 追加 rev4 节 + 问题修复回灌**
 - [ ] **Step 5: Commit（如有修复）**
 
 ## Self-Review
 
-- Spec 覆盖：§3.2 rev4 块→R2/R3/R4；§5.1 onSetSpeed→R1；§7 预览→R5；§9 rev4 专项→R6。§3.4 表由 R3/R4 组件落点覆盖（冒烟核对）。无缺口。
+- Spec 覆盖：§3.2 rev4 块→R2/R3/R4；§5.1 onSetSpeed→R1；§7 预览→R5；§9 rev4 专项→R6；§3.4 表→R6.10 逐项核对。无缺口。
 - 类型一致：onSetSpeed(Float)（R1→R3）；remainingLabel（R2 内用）；nvSpeedStep（R3 定义/R3 测试/R6 冒烟）；minimalBottomSlots/MinimalSlot（R4）；NvPlayerBlue（R2 定义/R5 用）。
-- Review Focus 六条全有归属（#1→R1、#2→R3、#3→R2、#4→R4、#5→R6.5、#6→R6.8）。
+- Review Focus 归属（如实声明）：#1 提交语义——JVM 不可测，锚定=R1 提取消重（三处共用一份实现）+独立复审+R6.9 运行时锚定；#2→R3 测试；#3→R2 测试；#4→R4 测试；#5→R6.5；#6→R6.8。
