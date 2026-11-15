@@ -4,7 +4,6 @@ import android.app.Activity
 import android.content.Context
 import android.content.ContextWrapper
 import android.os.Build
-import android.view.WindowManager
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -18,7 +17,6 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -62,10 +60,6 @@ import kotlinx.coroutines.withContext
  *   NvPinManager.resetAll（工厂构造，真抹除管道）。
  * - 本面板不直接改 NvPrivacySession：解锁/重置结果一律回调调用方（PlayerActivity 登记
  *   session.unlock + 世代守卫补扫），单一接线点。
- *
- * FLAG_SECURE：挂载即对宿主窗口加防截屏标志；默认**不清除**（播放器窗口常驻防截屏，
- * 解锁后也不能允许截屏）——仅 [clearFlagSecureOnDispose]=true 的宿主（如 Task 13 浏览态）
- * 在面板离组时还原。
  */
 @Composable
 fun NvPrivacyUnlockSheet(
@@ -73,7 +67,6 @@ fun NvPrivacyUnlockSheet(
     onUnlocked: (List<Long>) -> Unit,
     onReset: () -> Unit,
     onDismiss: () -> Unit,
-    clearFlagSecureOnDispose: Boolean = false,
 ) {
     val context = LocalContext.current
     val activity = remember(context) { context.findFragmentActivity() }
@@ -165,16 +158,6 @@ fun NvPrivacyUnlockSheet(
                         entry = ""
                     }
                 }
-            }
-        }
-    }
-
-    // FLAG_SECURE：挂载即防截屏（已锁内容 + PIN 输入都不得进截图/最近任务缩略图）
-    DisposableEffect(activity) {
-        activity?.window?.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
-        onDispose {
-            if (clearFlagSecureOnDispose) {
-                activity?.window?.clearFlags(WindowManager.LayoutParams.FLAG_SECURE)
             }
         }
     }

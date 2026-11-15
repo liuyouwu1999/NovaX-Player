@@ -376,9 +376,6 @@ class PlayerActivity : androidx.fragment.app.FragmentActivity() {
         // 全屏沉浸（C6 §1）：内容延伸到系统栏 + 隐藏状态栏/导航栏（滑出为 transient，回焦自动重新隐藏）
         hideSystemBars()
         window.addFlags(android.view.WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
-        // 隐私锁（Task 12）：播放画面防截屏/录屏/最近任务缩略图（解锁面板同窗共享；
-        // RMVB 兜底页同口径——兜底页也要防截屏）
-        window.addFlags(android.view.WindowManager.LayoutParams.FLAG_SECURE)
 
         // R8 系统返回键：直接退出播放（2026-09-15 用户需求，去确认框）；进度服务侧落库
         onBackPressedDispatcher.addCallback(this) { requestExit() }

@@ -46,7 +46,6 @@ import com.novax.app.ui.components.NvSpacing
 import com.novax.app.ui.components.NvSwitchRow
 import com.novax.app.ui.components.NvTypography
 import com.novax.app.ui.privacy.NvPinChangeSheet
-import com.novax.app.ui.privacy.NvSettingsFlagSecureEffect
 import com.novax.app.ui.privacy.rememberNvForgotResetFlow
 import com.novax.app.ui.theme.NvColors
 import kotlinx.coroutines.Dispatchers
@@ -93,8 +92,6 @@ internal fun NvPrivacyManagePage(
     var askReset by remember { mutableStateOf(false) }
     val startForgot = rememberNvForgotResetFlow(onResetDone = onBack)
 
-    // 管理页整页展示解密路径 → 挂载期防截屏（离组还原）
-    NvSettingsFlagSecureEffect()
     // 系统返回键：先关本页回隐私组（后注册者优先于 SettingsScreen 的组级 BackHandler）
     BackHandler { onBack() }
 

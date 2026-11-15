@@ -4,7 +4,6 @@ import android.app.Activity
 import android.app.KeyguardManager
 import android.content.Context
 import android.os.Build
-import android.view.WindowManager
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -17,7 +16,6 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
@@ -55,33 +53,7 @@ import kotlinx.coroutines.withContext
  * - [rememberNvForgotResetFlow]：忘码重置共享流（设备凭据 → resetAll，SDK 分支与 T12 同表——
  *   NvGateWiring.credentialPath），验证/改 PIN/管理页三处复用。
  * 构造纪律：一律经 [NvPrivacyAccess.newPinManager] 工厂（绕过即忘码重置退化为普通删行）。
- *
- * FLAG_SECURE：挂载即对宿主窗口加防截屏，离组**清除**——设置窗口非长驻防截屏面，
- * 与 T12 播放器面板（默认不清除）语义相反，离组必须还原窗口原状。
  */
-
-/**
- * 挂载即防截屏、离组还原（设置窗口语义，见文件头注释）；Task 16 管理页（展示解密路径）复用。
- * FLAG_SECURE 是窗口级非引用计数标志，而设置域面板嵌套（管理页 → 验证/改 PIN 面板）——
- * 内层面板离组直接 clear 会连带拆掉外层（管理页正展示解密路径）的防截屏，故按持有者计数，
- * 归零才清除。**仅限 MainActivity 单窗口的设置面板使用**（跨 Activity 共用计数会串窗口）；
- * 播放器窗口的防截屏归 T12 面板自身逻辑，与本计数互不相干。
- */
-private var secureFlagHolders = 0
-
-@Composable
-internal fun NvSettingsFlagSecureEffect() {
-    val activity = LocalContext.current.findFragmentActivity()
-    DisposableEffect(activity) {
-        val window = activity?.window
-        secureFlagHolders++
-        window?.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
-        onDispose {
-            secureFlagHolders--
-            if (secureFlagHolders <= 0) window?.clearFlags(WindowManager.LayoutParams.FLAG_SECURE)
-        }
-    }
-}
 
 /** 存量冷却探测 + 每秒倒计时（打开时先探存量，Wrong 触发档由面板写入同一状态） */
 @Composable
@@ -122,7 +94,6 @@ fun NvPinVerifySheet(
     var busy by remember { mutableStateOf(false) }
     var pinBroken by remember { mutableStateOf(false) }
 
-    NvSettingsFlagSecureEffect()
     // 返回键 = 关面板（不落回设置组级返回——后注册者优先）
     BackHandler(enabled = !busy) { onDismiss() }
 
@@ -240,7 +211,6 @@ fun NvPinChangeSheet(
     var pinBroken by remember { mutableStateOf(false) }
     var busy by remember { mutableStateOf(false) }
 
-    NvSettingsFlagSecureEffect()
     BackHandler(enabled = !busy) { onDismiss() }
 
     LaunchedEffect(Unit) {

@@ -10,7 +10,6 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Build
 import android.os.Environment
-import android.view.WindowManager
 import java.io.File
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
@@ -96,7 +95,6 @@ import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -160,7 +158,6 @@ import com.novax.app.ui.components.text
 import com.novax.app.ui.glass.nvGlassSource
 import com.novax.app.ui.components.NvTypography
 import com.novax.app.ui.privacy.NvPrivacyUnlockSheet
-import com.novax.app.ui.privacy.findFragmentActivity
 import com.novax.app.ui.viewers.NvFileRouter
 import com.novax.app.ui.viewers.ViewerActivity
 import com.novax.app.ui.viewers.ViewerSiblingsHandoff
@@ -260,22 +257,8 @@ internal fun FileBrowserScreen(
     // 记忆存会话内存（remember）：杀 app 后回到默认顶部，与常见文件管理器一致
     val isLocalSource = state.source?.protocol == NvProtocol.Local
     val currentDirPath = state.breadcrumb.fold("") { acc, seg -> NvPaths.join(acc, seg) }
-    // ── 隐私锁（Task 13）：锁定行渲染/FLAG_SECURE/解锁流 ──
-    // 规则实体 Flow + 会话侧 tick 双信号驱动重组（判定本体走 privacy.index 内存快照，
-    // 解锁/忘码重置等内存侧变化经 privacyTick 显式触发）
-    val privacyRules by vm.privacyRules.collectAsState()
-    val privacyTick by vm.privacyTick.collectAsState()
+    // ── 隐私锁（Task 13）：锁定行渲染/解锁流 ──
     val pendingRepoint by vm.pendingRepoint.collectAsState()
-    // 当前浏览层级命中未解锁锁规则 → 整页 FLAG_SECURE（防截屏/最近任务缩略图），离开还原
-    val dirLocked = vm.isPathLocked(state.sourceId, currentDirPath)
-    val fragmentActivity = remember(context) { context.findFragmentActivity() }
-    DisposableEffect(fragmentActivity, dirLocked, privacyTick, privacyRules) {
-        val window = fragmentActivity?.window
-        if (dirLocked && window != null) window.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
-        onDispose {
-            if (dirLocked) window?.clearFlags(WindowManager.LayoutParams.FLAG_SECURE)
-        }
-    }
     // 锁定目录行点击 → 解锁面板（持该目录范围上下文，解锁成功后放行进入）
     var unlockRuleIds by remember(state.sourceId) { mutableStateOf<List<Long>?>(null) }
     var unlockDirPath by remember(state.sourceId) { mutableStateOf<String?>(null) }
@@ -890,8 +873,6 @@ internal fun FileBrowserScreen(
 
     // 隐私锁（Task 13）：锁定条目点击的解锁面板（T12 产出）。范围上下文（sourceId+目录）由
     // FileBrowserScreen 持有 → 解锁成功回调在 VM 侧重置该范围占位缩略图（必做 B）+ 补扫 + 放行进入。
-    // clearFlagSecureOnDispose 恒 false：窗口 FLAG_SECURE 由上方浏览态 effect 统一管理
-    //（FLAG_SECURE 是窗口级非引用计数标志，面板离组清除会连带拆掉浏览态的防截屏）
     if (unlockRuleIds != null) {
         NvPrivacyUnlockSheet(
             ruleIds = unlockRuleIds.orEmpty(),

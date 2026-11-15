@@ -281,7 +281,7 @@ class FilesViewModel(
      * 隐私规则实体快照：直通 NvPrivacyAccess.rulesSnapshot（wipe 后由 resyncRulesNow 主动
      * 刷新；2026-10-26 起不再自连 observeAll——该路径在忘码重置后 Room 失效广播不广播，
      * 各自直连会饿死成陈旧快照，见 NvPrivacyAccess.rulesSnapshot 注释）。
-     * 驱动锁定行/FLAG_SECURE 判定的重组（判定本体走 privacy.index 内存快照）。
+     * 驱动锁定行判定的重组（判定本体走 privacy.index 内存快照）。
      */
     val privacyRules: kotlinx.coroutines.flow.StateFlow<List<com.novax.app.data.db.PrivacyRuleEntity>> =
         privacy.rulesSnapshot
@@ -1104,7 +1104,7 @@ class FilesViewModel(
         }
     }
 
-    /** 路径是否被未解锁的锁规则罩住（锁定行渲染/FLAG_SECURE/源卡片判定；会话侧随 privacyTick 重组刷新） */
+    /** 路径是否被未解锁的锁规则罩住（锁定行渲染/源卡片判定；会话侧随 privacyTick 重组刷新） */
     fun isPathLocked(sourceId: Long, path: String): Boolean =
         privacy.index.isLocked(sourceId, path, NvPrivacySession.unlockedRuleIds())
 

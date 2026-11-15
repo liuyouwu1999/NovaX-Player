@@ -322,8 +322,7 @@ fun FilesScreen(
     }
 
     // 隐私锁（Task 13）：整源锁源行的解锁面板（T12 产出）；解锁成功重置整源占位缩略图（必做 B）
-    // + 补扫并进入；FLAG_SECURE 由面板自带，**离组必须还原**——源列表底层无敏感内容，
-    // 默认不清除会把 SECURE 永久留在 MainActivity 窗口（2026-10-25 真机：之后截屏/最近任务全黑）
+    // + 补扫并进入
     unlockSourceTarget?.let { src ->
         NvPrivacyUnlockSheet(
             ruleIds = vm.blockingRuleIdsFor(src.id, NvPaths.SEPARATOR),
@@ -336,7 +335,6 @@ fun FilesScreen(
                 vm.onPrivacyReset()
             },
             onDismiss = { unlockSourceTarget = null },
-            clearFlagSecureOnDispose = true,
         )
     }
 

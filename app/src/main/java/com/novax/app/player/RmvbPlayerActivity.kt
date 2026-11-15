@@ -485,9 +485,6 @@ class RmvbPlayerActivity : ComponentActivity() {
             contentResolver.registerContentObserver(NvOrientationPolicy.rotationLockUri, false, it)
         }
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
-        // 隐私锁（隐私计划 Task 12）：RMVB 兜底页同主播放器口径防截屏/录屏/最近任务缩略图
-        //（锁定内容经软解路由到本页也绝不可截图）
-        window.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
 
         title = intent.getStringExtra(EXTRA_TITLE) ?: getString(R.string.player_video)
         startPositionMs = intent.getLongExtra(EXTRA_POSITION_MS, 0L)
