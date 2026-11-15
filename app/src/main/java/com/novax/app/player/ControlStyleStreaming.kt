@@ -169,13 +169,17 @@ internal fun StreamingBottomBar(c: NvControlContract, modifier: Modifier = Modif
                         onClick = c.onNext,
                     )
                     // 内联时间（优酷式）：与 NvChapterSlider classic 时间行同源格式化（直播口径同款）
+                    // 溢出防御（T7 审查 Minor-1）：weight(fill=false) 限最大宽 + ellipsis——
+                    // 小时级双段时间在 360dp 窄幅实测溢出 4-16dp
                     StreamingSlot.TIME -> Text(
                         if (c.durationMs > 0) "${formatTime(c.positionMs)} / ${formatTime(c.durationMs)}"
                         else stringResource(R.string.player_live, formatTime(c.positionMs)),
                         color = Color.White,
                         style = NvTypography.LabelMedium,
                         maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
                         softWrap = false,
+                        modifier = Modifier.weight(1f, fill = false),
                     )
                     // 倍速槽：经典 SpeedSlot 同口径（非 1x 文本融进按钮主色激活态；cd 带当前倍速）
                     // i18n：semantics 块非组合上下文，资源解析提升到组合期
