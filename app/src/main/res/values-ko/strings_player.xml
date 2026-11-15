@@ -99,6 +99,7 @@
     <string name="player_prev_episode">이전 에피소드</string>
     <string name="player_play_pause">재생/일시정지</string>
     <string name="player_next_episode">다음 에피소드</string>
+    <string name="player_aspect_short">비율</string>
     <string name="player_cd_prev">이전</string>
     <string name="player_cd_prev_none">이전 항목 없음(폴더 대기열 처음)</string>
     <string name="player_cd_next">다음</string>

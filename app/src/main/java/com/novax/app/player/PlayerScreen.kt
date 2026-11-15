@@ -1968,24 +1968,29 @@ fun PlayerScreen(
                 slideOutVertically(tween(NvMotion.DurationNormal, easing = NvMotion.CurveAccelerate)) { it },
             modifier = Modifier.align(Alignment.BottomCenter),
         ) {
-            // T6 样式分发（spec §5.2 分发点②）：极简底栏唯一内容 = line 进度条一行——原位顶替门控外
-            // 常驻细线（二轮 P1-2 防双线裁决）；无 ControlRow（spec §3.2 中央与底部无按钮行：暂停=
-            // 双击手势，其余功能经顶栏更多键）；章节刻度不上 3dp 细轨（T3 审查备忘 chapters=emptyList）。
+            // T6 样式分发（spec §5.2 分发点②）：极简底栏 = rev4 §3.2 布局图两行——七钮黑条在上 +
+            // line 进度条贴底在下（R4；Column 顺序 P0：黑条在下会把细线顶离底缘，破坏「原位顶替
+            // 门控外常驻细线」的防双线语义）；原位顶替/章节刻度不上细轨（chapters=emptyList）口径不变。
             // T7 长视频风底栏（spec §3.3）= 贴底线（line 模式拖动加粗 thickenOnDrag）+ 单行底栏；
             // else 分支（经典）= 既有底栏整体平移，内容逐字不动
             when (controlStyle) {
-                NvControlStyle.MINIMAL -> NvChapterSlider(
-                    positionMs = positionMs,
-                    bufferedMs = bufferedMs,
-                    durationMs = durationMs,
-                    chapters = emptyList(),
-                    onSeek = sliderSeek,
-                    // 进度条一旦开始被拖动，父层手势 seek 浮层立即收起（与经典档同口径）
-                    onDragStart = { showSeekPreview = false },
-                    // band 计量：滑块热区高度喂父层手势退场判定（T3：line/classic 两模式同口径）
-                    onSliderBandPx = { controlsBandHeightPx = it },
-                    visual = NvSliderVisual.LINE,
-                )
+                NvControlStyle.MINIMAL -> Column(
+                    Modifier.fillMaxWidth(),
+                ) {
+                    MinimalBottomBar(controlContract)
+                    NvChapterSlider(
+                        positionMs = positionMs,
+                        bufferedMs = bufferedMs,
+                        durationMs = durationMs,
+                        chapters = emptyList(),
+                        onSeek = sliderSeek,
+                        // 进度条一旦开始被拖动，父层手势 seek 浮层立即收起（与经典档同口径）
+                        onDragStart = { showSeekPreview = false },
+                        // band 计量：滑块热区高度喂父层手势退场判定（T3：line/classic 两模式同口径）
+                        onSliderBandPx = { controlsBandHeightPx = it },
+                        visual = NvSliderVisual.LINE,
+                    )
+                }
                 NvControlStyle.STREAMING -> Column(
                     Modifier.fillMaxWidth(),
                 ) {
@@ -2137,6 +2142,34 @@ fun PlayerScreen(
         // 由上方门控内 line 进度条原位顶替（persistentLayerVisible，二轮 P1-2 防双线裁决）
         if (controlStyle == NvControlStyle.MINIMAL && persistentLayerVisible(locked, errorMessage != null, controlsShown)) {
             MinimalPersistentLayer(controlContract, Modifier.align(Alignment.BottomCenter))
+        }
+
+        // R4 极简唤起态左右侧钮列（rev4 §3.2 布局图）：左=锁三态/CC 字幕/齿轮更多，右=倍速三件套
+        //（R3 组件纯 Column，垂直定位由本调用侧负责）。几何中心向下偏屏高 6%（即中心位于屏高 56%，
+        // 实测用户截图）；挂独立 AnimatedVisibility 复用 controlsShown 同表达式——全锁/半锁/错误态
+        // 随控制层同隐藏；fade 时长/缓动与顶/底栏同款（侧列无上下缘语义，不带 slide）。
+        // 屏高取法=BoxWithConstraints.maxHeight：与 root Box 实际布局约束一致（折叠/分屏/多窗口下
+        // 跟真实可用高走），优于 LocalConfiguration 名义值；全屏透明容器零 pointerInput 零热区
+        if (controlStyle == NvControlStyle.MINIMAL) {
+            BoxWithConstraints(Modifier.fillMaxSize()) {
+                val railOffsetY = maxHeight * 0.06f
+                AnimatedVisibility(
+                    visible = controlsShown,
+                    enter = fadeIn(tween(NvMotion.DurationSlow, easing = NvMotion.CurveDecelerate)),
+                    exit = fadeOut(tween(NvMotion.DurationNormal, easing = NvMotion.CurveAccelerate)),
+                    modifier = Modifier.align(Alignment.CenterStart).offset(y = railOffsetY),
+                ) {
+                    MinimalSideRail(controlContract)
+                }
+                AnimatedVisibility(
+                    visible = controlsShown,
+                    enter = fadeIn(tween(NvMotion.DurationSlow, easing = NvMotion.CurveDecelerate)),
+                    exit = fadeOut(tween(NvMotion.DurationNormal, easing = NvMotion.CurveAccelerate)),
+                    modifier = Modifier.align(Alignment.CenterEnd).offset(y = railOffsetY),
+                ) {
+                    MinimalSpeedRail(controlContract)
+                }
+            }
         }
 
         // 长按倍速提示（2026-09-18 用户需求，B 站同款）：画面正上方小胶囊，随长按出现/松手消失。

@@ -99,6 +99,7 @@
     <string name="player_prev_episode">Prev</string>
     <string name="player_play_pause">Play/Pause</string>
     <string name="player_next_episode">Next</string>
+    <string name="player_aspect_short">Aspect</string>
     <string name="player_cd_prev">Previous</string>
     <string name="player_cd_prev_none">No previous (start of folder queue)</string>
     <string name="player_cd_next">Next</string>

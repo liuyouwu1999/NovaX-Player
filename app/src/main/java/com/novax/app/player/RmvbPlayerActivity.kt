@@ -34,6 +34,7 @@ import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -41,6 +42,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.size
@@ -2758,19 +2760,25 @@ class RmvbPlayerActivity : ComponentActivity() {
                     slideOutVertically(tween(NvMotion.DurationNormal, easing = NvMotion.CurveAccelerate)) { it },
                 modifier = Modifier.align(Alignment.BottomCenter),
             ) {
-                // T6 样式分发（spec §5.2 分发点②）：极简底栏唯一内容 = line 进度条一行（原位顶替
-                // 门控外常驻细线，二轮 P1-2 防双线；无按钮行=spec §3.2，暂停=双击手势、其余经顶栏
-                // 更多键）；章节刻度不上 3dp 细轨（T3 审查备忘）。T7 长视频风底栏（spec §3.3）=
-                // 贴底线（line 模式拖动加粗 thickenOnDrag）+ 单行底栏。经典=ControlsBottom 直调零变化
+                // T6 样式分发（spec §5.2 分发点②）：极简底栏 = rev4 §3.2 布局图两行——七钮黑条在上 +
+                // line 进度条贴底在下（R4，与主播放器对称；Column 顺序 P0：黑条在下会把细线顶离底缘，
+                // 破坏「原位顶替门控外常驻细线」的防双线语义）；章节刻度不上细轨口径不变。
+                // T7 长视频风底栏（spec §3.3）= 贴底线（line 模式拖动加粗 thickenOnDrag）+ 单行底栏。
+                // 经典=ControlsBottom 直调零变化
                 when (uiControlStyle) {
-                    NvControlStyle.MINIMAL -> NvChapterSlider(
-                        positionMs = uiPositionMs,
-                        bufferedMs = 0L,
-                        durationMs = uiDurationMs,
-                        chapters = emptyList(),
-                        onSeek = controlContract.onSeek,
-                        visual = NvSliderVisual.LINE,
-                    )
+                    NvControlStyle.MINIMAL -> Column(
+                        Modifier.fillMaxWidth(),
+                    ) {
+                        MinimalBottomBar(controlContract)
+                        NvChapterSlider(
+                            positionMs = uiPositionMs,
+                            bufferedMs = 0L,
+                            durationMs = uiDurationMs,
+                            chapters = emptyList(),
+                            onSeek = controlContract.onSeek,
+                            visual = NvSliderVisual.LINE,
+                        )
+                    }
                     NvControlStyle.STREAMING -> Column(
                         Modifier.fillMaxWidth(),
                     ) {
@@ -2797,6 +2805,33 @@ class RmvbPlayerActivity : ComponentActivity() {
                 persistentLayerVisible(uiLocked, uiError != null, uiControlsVisible && uiError == null)
             ) {
                 MinimalPersistentLayer(controlContract, Modifier.align(Alignment.BottomCenter))
+            }
+
+            // R4 极简唤起态左右侧钮列（rev4 §3.2 布局图，与主播放器对称接线）：左=锁三态/CC 字幕/
+            // 齿轮更多，右=倍速三件套（R3 组件纯 Column，垂直定位由本调用侧负责）。几何中心向下偏
+            // 屏高 6%（中心位于屏高 56%）；visible 复用 uiControlsVisible && uiError == null 同表达式
+            //（全锁/半锁/错误态随控制层同隐藏）；fade 时长/缓动与顶/底栏同款、不带 slide；
+            // 屏高取法=BoxWithConstraints.maxHeight（真实布局约束，折叠/分屏安全）
+            if (uiControlStyle == NvControlStyle.MINIMAL) {
+                BoxWithConstraints(Modifier.fillMaxSize()) {
+                    val railOffsetY = maxHeight * 0.06f
+                    AnimatedVisibility(
+                        visible = uiControlsVisible && uiError == null,
+                        enter = fadeIn(tween(NvMotion.DurationSlow, easing = NvMotion.CurveDecelerate)),
+                        exit = fadeOut(tween(NvMotion.DurationNormal, easing = NvMotion.CurveAccelerate)),
+                        modifier = Modifier.align(Alignment.CenterStart).offset(y = railOffsetY),
+                    ) {
+                        MinimalSideRail(controlContract)
+                    }
+                    AnimatedVisibility(
+                        visible = uiControlsVisible && uiError == null,
+                        enter = fadeIn(tween(NvMotion.DurationSlow, easing = NvMotion.CurveDecelerate)),
+                        exit = fadeOut(tween(NvMotion.DurationNormal, easing = NvMotion.CurveAccelerate)),
+                        modifier = Modifier.align(Alignment.CenterEnd).offset(y = railOffsetY),
+                    ) {
+                        MinimalSpeedRail(controlContract)
+                    }
+                }
             }
 
             // 手势 HUD（2026-09-20 与主播放器同步）：亮度左缘 / 音量右缘竖条（CenterStart/

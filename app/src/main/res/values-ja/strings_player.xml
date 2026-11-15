@@ -99,6 +99,7 @@
     <string name="player_prev_episode">前のエピソード</string>
     <string name="player_play_pause">再生/一時停止</string>
     <string name="player_next_episode">次のエピソード</string>
+    <string name="player_aspect_short">画面比</string>
     <string name="player_cd_prev">前へ</string>
     <string name="player_cd_prev_none">前なし（フォルダーキューの先頭）</string>
     <string name="player_cd_next">次へ</string>

@@ -5,6 +5,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -18,14 +19,20 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.LockOpen
+import androidx.compose.material.icons.filled.Pause
+import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.outlined.Add
+import androidx.compose.material.icons.outlined.AspectRatio
 import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material.icons.outlined.LockOpen
 import androidx.compose.material.icons.outlined.MoreVert
 import androidx.compose.material.icons.outlined.Remove
 import androidx.compose.material.icons.outlined.Settings
+import androidx.compose.material.icons.outlined.SkipNext
+import androidx.compose.material.icons.outlined.SkipPrevious
 import androidx.compose.material.icons.outlined.Subtitles
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -41,6 +48,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.novax.app.R
 import com.novax.app.ui.components.NvTypography
+import com.novax.app.ui.glass.NvGlassChip
 import com.novax.app.ui.theme.NvColors
 import com.novax.app.ui.theme.NvPlayerBlue
 
@@ -267,5 +275,113 @@ internal fun MinimalSpeedRail(c: NvControlContract, modifier: Modifier = Modifie
             contentDescription = stringResource(R.string.player_speed_minus),
             icon = Icons.Outlined.Remove,
         )
+    }
+}
+
+/** 极简底栏槽位（rev4 §3.2 布局图底栏行顺序：锁/上集/快退/暂停/快进/下集/比例）。 */
+enum class MinimalSlot { LOCK, PREV, REW, PAUSE, FWD, NEXT, ASPECT }
+
+/** 窄幅（<480dp 竖屏/折叠栏）去锁钮与比例钮——锁经左圆钮、比例经更多面板仍可达（spec §3.2）。 */
+internal fun minimalBottomSlots(narrow: Boolean): List<MinimalSlot> =
+    if (narrow) listOf(MinimalSlot.PREV, MinimalSlot.REW, MinimalSlot.PAUSE, MinimalSlot.FWD, MinimalSlot.NEXT)
+    else MinimalSlot.entries.toList()
+
+/**
+ * 极简唤起态底栏（rev4 §3.2）：黑色半透明横条（[NvColors.Scrim]，与顶栏同源遮罩）内七钮
+ * 一行**等距**（Arrangement.SpaceEvenly，实测用户截图等距分布）——锁 │ 上集 │ 快退(skipSec) │
+ * 暂停 │ 快进(skipSec) │ 下集 │ 画面比例。
+ * - 暂停 = 经典 PauseSlot 同款 NvGlassChip 58dp/30dp 磨砂圆钮（宽幅）；窄幅尺寸走
+ *   [nvNarrowControlMetrics]/[nvRowIconFor]（streaming 底栏同源档位，五钮才放得下）。
+ * - 上/下集**灰置不隐藏**（NvClusterButton enabled，nPlayer 一致口径）；锁=三态图标
+ *   （LockSlot 同口径无 caption）；比例=开比例面板（onAspect）。
+ * - 细线进度条不在本组件——宿主按 §3.2 布局图接线 `Column { MinimalBottomBar; NvChapterSlider(LINE) }`
+ *   （黑条在上、line 贴底缘，与常驻线原位顶替语义）。
+ */
+@Composable
+internal fun MinimalBottomBar(c: NvControlContract, modifier: Modifier = Modifier) {
+    BoxWithConstraints(
+        modifier
+            .fillMaxWidth()
+            .background(NvColors.Scrim)
+            .padding(start = 16.dp, end = 16.dp, top = 2.dp, bottom = 4.dp),
+    ) {
+        val narrow = maxWidth < 480.dp
+        val slots = minimalBottomSlots(narrow)
+        val (pauseSize, btn) = if (narrow) nvNarrowControlMetrics(maxWidth) else 58.dp to 48.dp
+        val pauseIcon = if (narrow) pauseSize * 0.48f else 30.dp
+        val rowIcon = if (narrow) nvRowIconFor(btn) else 24.dp
+        Row(
+            Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceEvenly,
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            slots.forEach { slot ->
+                when (slot) {
+                    MinimalSlot.LOCK -> IconButton(onClick = c.onLock, modifier = Modifier.size(btn)) {
+                        Icon(
+                            when (c.lockMode) {
+                                2 -> Icons.Filled.Lock
+                                1 -> Icons.Filled.LockOpen     // 半锁：实心开锁（与未锁的空心开锁区分，LockSlot 同款）
+                                else -> Icons.Outlined.LockOpen
+                            },
+                            stringResource(R.string.player_cd_lock),
+                            Modifier.size(rowIcon),
+                            tint = Color.White,
+                        )
+                    }
+                    MinimalSlot.PREV -> NvClusterButton(
+                        icon = Icons.Outlined.SkipPrevious,
+                        caption = stringResource(R.string.player_prev_episode),
+                        enabled = c.hasPrev,
+                        contentDescription = if (c.hasPrev) stringResource(R.string.player_cd_prev)
+                        else stringResource(R.string.player_cd_prev_none),
+                        size = btn,
+                        iconSize = rowIcon,
+                        onClick = c.onPrev,
+                    )
+                    MinimalSlot.REW -> NvSkipStepButton(rewind = true, sec = c.skipSec, size = btn, iconSize = rowIcon) {
+                        c.onSkipBy(-c.skipSec * 1000L)
+                    }
+                    // 暂停圆钮：经典 PauseSlot 同款 NvGlassChip + GlassFillStrong 磨砂强填充（返工⑤口径）
+                    MinimalSlot.PAUSE -> NvGlassChip(
+                        modifier = Modifier.size(pauseSize),
+                        shape = RoundedCornerShape(pauseSize / 2),
+                        fill = NvColors.GlassFillStrong,
+                        fillOverlay = true,
+                        onClick = c.onTogglePlay,
+                    ) {
+                        Icon(
+                            if (c.isPlaying) Icons.Filled.Pause else Icons.Filled.PlayArrow,
+                            if (c.isPlaying) stringResource(R.string.player_cd_pause) else stringResource(R.string.player_cd_play),
+                            Modifier.size(pauseIcon).align(Alignment.Center),
+                            tint = NvColors.TextPrimary,
+                        )
+                    }
+                    MinimalSlot.FWD -> NvSkipStepButton(rewind = false, sec = c.skipSec, size = btn, iconSize = rowIcon) {
+                        c.onSkipBy(c.skipSec * 1000L)
+                    }
+                    MinimalSlot.NEXT -> NvClusterButton(
+                        icon = Icons.Outlined.SkipNext,
+                        caption = stringResource(R.string.player_next_episode),
+                        enabled = c.hasNext,
+                        contentDescription = if (c.hasNext) stringResource(R.string.player_cd_next)
+                        else stringResource(R.string.player_cd_next_none),
+                        size = btn,
+                        iconSize = rowIcon,
+                        onClick = c.onNext,
+                    )
+                    // 比例钮：开比例面板（窄幅收更多面板兜底，spec §3.2 窄幅口径）
+                    MinimalSlot.ASPECT -> NvClusterButton(
+                        icon = Icons.Outlined.AspectRatio,
+                        caption = stringResource(R.string.player_aspect_short),
+                        enabled = true,
+                        contentDescription = stringResource(R.string.player_sheet_aspect),
+                        size = btn,
+                        iconSize = rowIcon,
+                        onClick = c.onAspect,
+                    )
+                }
+            }
+        }
     }
 }

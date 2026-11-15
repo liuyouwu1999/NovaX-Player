@@ -99,6 +99,7 @@
     <string name="player_prev_episode">上集</string>
     <string name="player_play_pause">播放/暫停</string>
     <string name="player_next_episode">下集</string>
+    <string name="player_aspect_short">比例</string>
     <string name="player_cd_prev">上一個</string>
     <string name="player_cd_prev_none">無上一個（資料夾佇列起點）</string>
     <string name="player_cd_next">下一個</string>
