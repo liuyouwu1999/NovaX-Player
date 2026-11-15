@@ -771,6 +771,18 @@ internal fun NvSkipStepButton(rewind: Boolean, sec: Int, size: Dp, iconSize: Dp 
     }
 }
 
+/** NvChapterSlider 视觉模式（spec §5.2）：CLASSIC=粗轨+章节刻度+金属旋钮；LINE=贴缘细线（minimal 常驻/唤起与 streaming 底线共用）。 */
+enum class NvSliderVisual { CLASSIC, LINE }
+
+/** 任务3：NvChapterSlider 换皮口径的可纯断言量（trackYAnchor 依赖 IntSize/Density 不可 JVM 测，故只收这三个）。
+ *  T6/T7 依赖此签名接线。 */
+data class NvSliderMetrics(val hPaddingDp: Float, val showsTimeRow: Boolean, val showsThumb: Boolean)
+
+internal fun nvSliderLineMetrics(mode: NvSliderVisual): NvSliderMetrics = when (mode) {
+    NvSliderVisual.CLASSIC -> NvSliderMetrics(16f, showsTimeRow = true, showsThumb = true)
+    NvSliderVisual.LINE -> NvSliderMetrics(0f, showsTimeRow = false, showsThumb = false)
+}
+
 // ---------------- 三层进度条 NvChapterSlider（C6 §1.2） ----------------
 // 2026-09-18：internal——RMVB 兜底播放页复用同一进度条（用户反馈「libVLC 进度条和默认的不一样」，
 // 之前兜底页临时用 Material Slider：样式/拖动预览/缓冲层均不同步）
@@ -787,7 +799,14 @@ internal fun NvChapterSlider(
     /** 2026-10-07 band 计量修正：上报滑块热区自身高度（+24dp slop 余量）供父层手势 band 退场判定——
      *  原量整个控制层 Column（含渐变过渡/横幅），竖屏下量出半屏高，屏幕中下部拖动全被误拒 */
     onSliderBandPx: (Float) -> Unit = {},
+    /** 任务3（spec §5.2）：视觉模式——同一手势内核（tap-seek/拖动预览/缓冲层/band 计量）换皮。
+     *  CLASSIC=默认，主播放器+RMVB 既有调用方零改动零视觉变化；LINE=贴缘细线（T6/T7 接线） */
+    visual: NvSliderVisual = NvSliderVisual.CLASSIC,
+    /** 任务3（spec §3.3）：LINE 模式拖动态轨道 3dp→6dp 加粗（streaming 底线）；CLASSIC 恒忽略 */
+    thickenOnDrag: Boolean = false,
 ) {
+    // 任务3：视觉口径（hPaddingDp/showsTimeRow/showsThumb），classic 与既有行为逐值相同
+    val metrics = nvSliderLineMetrics(visual)
     var dragging by remember { mutableStateOf(false) }
     var dragPos by remember { mutableLongStateOf(0L) }
     // 2026-09-18 用户需求：轻点进度条落点即 seek——拇指短暂放大作按压反馈
@@ -801,13 +820,22 @@ internal fun NvChapterSlider(
     // （动画过渡，松手回弹——拖起来更有「握住」感的既有交互保留）
     val thumbRadius by animateDpAsState(if (thumbHot) 11.dp else 6.dp, label = "sliderThumb")
     val trackHeight by animateDpAsState(if (thumbHot) 8.dp else 5.dp, label = "sliderTrack")
+    // 任务3（spec §3.3）：line 模式轨道宽——静息 3dp 贴缘细线，thickenOnDrag=true 且拖动态加粗 6dp
+    //（streaming 底线）；条件带 LINE 使 classic 调用下恒为静息值不空转，classic 粗轨 5/8dp 动画零变化
+    val lineTrackHeight by animateDpAsState(
+        if (visual == NvSliderVisual.LINE && thickenOnDrag && dragging) 6.dp else 3.dp,
+        label = "sliderLineTrack",
+    )
     // 2026-09-16 审计 P2-9：durationMs 不能做 pointerInput key——起播早期时长「未知→就绪」
     // 会重启手势协程，onDragEnd/onDragCancel 不回调，dragging 永久卡 true（进度条停住不跟随）。
     // 改为常驻手势协程 + rememberUpdatedState 读最新时长。
     val currentDuration by rememberUpdatedState(durationMs)
     LaunchedEffect(tapPulse) {
         if (tapPulse) {
-            delay(240)
+            // 任务3（spec §3.3）：轻点反馈脉冲时长——classic 240ms（旋钮放大）；line 600ms
+            //（无旋钮可放大，脉冲改为驱动预览气泡短现 600ms 后淡出，见气泡处；tapHoldPos 的
+            //  落点保持职责两模式不变——它管 playedFrac 防心跳跳闪，不参与气泡可见性）
+            delay(if (visual == NvSliderVisual.LINE) 600 else 240)
             tapPulse = false
         }
     }
@@ -827,7 +855,13 @@ internal fun NvChapterSlider(
         // maxWidth 不含 padding，故此处补减 32dp 对齐比较基准
         val rowBasis = maxWidth - 32.dp
         val trackInset = if (rowBasis < 480.dp) nvNarrowControlMetrics(rowBasis).second * 0.26f else 0.dp
-        Column(Modifier.fillMaxWidth().padding(horizontal = 16.dp + trackInset)) {
+        // 任务3（spec §5.2）：横向 padding 由视觉口径驱动——classic 16dp（+trackInset 窄幅与
+        // 按键区对齐口径不变）；line 0dp 贴缘满宽（trackInset 仅 classic 叠加）
+        Column(
+            Modifier
+                .fillMaxWidth()
+                .padding(horizontal = metrics.hPaddingDp.dp + if (visual == NvSliderVisual.CLASSIC) trackInset else 0.dp)
+        ) {
         // 2026-09-18 用户反馈「进度条判定区域还是有点小」：热区 48dp → 56dp（4dp 轨道仍垂直居中）
         // 2026-11-15 紧凑化 56→48（用户拍板，spec §3.1）
         // 2026-10-07 band 计量修正（见 [onSliderBandPx]）：滑块热区高度 +24dp 触摸 slop 余量
@@ -844,15 +878,18 @@ internal fun NvChapterSlider(
             // 时间行移到进度条上方（2026-09-19 用户需求：时间在杆上方左侧）；原先在热区盒外，
             // 与垂直居中的轨道视觉间隔 ~28dp——2026-10-16 用户反馈「离进度条太远太靠上」，
             // 移入盒内贴轨展示（不占列高、不缩热区高度）
-            Text(
-                if (durationMs > 0) "${formatTime(positionMs)} / ${formatTime(durationMs)}"
-                else stringResource(R.string.player_live, formatTime(positionMs)),
-                style = NvTypography.LabelMedium,
-                color = NvColors.TextSecondary,
-                modifier = Modifier
-                    .align(Alignment.TopStart)
-                    .padding(start = 2.dp, top = 4.dp),
-            )
+            // 任务3（spec §5.2）：line 模式不渲染时间行——时间由常驻层/顶栏承载
+            if (metrics.showsTimeRow) {
+                Text(
+                    if (durationMs > 0) "${formatTime(positionMs)} / ${formatTime(durationMs)}"
+                    else stringResource(R.string.player_live, formatTime(positionMs)),
+                    style = NvTypography.LabelMedium,
+                    color = NvColors.TextSecondary,
+                    modifier = Modifier
+                        .align(Alignment.TopStart)
+                        .padding(start = 2.dp, top = 4.dp),
+                )
+            }
             // DrawScope 不是 Composable 上下文（浅色模式改造）：主题 token 提升为局部值
             val cTrackUnderlay = NvColors.TrackUnderlay
             val cTrack = NvColors.Track
@@ -904,10 +941,17 @@ internal fun NvChapterSlider(
                     //（审核纠正：bottom padding 会把绘制区推回顶部），绘制区 = 全高（2026-11-15 紧凑化后 48dp）
             ) {
                 val w = size.width
-                val th = trackHeight.toPx()
-                // 轨道中心锚定距热区底 14dp（热态拇指半径 11dp,最远到约 26.5dp < 48dp 不裁切）；
-                // tap/drag 手势挂在 Modifier 链上覆盖整 48dp 热区且只读 x，不受绘制 y 影响
-                val trackCenterY = size.height - 14.dp.toPx()
+                // 任务3：轨道高——classic 粗轨动画（5/8dp 不变）；line 3dp 细线（拖动加粗 6dp 见 [lineTrackHeight]）
+                val th = (if (visual == NvSliderVisual.LINE) lineTrackHeight else trackHeight).toPx()
+                // 轨道中心锚定：classic 距热区底 14dp（热态拇指半径 11dp,最远到约 26.5dp < 48dp 不裁切）；
+                // line 贴缘距底 2.5dp（spec §5.2：3dp 细线的中心=外缘 1dp/内缘 4dp；拖动加粗 6dp 时
+                // 下半 0.5dp 落到热区外被 Canvas 裁切=底边贴缘平切）；tap/drag 手势挂在 Modifier 链上
+                // 覆盖整 48dp 热区且只读 x，不受绘制 y 影响
+                val trackCenterY = if (visual == NvSliderVisual.LINE) {
+                    size.height - 2.5.dp.toPx()
+                } else {
+                    size.height - 14.dp.toPx()
+                }
                 val trackTop = trackCenterY - th / 2f
                 val trackCorner = CornerRadius(th / 2f)
                 if (durationMs <= 0) {
@@ -945,26 +989,31 @@ internal fun NvChapterSlider(
                         val x = w * (start.toFloat() / durationMs)
                         drawRect(cChapterDivider, topLeft = Offset(x, trackTop), size = Size(2.dp.toPx(), th))
                     }
-                    // 拇指(2026-10-10 S2:金属旋钮,按压/拖动/轻点反馈时动画放大)
-                    drawNvKnob(
-                        center = Offset(w * playedFrac, trackCenterY),
-                        radius = thumbRadius.toPx(),
-                        highlight = cKnobHighlight,
-                        base = cKnobBase,
-                        edge = cKnobEdge,
-                        rim = cKnobRim,
-                    )
+                    // 拇指(2026-10-10 S2:金属旋钮,按压/拖动/轻点反馈时动画放大)；
+                    // 任务3（spec §5.2）：line 模式无旋钮——轻点反馈由气泡短现承载（见下）
+                    if (metrics.showsThumb) {
+                        drawNvKnob(
+                            center = Offset(w * playedFrac, trackCenterY),
+                            radius = thumbRadius.toPx(),
+                            highlight = cKnobHighlight,
+                            base = cKnobBase,
+                            edge = cKnobEdge,
+                            rim = cKnobRim,
+                        )
+                    }
                 }
             }
             // 拖动/轻点预览气泡（目标时间 + 相对偏移）
-            if (showTapPos && durationMs > 0) {
+            // 任务3（spec §3.3）：line 模式无旋钮可放大——轻点反馈改为气泡短现：可见性由
+            // tapPulse(600ms，见脉冲时长处) 驱动、可见期结束 fadeOut 淡出，拖动态实时跟随；
+            // classic 分支显隐逻辑零变化（if 直接显隐、瞬时）
+            @Composable fun dragBubble(modifier: Modifier) {
                 val delta = dragPos - positionMs
                 Text(
                     "${formatTime(dragPos)}  ${if (delta >= 0) "+" else "-"}${formatTime(abs(delta))}",
                     style = NvTypography.LabelMedium.copy(fontWeight = FontWeight.SemiBold),
                     color = NvColors.TextPrimary,
-                    modifier = Modifier
-                        .align(Alignment.TopCenter)
+                    modifier = modifier
                         // 2026-11-15 紧凑化：48dp 热区下旋钮顶 23dp vs 气泡底 30dp 重叠 7dp，
                         // 上移消重叠——评审 P1-2（气泡是 Text 非 Canvas 绘制，故用 offset 而非 y 坐标减算）
                         .offset(y = (-8).dp)
@@ -972,6 +1021,21 @@ internal fun NvChapterSlider(
                         .nvGlassSurface(NvColors.GlassFill, NvShape.Input)
                         .padding(horizontal = 10.dp, vertical = 6.dp),
                 )
+            }
+            if (visual == NvSliderVisual.LINE) {
+                // 外层 Box 承接 BoxScope.align；本 Compose 版无 BoxScope.AnimatedVisibility 扩展，
+                // 裸调用会解析到外层 Column 接收者的 ColumnScope 版而编译报错——故全限定名调顶层版
+                Box(Modifier.align(Alignment.TopCenter)) {
+                    androidx.compose.animation.AnimatedVisibility(
+                        visible = (dragging || tapPulse) && durationMs > 0,
+                        enter = fadeIn(tween(80)),
+                        exit = fadeOut(tween(160)),
+                    ) {
+                        dragBubble(Modifier)
+                    }
+                }
+            } else if (showTapPos && durationMs > 0) {
+                dragBubble(Modifier.align(Alignment.TopCenter))
             }
         }
         }
