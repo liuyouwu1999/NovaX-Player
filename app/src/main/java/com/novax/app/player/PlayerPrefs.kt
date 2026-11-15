@@ -113,6 +113,9 @@ val KEY_BACKGROUND_PLAY = booleanPreferencesKey("novax_background_play")
  */
 val KEY_HALF_LOCK_ENABLED = booleanPreferencesKey("novax_half_lock_enabled")
 
+/** 控制层样式（classic/minimal/streaming，解析见 parseControlStyle；缺失回退 classic） */
+val KEY_CONTROL_STYLE = stringPreferencesKey("novax_control_style")
+
 // ---------------- 流量播放提醒三档（2026-10-11，spec §4.1） ----------------
 
 /** 档位落盘值常量（字符串键，惯例同 [KEY_DECODER]） */
