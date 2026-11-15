@@ -20,7 +20,7 @@
 
 ## Review Focus
 
-1. **onSetSpeed 提交语义漏项**（漏 recordLastSpeed/清 speedShift/静音 → 倍速行为与面板不一致）→ R1 测试锚定提交四要素函数化。
+1. **onSetSpeed 提交语义漏项**（漏 speed 赋值/recordLastSpeed/清 shift/静音等 → 倍速行为与面板不一致）→ R1 提取消重三处共用一份实现+独立复审锚定（JVM 不可测，运行时锚定在 R6.9）。
 2. **±0.1 浮点漂移**（0.1+0.2=0.30000004 连点错档）→ R3 测试连点 1.0→1.3→…→2.0 全档断言。
 3. **无时长文件剩余时间**（直播/损坏文件 durationMs≤0 → 负数/异常格式）→ R2 纯函数 `remainingLabel(durationMs, positionMs)` 测试（≤0 返 null 隐藏）。
 4. **窄幅七钮溢出回归**→ R4 `minimalBottomSlots(narrow)` 测试（七/五槽）。
@@ -43,7 +43,7 @@
 
 - [ ] **Step 1: 扩契约测试（先红）**——NvControlContractTest 加用例：`onSetSpeed 默认 no-op 不崩`（`c.onSetSpeed(1.5f)` 无异常）+ 字段存在性。（提交语义四/五要素 JVM 不可测——锚定靠本步提取消重+独立复审+R6 冒烟运行时锚定，如实声明）
 - [ ] **Step 2: 跑测试确认红**（`--tests "com.novax.app.player.NvControlContractTest"`）
-- [ ] **Step 3: 实现**——契约加 `val onSetSpeed: (Float) -> Unit = {}`（KDoc 注明提交语义=SpeedSheet.onPick 同款）。**主侧**：从 PlayerScreen 的 SpeedSheet onPick 回调体（约 L2349-2357）提取 `applyPickedSpeed(picked: Float)`，**五动作原序**：`speed = picked`（本地 UI 态手动赋值——缺此三件套标签不刷新）+ 清 speedShiftActive/speedShiftLocked + engine.setPlaybackSpeed(pitched) + applySpeedMute + recordLastSpeed；`sheet = null` 留在 onPick 调用处（三件套不关面板）。**RMVB 侧**：L3014-3033（八档 chips）与 L3052-3071（细调滑杆）是**两份重复提交段**——提取共享提交函数（要素全列：uiSpeed 赋值 + persistPlaybackSpeed + 清 speedShift 双态 + logSpeedBoostEnd + 解旧 boost 静音 setVolume(100) + rampRate 冲刷（非裸 vlcPlayer.rate）+ ≥3x 应用静音），八档/滑杆/契约 onSetSpeed 三处共用；`uiShowSpeedSheet=false` 留调用处。
+- [ ] **Step 3: 实现**——契约加 `val onSetSpeed: (Float) -> Unit = {}`（KDoc 注明提交语义=SpeedSheet.onPick 同款）。**主侧**：从 PlayerScreen 的 SpeedSheet onPick 回调体（约 L2349-2357）提取 `applyPickedSpeed(picked: Float)`，**五动作原序**：`speed = picked`（本地 UI 态手动赋值——缺此三件套标签不刷新）+ 清 speedShiftActive/speedShiftLocked + engine.setPlaybackSpeed(picked) + applySpeedMute + recordLastSpeed；`sheet = null` 留在 onPick 调用处（三件套不关面板）。**RMVB 侧**：L3014-3033（八档 chips）与 L3052-3071（细调滑杆）是**两份重复提交段**——提取共享提交函数（要素全列：uiSpeed 赋值 + persistPlaybackSpeed + 清 speedShift 双态 + logSpeedBoostEnd + 解旧 boost 静音 setVolume(100) + rampRate 冲刷（非裸 vlcPlayer.rate）+ ≥3x 应用静音），八档/滑杆/契约 onSetSpeed 三处共用；`uiShowSpeedSheet=false` 留调用处。
 - [ ] **Step 4: 全量绿 + assembleDebug**
 - [ ] **Step 5: Commit** `feat(player): 契约扩 onSetSpeed 直设倍速——两侧提交语义与 SpeedSheet.onPick 同款(主侧提取 applyPickedSpeed 消重)`
 
@@ -71,7 +71,7 @@
 
 **Interfaces:**
 - Consumes: 契约 onLock/onSubtitle/onMore/onSetSpeed/speed/lockMode；`snapPlaybackSpeed`；`formatSpeedLabel`。
-- Produces: `fun nvSpeedStep(current: Float, delta: Float): Float = snapPlaybackSpeed(current + delta)`；`@Composable MinimalSideRail(c)`（左列：锁三态图标/CC 字幕/齿轮更多）；`@Composable MinimalSpeedRail(c)`（右列：⊕/speed 标签非 1x 高亮+点击重置/⊖）；组件内**垂直定位=父 Box align Center + offset(y = 屏高×6%)**（56% 中心实测口径）。
+- Produces: `fun nvSpeedStep(current: Float, delta: Float): Float = snapPlaybackSpeed(current + delta)`；`@Composable MinimalSideRail(c)`（左列：锁三态图标/CC 字幕/齿轮更多）；`@Composable MinimalSpeedRail(c)`（右列：⊕/speed 标签非 1x 高亮+点击重置/⊖）；**垂直定位由调用侧负责**（R4 接线：align(CenterStart/CenterEnd)+offset(y=屏高×6%)，56% 中心实测口径）；组件内不做定位。
 
 - [ ] **Step 1: 步进测试（先红）**：`nvSpeedStep(1.0f, +0.1f)==1.1f`；连点漂移 `listOf(1.0,1.1,…,2.0)` 十步全档精确（防 0.30000004）；上界 clamp `nvSpeedStep(5.0f, +0.1f)==5.0f`；下界 `nvSpeedStep(0.1f, -0.1f)==0.1f`；重置语义（组件层）`delta=-current`→1.0 不必测（重置走 onSetSpeed(1f)）。
 - [ ] **Step 2: 红** → **Step 3: 实现**——nvSpeedStep 一行复用；两 Rail 组件：46dp 圆 `background(Color.Black.copy(alpha=0.55f), CircleShape)` 白 icon 24dp，Column 间距 12dp；锁图标三分支与 NvPlayerControlRow.LockSlot 同口径（Outlines/Filled 同款）。**垂直定位统一在调用侧**（R4 接线）：`align(CenterStart/CenterEnd) + offset(y = 屏高×6%)`（组件内不做定位；56% 中心=Center+6% 偏移等价）。**i18n（本步落）**：⊕/⊖/中间钮重置三个 contentDescription 新键（如 `player_speed_plus/minus/reset`）五语言；锁/CC 字幕/齿轮复用现有 `player_cd_lock`/`player_sheet_subtitle`/`player_sheet_more` 不新增。
