@@ -287,6 +287,27 @@ internal fun NvScrollableActionRow(
     }
 }
 
+/**
+ * T5 顶栏收拢（2026-11-15）：顶栏动作键枚举——NvPlayerTopBar 四维参数化的「顺序」维载体。
+ * 键的「有无」由可空回调决定（onPip/onQuality/onCast 传 null 即不渲染），顺序由 [order] 列表
+ * 决定，两侧各保现状顺序（收拢零重排——主 [NvTopBarOrderMain] 字幕在音轨前、RMVB
+ * [NvTopBarOrderRmvb] 音轨在字幕前，spec 2026-11-15 §5.3 / 二轮评审 P2-5）。
+ */
+internal enum class NvTopAction { SUBTITLE, AUDIO, ASPECT, ORIENTATION, MIRROR, ROTATE, PIP, QUALITY, INFO, CAST, MORE }
+
+/** 主播放器现状顺序（收拢时快照，与 PlayerScreen 调用现状逐键一致；PIP/QUALITY/CAST 键在、渲染与否看回调） */
+internal val NvTopBarOrderMain: List<NvTopAction> = listOf(
+    NvTopAction.SUBTITLE, NvTopAction.AUDIO, NvTopAction.ASPECT, NvTopAction.ORIENTATION,
+    NvTopAction.MIRROR, NvTopAction.ROTATE, NvTopAction.PIP, NvTopAction.QUALITY,
+    NvTopAction.INFO, NvTopAction.CAST, NvTopAction.MORE,
+)
+
+/** RMVB 兜底页现状顺序（收拢时快照，与收拢前 RmvbPlayerActivity.ControlsTop 逐键一致；无 PIP/QUALITY/CAST） */
+internal val NvTopBarOrderRmvb: List<NvTopAction> = listOf(
+    NvTopAction.ASPECT, NvTopAction.ORIENTATION, NvTopAction.MIRROR, NvTopAction.ROTATE,
+    NvTopAction.AUDIO, NvTopAction.SUBTITLE, NvTopAction.INFO, NvTopAction.MORE,
+)
+
 @Composable
 internal fun NvPlayerTopBar(
     title: String,
@@ -316,6 +337,19 @@ internal fun NvPlayerTopBar(
     onMore: () -> Unit,
     /** C13 投屏：非 null 显示投屏钮（有 playUrl 才传） */
     onCast: (() -> Unit)? = null,
+    /** T5 顶栏收拢（2026-11-15）：动作键渲染顺序——默认主播放器现状序；RMVB 传 [NvTopBarOrderRmvb]
+     *  保其现状序（收拢零重排）；null 回调的键（PIP/QUALITY/CAST）即使在列表中也跳过不渲染 */
+    order: List<NvTopAction> = NvTopBarOrderMain,
+    /** T5 cd 带当前值口径（spec §5.3，信息量只增不减）：非 null = 比例键整条 contentDescription
+     *  （RMVB 传 stringResource(player_cd_aspect_current, 当前值)）；null 退回 player_sheet_aspect（主播放器现状） */
+    aspectCurrent: String? = null,
+    /** T5 cd 带当前值口径：非 null = 镜像键整条 cd（RMVB 传「镜像(当前 开/关)」）；null 退回 player_cd_mirror */
+    mirrorCurrent: String? = null,
+    /** T5 cd 带当前值口径：非 null = 旋转键整条 cd（RMVB 传「旋转(当前 N°)」）；null 退回 player_cd_rotate */
+    rotateCurrent: String? = null,
+    /** T5 收拢发现项：RMVB 更多键 cd 现状是 player_cd_more_rmvb（「更多(AB 循环/睡眠定时)」）与主播放器
+     *  player_sheet_more 不同——非 null 覆盖保 RMVB 现状；null 用主播放器口径（两侧 cd 逐字不变） */
+    moreContentDescription: String? = null,
 ) {
     // N4 顶栏竖屏适配（2026-10-09 用户需求：竖屏"这一撮"要大、放不下就拖动）：
     // 返回键固定 + 标题 weight(1f) 且 widthIn(min=96dp 最小可读宽)+ellipsis；
@@ -372,61 +406,78 @@ internal fun NvPlayerTopBar(
                 }
             }
             // 动作区：按内容宽 + 横向可拖动 + 可滑动静态暗示（半截图标/边缘渐隐，
-            // 见 NvScrollableActionRow）；竖屏封顶 96dp 标题宽之外的全部空间
+            // 见 NvScrollableActionRow）；竖屏封顶 96dp 标题宽之外的全部空间。
+            // T5 收拢：渲染顺序/键集由 order 列表驱动（主/RMVB 各保现状序，收拢零重排）；
+            // PIP/QUALITY/CAST 三键回调为 null 时跳过（键的有无不靠列表、仍由回调 null 语义决定——
+            // 列表只管「排在哪里」；历史注释里的相对位置描述以各顺序常量为准）
             NvScrollableActionRow(actionsMaxWidth = actionsMaxWidth) {
-                IconButton(onClick = onSubtitle, modifier = Modifier.size(48.dp)) {
-                    Icon(
-                        // 2026-09-16 UI 审计 P2-5：无轨时保持白色可点观感（原 60% 灰像禁用）
-                        if (hasSubtitleTracks) Icons.Outlined.ClosedCaption else Icons.Outlined.ClosedCaptionOff,
-                        stringResource(R.string.player_sheet_subtitles),
-                        tint = Color.White,
-                        modifier = Modifier.size(26.dp),
-                    )
-                }
-                IconButton(onClick = onAudio, modifier = Modifier.size(48.dp)) {
-                    Icon(Icons.Outlined.Audiotrack, stringResource(R.string.player_sheet_audio), tint = Color.White, modifier = Modifier.size(26.dp))
-                }
-                IconButton(onClick = onAspect, modifier = Modifier.size(48.dp)) {
-                    Icon(Icons.Outlined.AspectRatio, stringResource(R.string.player_sheet_aspect), tint = Color.White, modifier = Modifier.size(26.dp))
-                }
-                // 返工⑤（2026-10-15 用户第五项反馈）：「画面旋转」与「方向切换（竖屏切换）」两钮
-                // 位置互换（旋转原在比例后、方向切换原在镜像后；互换后=比例/方向切换/镜像/旋转），
-                // 其余钮顺序不动，图标/语义/onClick 全部不变（RMVB 页 ControlsTop 同步对调）
-                IconButton(onClick = onOrientation, modifier = Modifier.size(48.dp)) {
-                    Icon(Icons.Outlined.ScreenRotation, stringResource(R.string.player_cd_orientation), tint = Color.White, modifier = Modifier.size(26.dp))
-                }
-                IconButton(onClick = onVideoMirror, modifier = Modifier.size(48.dp)) {
-                    Icon(
-                        if (videoMirrored) Icons.Filled.Flip else Icons.Outlined.Flip,
-                        stringResource(R.string.player_cd_mirror),
-                        tint = Color.White,
-                        modifier = Modifier.size(26.dp),
-                    )
-                }
-                IconButton(onClick = onVideoRotate, modifier = Modifier.size(48.dp)) {
-                    Icon(Icons.Outlined.Rotate90DegreesCcw, stringResource(R.string.player_cd_rotate), tint = Color.White, modifier = Modifier.size(26.dp))
-                }
-                if (onPip != null) {
-                    IconButton(onClick = onPip, modifier = Modifier.size(48.dp)) {
-                        Icon(Icons.Outlined.PictureInPictureAlt, stringResource(R.string.player_cd_pip), tint = Color.White, modifier = Modifier.size(26.dp))
+                order.forEach { action ->
+                    when (action) {
+                        NvTopAction.SUBTITLE -> IconButton(onClick = onSubtitle, modifier = Modifier.size(48.dp)) {
+                            Icon(
+                                // 2026-09-16 UI 审计 P2-5：无轨时保持白色可点观感（原 60% 灰像禁用）
+                                if (hasSubtitleTracks) Icons.Outlined.ClosedCaption else Icons.Outlined.ClosedCaptionOff,
+                                stringResource(R.string.player_sheet_subtitles),
+                                tint = Color.White,
+                                modifier = Modifier.size(26.dp),
+                            )
+                        }
+                        NvTopAction.AUDIO -> IconButton(onClick = onAudio, modifier = Modifier.size(48.dp)) {
+                            Icon(Icons.Outlined.Audiotrack, stringResource(R.string.player_sheet_audio), tint = Color.White, modifier = Modifier.size(26.dp))
+                        }
+                        NvTopAction.ASPECT -> IconButton(onClick = onAspect, modifier = Modifier.size(48.dp)) {
+                            // T5 cd 带当前值口径：RMVB 传 aspectCurrent（player_cd_aspect_current 整串）；
+                            // null（主播放器现状）退回 player_sheet_aspect——两侧 cd 逐字不变
+                            Icon(Icons.Outlined.AspectRatio, aspectCurrent ?: stringResource(R.string.player_sheet_aspect), tint = Color.White, modifier = Modifier.size(26.dp))
+                        }
+                        // 返工⑤（2026-10-15 用户第五项反馈）：「画面旋转」与「方向切换（竖屏切换）」两钮
+                        // 位置互换（互换后=比例/方向切换/镜像/旋转），图标/语义/onClick 全部不变；
+                        // T5 收拢后相对位置由 NvTopBarOrderMain/Rmvb 常量承载（两常量同序段）
+                        NvTopAction.ORIENTATION -> IconButton(onClick = onOrientation, modifier = Modifier.size(48.dp)) {
+                            Icon(Icons.Outlined.ScreenRotation, stringResource(R.string.player_cd_orientation), tint = Color.White, modifier = Modifier.size(26.dp))
+                        }
+                        NvTopAction.MIRROR -> IconButton(onClick = onVideoMirror, modifier = Modifier.size(48.dp)) {
+                            // T5 cd 带当前值口径：RMVB 传 mirrorCurrent（player_cd_mirror_current 整串）；
+                            // null 退回 player_cd_mirror（主播放器现状）
+                            Icon(
+                                if (videoMirrored) Icons.Filled.Flip else Icons.Outlined.Flip,
+                                mirrorCurrent ?: stringResource(R.string.player_cd_mirror),
+                                tint = Color.White,
+                                modifier = Modifier.size(26.dp),
+                            )
+                        }
+                        NvTopAction.ROTATE -> IconButton(onClick = onVideoRotate, modifier = Modifier.size(48.dp)) {
+                            // T5 cd 带当前值口径：RMVB 传 rotateCurrent（player_cd_rotate_current 整串）；
+                            // null 退回 player_cd_rotate（主播放器现状）
+                            Icon(Icons.Outlined.Rotate90DegreesCcw, rotateCurrent ?: stringResource(R.string.player_cd_rotate), tint = Color.White, modifier = Modifier.size(26.dp))
+                        }
+                        // 2026-09-18：画中画从底栏上移顶栏（底栏中心对称化）；null 即不渲染
+                        NvTopAction.PIP -> if (onPip != null) {
+                            IconButton(onClick = onPip, modifier = Modifier.size(48.dp)) {
+                                Icon(Icons.Outlined.PictureInPictureAlt, stringResource(R.string.player_cd_pip), tint = Color.White, modifier = Modifier.size(26.dp))
+                            }
+                        }
+                        // M3 清晰度面板入口（仅 Jellyfin 源可见；相对位置在顺序常量中=信息键前）
+                        NvTopAction.QUALITY -> if (onQuality != null) {
+                            IconButton(onClick = onQuality, modifier = Modifier.size(48.dp)) {
+                                Icon(Icons.Outlined.Tune, stringResource(R.string.player_sheet_quality), tint = Color.White, modifier = Modifier.size(26.dp))
+                            }
+                        }
+                        NvTopAction.INFO -> IconButton(onClick = onInfo, modifier = Modifier.size(48.dp)) {
+                            Icon(Icons.Outlined.Info, stringResource(R.string.player_info_title), tint = Color.White, modifier = Modifier.size(26.dp))
+                        }
+                        // C13 投屏：null 即不渲染（有 playUrl 才传）
+                        NvTopAction.CAST -> if (onCast != null) {
+                            IconButton(onClick = onCast, modifier = Modifier.size(48.dp)) {
+                                Icon(Icons.Outlined.Cast, stringResource(R.string.player_cd_cast), tint = Color.White, modifier = Modifier.size(26.dp))
+                            }
+                        }
+                        NvTopAction.MORE -> IconButton(onClick = onMore, modifier = Modifier.size(48.dp)) {
+                            // T5 收拢发现项：RMVB 现状 cd=player_cd_more_rmvb（含 AB 循环/睡眠定时说明），
+                            // 经 moreContentDescription 传入保两侧 cd 逐字不变
+                            Icon(Icons.Outlined.MoreVert, moreContentDescription ?: stringResource(R.string.player_sheet_more), tint = Color.White, modifier = Modifier.size(26.dp))
+                        }
                     }
-                }
-                // M3 清晰度面板入口（排在「信息」前；仅 Jellyfin 源可见）
-                if (onQuality != null) {
-                    IconButton(onClick = onQuality, modifier = Modifier.size(48.dp)) {
-                        Icon(Icons.Outlined.Tune, stringResource(R.string.player_sheet_quality), tint = Color.White, modifier = Modifier.size(26.dp))
-                    }
-                }
-                IconButton(onClick = onInfo, modifier = Modifier.size(48.dp)) {
-                    Icon(Icons.Outlined.Info, stringResource(R.string.player_info_title), tint = Color.White, modifier = Modifier.size(26.dp))
-                }
-                if (onCast != null) {
-                    IconButton(onClick = onCast, modifier = Modifier.size(48.dp)) {
-                        Icon(Icons.Outlined.Cast, stringResource(R.string.player_cd_cast), tint = Color.White, modifier = Modifier.size(26.dp))
-                    }
-                }
-                IconButton(onClick = onMore, modifier = Modifier.size(48.dp)) {
-                    Icon(Icons.Outlined.MoreVert, stringResource(R.string.player_sheet_more), tint = Color.White, modifier = Modifier.size(26.dp))
                 }
             }
         }

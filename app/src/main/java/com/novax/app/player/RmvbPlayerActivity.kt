@@ -31,11 +31,9 @@ import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.detectTapGestures
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -46,23 +44,15 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.widthIn
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.outlined.ArrowBack
-import androidx.compose.material.icons.filled.Flip
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.LockOpen
 import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.VolumeUp
 import androidx.compose.material.icons.filled.WbSunny
-import androidx.compose.material.icons.outlined.AspectRatio
-import androidx.compose.material.icons.outlined.ClosedCaption
-import androidx.compose.material.icons.outlined.Audiotrack
-import androidx.compose.material.icons.outlined.Flip
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.LightMode
 import androidx.compose.material.icons.outlined.VolumeUp
@@ -70,15 +60,11 @@ import androidx.compose.material.icons.outlined.FastForward
 import androidx.compose.material.icons.outlined.FastRewind
 import androidx.compose.material.icons.outlined.Lock
 import androidx.compose.material.icons.outlined.LockOpen
-import androidx.compose.material.icons.outlined.MoreVert
-import androidx.compose.material.icons.outlined.Rotate90DegreesCcw
-import androidx.compose.material.icons.outlined.ScreenRotation
 import androidx.compose.material.icons.outlined.SkipNext
 import androidx.compose.material.icons.outlined.SkipPrevious
 import androidx.compose.material.icons.outlined.Speed
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.minimumInteractiveComponentSize
 import androidx.compose.runtime.Composable
@@ -104,8 +90,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
@@ -2646,7 +2630,43 @@ class RmvbPlayerActivity : ComponentActivity() {
                     slideOutVertically(tween(NvMotion.DurationNormal, easing = NvMotion.CurveAccelerate)) { -it },
                 modifier = Modifier.align(Alignment.TopCenter),
             ) {
-                ControlsTop()
+                // T5 顶栏收拢（2026-11-15）：删平行副本 ControlsTop，改接共享 NvPlayerTopBar（四维参数化：
+                // 键集可空/顺序列表/cd 带当前值/容器统一——spec 2026-11-15 §5.3）。顶栏渐变从组件自身
+                // 移到本宿主 Box 外层（主播放器同款口径抄自 PlayerScreen 顶栏宿主）——容器统一微变②③：
+                // ①共享容器高度显式 56dp；②渐变 0.7 黑→ScrimStrong 移外层；③新增 displayCutout insets。
+                Box(
+                    Modifier
+                        .fillMaxWidth()
+                        .background(Brush.verticalGradient(listOf(NvColors.ScrimStrong, Color.Transparent))),
+                ) {
+                    NvPlayerTopBar(
+                        title = title,
+                        subtitle = null,
+                        // RMVB 现状：字幕键恒白图标（无无轨灰态概念）——传 true 保持收拢前观感
+                        hasSubtitleTracks = true,
+                        onBack = { finish() },
+                        onSubtitle = { uiShowSubSheet = true },
+                        onAudio = { uiShowAudioSheet = true },
+                        onAspect = { cycleAspect() },
+                        onVideoRotate = { rotateVideo() },
+                        videoMirrored = uiMirrored,
+                        onVideoMirror = { toggleVideoMirror() },
+                        onOrientation = { toggleOrientation() },
+                        // 键集（spec §5.3）：RMVB 无 PIP/清晰度/投屏——传 null 不渲染
+                        onPip = null,
+                        onQuality = null,
+                        onCast = null,
+                        onInfo = { uiShowInfoSheet = true },
+                        onMore = { uiShowMoreSheet = true },
+                        // 顺序：RMVB 现状序（音轨在字幕前）——收拢零重排
+                        order = NvTopBarOrderRmvb,
+                        // cd 带当前值口径：与收拢前 ControlsTop 各键字符串逐字一致（含 RMVB 专属更多键说明）
+                        aspectCurrent = stringResource(R.string.player_cd_aspect_current, stringResource(aspectLabelRes[uiAspectIndex])),
+                        mirrorCurrent = stringResource(R.string.player_cd_mirror_current, stringResource(if (uiMirrored) R.string.player_toggle_on else R.string.player_toggle_off)),
+                        rotateCurrent = stringResource(R.string.player_cd_rotate_current, uiVideoRotation),
+                        moreContentDescription = stringResource(R.string.player_cd_more_rmvb),
+                    )
+                }
             }
 
             AnimatedVisibility(
@@ -3018,103 +3038,10 @@ class RmvbPlayerActivity : ComponentActivity() {
         )
     }
 
-    // 2026-09-20 动效对齐：原 Controls() 整列只做淡入淡出，现拆成顶/底两个 @Composable，
-    // 由调用处分别包 AnimatedVisibility——顶行走上缘、底栏走下缘（与主播放器一致）
-    @Composable
-    private fun ControlsTop() {
-        // N4 顶栏竖屏适配（2026-10-09 用户需求：竖屏"这一撮"要大、放不下就拖动）：
-        // 与主播放器 NvPlayerTopBar 同构——返回键固定 + 标题 weight(1f)+widthIn(min=96dp 最小
-        // 可读宽)+ellipsis；动作区不 weight、按内容宽包 horizontalScroll（竖屏放不下可拖动，
-        // 横屏无滚动零副作用）；图标视觉 26dp、触控 48dp 不变；按钮集合/顺序/回调零变更。
-        // 实现注记（与主播放器同）：weight 子项空间不足分 0 时 widthIn(min) 会被 coerce，
-        // 故用 BoxWithConstraints 把动作区封顶在「总宽-返回-标题最小宽」，标题分配必得 ≥96dp。
-        // 2026-10-14 用户需求（与主播放器 NvPlayerTopBar 同步）：竖屏标题改「少展示」——
-        // 窄幅定宽 48dp 封顶（48dp=一枚键位格，动作区恰好多露一枚键），宽幅维持 96dp 仅保底
-        BoxWithConstraints(
-            Modifier
-                .fillMaxWidth()
-                .background(Brush.verticalGradient(listOf(Color.Black.copy(alpha = 0.7f), Color.Transparent)))
-                .padding(horizontal = 8.dp, vertical = 4.dp),
-            contentAlignment = Alignment.CenterStart,
-        ) {
-            // 标题宽口径（与动作区封顶配对）：窄幅（竖屏/分屏）48dp 定宽、宽幅 96dp 仅保底
-            val narrow = maxWidth < 480.dp
-            val titleWidth = if (narrow) 48.dp else 96.dp
-            val actionsMaxWidth = maxWidth - 48.dp - titleWidth
-            Row(
-                Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                IconButton(onClick = { finish() }, modifier = Modifier.size(48.dp)) {
-                    Icon(
-                        Icons.AutoMirrored.Outlined.ArrowBack,
-                        stringResource(R.string.player_back),
-                        tint = Color.White,
-                        modifier = Modifier.size(26.dp),
-                    )
-                }
-                Text(
-                    title,
-                    style = NvTypography.TitleMedium,
-                    color = NvColors.TextPrimary,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                    // 标题宽口径与动作区封顶配对（spec N4-1；2026-10-14 竖屏 48dp 定宽让位按键，
-                    // weight 分配的多余空间不再回填标题）
-                    modifier = Modifier
-                        .weight(1f)
-                        .widthIn(min = titleWidth, max = if (narrow) titleWidth else Dp.Unspecified),
-                )
-                // 动作区：按内容宽 + 横向可拖动 + 可滑动静态暗示（与主播放器同款共用组件
-                // NvScrollableActionRow：半截图标/边缘渐隐）
-                NvScrollableActionRow(actionsMaxWidth = actionsMaxWidth) {
-                    IconButton(onClick = { cycleAspect() }, modifier = Modifier.size(48.dp)) {
-                        Icon(
-                            Icons.Outlined.AspectRatio,
-                            stringResource(R.string.player_cd_aspect_current, stringResource(aspectLabelRes[uiAspectIndex])),
-                            tint = Color.White,
-                            modifier = Modifier.size(26.dp),
-                        )
-                    }
-                    // 返工⑤（2026-10-15 用户第五项反馈）：与主播放器 NvPlayerTopBar 同步——
-                    // 「画面旋转」与「方向切换」位置互换，其余钮顺序/图标/语义/onClick 全部不变
-                    // 2026-10-11 画面镜像(主播放器同款):filled/outlined 表达开关态
-                    IconButton(onClick = { toggleOrientation() }, modifier = Modifier.size(48.dp)) {
-                        Icon(Icons.Outlined.ScreenRotation, stringResource(R.string.player_cd_orientation), tint = Color.White, modifier = Modifier.size(26.dp))
-                    }
-                    IconButton(onClick = { toggleVideoMirror() }, modifier = Modifier.size(48.dp)) {
-                        Icon(
-                            if (uiMirrored) Icons.Filled.Flip else Icons.Outlined.Flip,
-                            stringResource(
-                                R.string.player_cd_mirror_current,
-                                stringResource(if (uiMirrored) R.string.player_toggle_on else R.string.player_toggle_off),
-                            ),
-                            tint = Color.White,
-                            modifier = Modifier.size(26.dp),
-                        )
-                    }
-                    // 2026-09-20 画面旋转（主播放器 C12 同款）：内容 0/90/180/270 循环，跨 0° 切 surface 类型
-                    IconButton(onClick = { rotateVideo() }, modifier = Modifier.size(48.dp)) {
-                        Icon(Icons.Outlined.Rotate90DegreesCcw, stringResource(R.string.player_cd_rotate_current, uiVideoRotation), tint = Color.White, modifier = Modifier.size(26.dp))
-                    }
-                    // 2026-09-20 顶栏补键（用户反馈与主播放器不同步）：音轨选择 + 视频信息
-                    IconButton(onClick = { uiShowAudioSheet = true }, modifier = Modifier.size(48.dp)) {
-                        Icon(Icons.Outlined.Audiotrack, stringResource(R.string.player_sheet_audio), tint = Color.White, modifier = Modifier.size(26.dp))
-                    }
-                    IconButton(onClick = { uiShowSubSheet = true }, modifier = Modifier.size(48.dp)) {
-                        Icon(Icons.Outlined.ClosedCaption, stringResource(R.string.player_sheet_subtitles), tint = Color.White, modifier = Modifier.size(26.dp))
-                    }
-                    IconButton(onClick = { uiShowInfoSheet = true }, modifier = Modifier.size(48.dp)) {
-                        Icon(Icons.Outlined.Info, stringResource(R.string.player_info_title), tint = Color.White, modifier = Modifier.size(26.dp))
-                    }
-                    // 2026-09-18：「更多」从底栏上移顶栏——底栏改中心对称布局（与主播放器一致）
-                    IconButton(onClick = { uiShowMoreSheet = true }, modifier = Modifier.size(48.dp)) {
-                        Icon(Icons.Outlined.MoreVert, stringResource(R.string.player_cd_more_rmvb), tint = Color.White, modifier = Modifier.size(26.dp))
-                    }
-                }
-            }
-        }
-    }
+    // T5 顶栏收拢（2026-11-15）：原 ControlsTop()（NvPlayerTopBar 平行副本，约 94 行）整段删除——
+    // 调用点改接共享 NvPlayerTopBar（见上方「控制层」AnimatedVisibility 内），键集/顺序/cd/容器
+    // 四维参数化保 RMVB 现状（spec 2026-11-15 §5.3）；底栏 ControlsBottom 仍为本页私有实现
+    //（NvPlayerBottomBar 壳仅主播放器使用，spec §5.3 底栏两件套口径不变）。
 
     @Composable
     private fun ControlsBottom() {
