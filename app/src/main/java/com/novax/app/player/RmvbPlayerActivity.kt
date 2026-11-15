@@ -2684,6 +2684,8 @@ class RmvbPlayerActivity : ComponentActivity() {
                 onInfo = { uiShowInfoSheet = true },
                 onCast = {},
                 onMore = { uiShowMoreSheet = true },   // P0-1：极简档唯一功能入口
+                // R1：极简档倍速三件套直设倍速——与八档/滑杆同款统一提交链（不关面板）
+                onSetSpeed = { applyPickedSpeed(it) },
                 onSeek = { target ->
                     lastManualSeekAt = android.os.SystemClock.elapsedRealtime()
                     resumeSeekArmed = false
@@ -3011,25 +3013,7 @@ class RmvbPlayerActivity : ComponentActivity() {
                             formatSpeedLabel(s),
                             selected = abs(uiSpeed - s) < 0.01f,
                             onClick = {
-                                uiSpeed = s
-                                persistPlaybackSpeed(s)   // 审计 A4：倍速跨会话记忆（remember 档恢复）
-                                // 2026-09-19：显式选速优先——清掉长按倍速生效/下滑锁定态（与主播放器对齐）
-                                features.speedShiftActive = false
-                                features.speedShiftLocked = false
-                                logSpeedBoostEnd()
-                                if (features.speedBoostMuted) {
-                                    vlcPlayer?.setVolume(100)
-                                    features.speedBoostMuted = false
-                                }
-                                rampRate(s)   // 显式选速（冲刷管线立即生效）
-                                // 2026-10-08 final-review fix：≥3x 自动静音（novax_mute_above_2x）——
-                                // 原路径只解旧 boost 静音、从不按新速度应用静音，选 3x/滑到 5x 全音量
-                                // 狂放（主播放器同操作是静音的）。必须在解旧之后应用，否则 3x→3x
-                                // 连切会把刚置的静音又抬回；与长按路径 :1645 同口径
-                                if (s >= 3f - 0.01f && uiMuteHighSpeed) {
-                                    features.speedBoostMuted = true
-                                    vlcPlayer?.setVolume(0)
-                                }
+                                applyPickedSpeed(s)   // 统一提交（R1 提取消重，要素全量）
                                 uiShowSpeedSheet = false
                             },
                         )
@@ -3051,23 +3035,7 @@ class RmvbPlayerActivity : ComponentActivity() {
                         onValueChange = { fine = it },
                         onValueChangeFinished = {
                             val s = snapPlaybackSpeed(fine)
-                            uiSpeed = s
-                            persistPlaybackSpeed(s)   // 审计 A4：倍速跨会话记忆（remember 档恢复）
-                            features.speedShiftActive = false
-                            features.speedShiftLocked = false
-                            logSpeedBoostEnd()
-                            if (features.speedBoostMuted) {
-                                vlcPlayer?.setVolume(100)
-                                features.speedBoostMuted = false
-                            }
-                            rampRate(s)   // 显式选速（冲刷管线立即生效）
-                            // 2026-10-08 final-review fix：≥3x 自动静音（novax_mute_above_2x）——
-                            // 滑杆高速档与八档同款补静音（根因同八档路径：只解旧不应用新）；
-                            // 解旧在前、应用在后防 3x→3x 连切抬回，与长按路径 :1645 同口径
-                            if (s >= 3f - 0.01f && uiMuteHighSpeed) {
-                                features.speedBoostMuted = true
-                                vlcPlayer?.setVolume(0)
-                            }
+                            applyPickedSpeed(s)   // 统一提交（R1 提取消重，与八档/契约同链）
                             uiShowSpeedSheet = false
                         },
                         valueRange = PLAYBACK_SPEED_MIN..PLAYBACK_SPEED_MAX,
@@ -3320,6 +3288,36 @@ class RmvbPlayerActivity : ComponentActivity() {
     private fun persistPlaybackSpeed(speed: Float) {
         lifecycleScope.launch {
             runCatching { putPlayerPref(KEY_LAST_SPEED, speed) }
+        }
+    }
+
+    /**
+     * 显式选速统一提交（R1 2026-11-15 提取消重）：原八档 chips / 细调滑杆两份逐字重复的
+     * 提交段提取，供三处共用（chips / 滑杆 / 契约 onSetSpeed——极简档倍速三件套经
+     * nvSpeedStep 步进后直设）。要素：uiSpeed 镜像 + persistPlaybackSpeed 跨会话记忆 +
+     * 清 speedShift 双态 + logSpeedBoostEnd 收口 + 解旧 boost 静音 setVolume(100) +
+     * rampRate 冲刷（非裸 vlcPlayer.rate）+ ≥3x 应用静音；uiShowSpeedSheet=false
+     * 留各调用处（契约路径三件套不关面板）。
+     */
+    private fun applyPickedSpeed(s: Float) {
+        uiSpeed = s
+        persistPlaybackSpeed(s)   // 审计 A4：倍速跨会话记忆（remember 档恢复）
+        // 2026-09-19：显式选速优先——清掉长按倍速生效/下滑锁定态（与主播放器对齐）
+        features.speedShiftActive = false
+        features.speedShiftLocked = false
+        logSpeedBoostEnd()
+        if (features.speedBoostMuted) {
+            vlcPlayer?.setVolume(100)
+            features.speedBoostMuted = false
+        }
+        rampRate(s)   // 显式选速（冲刷管线立即生效）
+        // 2026-10-08 final-review fix：≥3x 自动静音（novax_mute_above_2x）——
+        // 原路径只解旧 boost 静音、从不按新速度应用静音，选 3x/滑到 5x 全音量
+        // 狂放（主播放器同操作是静音的）。必须在解旧之后应用，否则 3x→3x
+        // 连切会把刚置的静音又抬回；与长按路径 :1645 同口径
+        if (s >= 3f - 0.01f && uiMuteHighSpeed) {
+            features.speedBoostMuted = true
+            vlcPlayer?.setVolume(0)
         }
     }
 

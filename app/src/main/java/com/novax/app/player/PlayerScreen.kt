@@ -1301,6 +1301,19 @@ fun PlayerScreen(
             Log.w("NvPerf", "speedMute dropped: no live engine")
         }
     }
+    // R1（2026-11-15 极简样式）：显式选速统一提交——提取自 SpeedSheet.onPick 重复段，供
+    // 面板与契约 onSetSpeed（极简档倍速三件套经 nvSpeedStep 步进后直设）共用。五动作原序：
+    // ①speed 镜像（本地 UI 态手动赋值——缺此三件套标签不刷新）②清长按倍速双态 ③引擎设速
+    // ④≥3x 静音应用 ⑤跨会话记忆写入；sheet=null 留 onPick 调用处（三件套不关面板）。
+    val applyPickedSpeed = { picked: Float ->
+        speed = picked
+        // 2026-09-19：显式选速优先——清掉长按倍速生效/下滑锁定态
+        features.speedShiftActive = false
+        features.speedShiftLocked = false
+        engine.setPlaybackSpeed(picked, pitch = pitchFor(picked, playerPrefs?.get(KEY_PRESERVE_PITCH) ?: true))
+        applySpeedMute(picked)
+        context.recordLastSpeed(picked)   // C10：跨会话倍速记忆写入端
+    }
     // 起播初速（novax_playback_speed_mode / novax_playback_last_speed，仅首帧设置一次）：
     // fixed → 1x；remember → 恢复上次倍速（跨会话记忆）。
     // key=engine：错误重试重建引擎后，把当前档位速度应用到新引擎。
@@ -1850,6 +1863,8 @@ fun PlayerScreen(
             onInfo = { sheet = PlayerSheet.INFO },
             onCast = if (playUrl != null) ({ showCastSheet = true }) else ({}),
             onMore = { sheet = PlayerSheet.MORE },
+            // R1：极简档倍速三件套直设倍速——与 SpeedSheet.onPick 同款提交链（不关面板）
+            onSetSpeed = applyPickedSpeed,
             onSeek = sliderSeek,
         )
         // 顶栏：顶部渐变遮罩 + 顶栏，从上缘滑入/滑出
@@ -2347,13 +2362,7 @@ fun PlayerScreen(
                     muteHighSpeed = playerPrefs?.get(KEY_MUTE_ABOVE_2X) ?: DEFAULT_MUTE_ABOVE_2X,
                     onDismiss = { sheet = null },   // BUG-C-R1-01：仅关闭面板不得回写旧速度/清锁定
                     onPick = { picked ->
-                        speed = picked
-                        // 2026-09-19：显式选速优先——清掉长按倍速生效/下滑锁定态
-                        features.speedShiftActive = false
-                        features.speedShiftLocked = false
-                        engine.setPlaybackSpeed(picked, pitch = pitchFor(picked, playerPrefs?.get(KEY_PRESERVE_PITCH) ?: true))
-                        applySpeedMute(picked)
-                        context.recordLastSpeed(picked)   // C10：跨会话倍速记忆写入端
+                        applyPickedSpeed(picked)   // 五动作统一提交（R1 提取消重）
                         sheet = null
                     },
                 )

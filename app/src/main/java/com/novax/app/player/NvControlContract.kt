@@ -39,6 +39,10 @@ data class NvControlContract(
     val onInfo: () -> Unit = {},
     val onCast: () -> Unit = {},
     val onMore: () -> Unit = {},
+    /** 直设倍速（R1 极简档倍速三件套 ⊕/⊖ 经 nvSpeedStep 步进后提交）：提交语义=SpeedSheet.onPick
+     *  同款五动作（UI 速度态镜像 + 清长按倍速双态 + 引擎设速 + ≥3x 静音应用 + 跨会话记忆），
+     *  不关任何面板（面板关闭归 onSpeed 打开的 SpeedSheet 自身 onPick） */
+    val onSetSpeed: (Float) -> Unit = {},
     /** 拖动松手 seek（line/classic 进度条共用） */
     val onSeek: (Long) -> Unit = {},
 )

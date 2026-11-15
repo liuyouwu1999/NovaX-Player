@@ -20,4 +20,13 @@ class NvControlContractTest {
         c.onMore()
         assertNotNull(c.onSeek)
     }
+    // R1（2026-11-15 极简样式）：契约扩 onSetSpeed——极简档倍速三件套经 nvSpeedStep 步进后
+    // 直设倍速提交。提交语义四/五要素（UI 态镜像/清长按双态/引擎设速/≥3x 静音/跨会话记忆）
+    // 全在播放器宿主侧 lambda 里，JVM 不可测——本用例锚定默认 no-op 安全 + 字段存在性，
+    // 行为等价靠提取重构（主侧 applyPickedSpeed / RMVB 侧共享提交函数）+ 独立复审 + R6 冒烟。
+    @Test fun `onSetSpeed 默认 no-op 不崩`() {
+        val c = NvControlContract()
+        c.onSetSpeed(1.5f)          // 默认 no-op 不崩
+        assertNotNull(c.onSetSpeed) // 字段存在性锚定
+    }
 }
