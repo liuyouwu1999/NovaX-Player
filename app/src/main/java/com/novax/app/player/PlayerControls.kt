@@ -825,6 +825,16 @@ internal fun NvSkipStepButton(rewind: Boolean, sec: Int, size: Dp, iconSize: Dp 
 /** NvChapterSlider 视觉模式（spec §5.2）：CLASSIC=粗轨+章节刻度+金属旋钮；LINE=贴缘细线（minimal 常驻/唤起与 streaming 底线共用）。 */
 enum class NvSliderVisual { CLASSIC, LINE }
 
+/**
+ * line 细线模式未播段专用色（2026-11-15 三星真机缺陷根修）：白 50%。
+ * classic 未播段用 NvColors.Track（暗板 20% 白），设计前提=「TrackUnderlay 40% 黑衬底压亮画面」；
+ * 叠深色/带黑边视频时 20% 白≈不可辨（用户实证：整条线只剩左侧一小段橙）。LINE 模式宿主侧
+ * 已统一 Scrim 黑块打底（minimal 底栏 Column 接线/streaming 底栏同构），细线改 50% 白保证
+ * 黑底上可辨。**classic 恒用 NvColors.Track 零变化**——LINE 分支内取色分流（非参数化），
+ * 调用点零改动；streaming 底线同走 LINE 连带变清晰（根修备案可接受）。
+ */
+internal val NvLineTrackUnplayed: Color = Color.White.copy(alpha = 0.5f)
+
 /** 任务3：NvChapterSlider 换皮口径的可纯断言量（trackYAnchor 依赖 IntSize/Density 不可 JVM 测，故只收这三个）。
  *  T6/T7 依赖此签名接线。 */
 data class NvSliderMetrics(val hPaddingDp: Float, val showsTimeRow: Boolean, val showsThumb: Boolean)
@@ -992,6 +1002,10 @@ internal fun NvChapterSlider(
                     //（审核纠正：bottom padding 会把绘制区推回顶部），绘制区 = 全高（2026-11-15 紧凑化后 48dp）
             ) {
                 val w = size.width
+                // 2026-11-15 真机缺陷根修：未播段凹槽取色——LINE=专用 50% 白（黑底可辨，见
+                // [NvLineTrackUnplayed]）；classic=NvColors.Track 原值零变化。缓冲段叠色/末端圆头
+                // 同源自 grooveColor 派生，两档视觉层级（未播/缓冲）关系保持
+                val grooveColor = if (visual == NvSliderVisual.LINE) NvLineTrackUnplayed else cTrack
                 // 任务3：轨道高——classic 粗轨动画（5/8dp 不变）；line 3dp 细线（拖动加粗 6dp 见 [lineTrackHeight]）
                 val th = (if (visual == NvSliderVisual.LINE) lineTrackHeight else trackHeight).toPx()
                 // 轨道中心锚定：classic 距热区底 14dp（热态拇指半径 11dp,最远到约 26.5dp < 48dp 不裁切）；
@@ -1008,7 +1022,7 @@ internal fun NvChapterSlider(
                 if (durationMs <= 0) {
                     // 2026-09-16 UI 审计 P1：20% 白轨道在亮画面上不可辨 → 叠 40% 黑衬底
                     drawRoundRect(cTrackUnderlay, topLeft = Offset(0f, trackTop), size = Size(w, th), cornerRadius = trackCorner)
-                    drawNvGrooveTrack(cTrack, Offset(0f, trackTop), Size(w, th))
+                    drawNvGrooveTrack(grooveColor, Offset(0f, trackTop), Size(w, th))
                 } else {
                     val bufferedFrac = (bufferedMs.toFloat() / durationMs).coerceIn(0f, 1f)
                     val playedFrac = if (showTapPos) {
@@ -1019,17 +1033,17 @@ internal fun NvChapterSlider(
                     // C12 反馈：未缓冲 Track 底轨 / 缓冲段（已播位置→缓冲末端）Track 半透明叠加+末端圆头 / 已播 Primary
                     // bufferedMs 随 500ms 心跳取 player.bufferedPosition（长按倍速期间 200ms）
                     drawRoundRect(cTrackUnderlay, topLeft = Offset(0f, trackTop), size = Size(w, th), cornerRadius = trackCorner)
-                    drawNvGrooveTrack(cTrack, Offset(0f, trackTop), Size(w, th))
+                    drawNvGrooveTrack(grooveColor, Offset(0f, trackTop), Size(w, th))
                     if (bufferedFrac > playedFrac) {
                         drawRoundRect(
-                            cTrack.copy(alpha = 0.5f),
+                            grooveColor.copy(alpha = 0.5f),
                             topLeft = Offset(w * playedFrac, trackTop),
                             size = Size(w * (bufferedFrac - playedFrac), th),
                             cornerRadius = trackCorner,
                         )
                         // 缓冲末端小圆头：收小降透明，避免与橙色拇指混淆成「两个拖拽点」
                         drawCircle(
-                            cTrack.copy(alpha = 0.35f),
+                            grooveColor.copy(alpha = 0.35f),
                             radius = 1.5.dp.toPx(),
                             center = Offset(w * bufferedFrac, trackCenterY),
                         )

@@ -1971,11 +1971,16 @@ fun PlayerScreen(
             // T6 样式分发（spec §5.2 分发点②）：极简底栏 = rev4 §3.2 布局图两行——七钮黑条在上 +
             // line 进度条贴底在下（R4；Column 顺序 P0：黑条在下会把细线顶离底缘，破坏「原位顶替
             // 门控外常驻细线」的防双线语义）；原位顶替/章节刻度不上细轨（chapters=emptyList）口径不变。
+            // 2026-11-15 三星真机缺陷根修：Column 统一 Scrim 底——黑条背景下延覆盖进度条 48dp 触摸区，
+            // 按钮+线连成连续黑块、线贴块底缘=贴屏幕底缘（黑条自带背景已上移宿主防双层叠加接缝；
+            // background 只画背景不吞事件，slider 触摸/热区零影响）
             // T7 长视频风底栏（spec §3.3）= 贴底线（line 模式拖动加粗 thickenOnDrag）+ 单行底栏；
             // else 分支（经典）= 既有底栏整体平移，内容逐字不动
             when (controlStyle) {
                 NvControlStyle.MINIMAL -> Column(
-                    Modifier.fillMaxWidth(),
+                    Modifier
+                        .fillMaxWidth()
+                        .background(NvColors.Scrim),
                 ) {
                     MinimalBottomBar(controlContract)
                     NvChapterSlider(

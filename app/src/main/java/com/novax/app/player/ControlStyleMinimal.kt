@@ -287,9 +287,13 @@ internal fun minimalBottomSlots(narrow: Boolean): List<MinimalSlot> =
     else MinimalSlot.entries.toList()
 
 /**
- * 极简唤起态底栏（rev4 §3.2）：黑色半透明横条（[NvColors.Scrim]，与顶栏同源遮罩）内七钮
- * 一行**等距**（Arrangement.SpaceEvenly，实测用户截图等距分布）——锁 │ 上集 │ 快退(skipSec) │
- * 暂停 │ 快进(skipSec) │ 下集 │ 画面比例。
+ * 极简唤起态底栏（rev4 §3.2）：黑色半透明横条内七钮一行**等距**（Arrangement.SpaceEvenly，
+ * 实测用户截图等距分布）——锁 │ 上集 │ 快退(skipSec) │ 暂停 │ 快进(skipSec) │ 下集 │ 画面比例。
+ * - **背景由宿主 Column 统一承载**（`Modifier.background(NvColors.Scrim)` 接在两侧 MINIMAL
+ *   分支的 `Column { MinimalBottomBar; NvChapterSlider(LINE) }` 上）——黑条背景向下延伸覆盖
+ *   进度条 48dp 触摸区，按钮+线连成一个连续黑块、线贴块底缘=贴屏幕底缘（2026-11-15 三星
+ *   真机缺陷根修：原「黑条+透明触摸区」在黑背景视频上呈死黑、按钮行视觉悬空；组件自带背景
+ *   会与宿主背景双层叠加出 84%≠60% 接缝，故统一上移宿主，本组件不再自画底）。
  * - 暂停 = 经典 PauseSlot 同款 NvGlassChip 58dp/30dp 磨砂圆钮（宽幅）；窄幅尺寸走
  *   [nvNarrowControlMetrics]/[nvRowIconFor]（streaming 底栏同源档位，五钮才放得下）。
  * - 上/下集**灰置不隐藏**（NvClusterButton enabled，nPlayer 一致口径）；锁=三态图标
@@ -302,7 +306,6 @@ internal fun MinimalBottomBar(c: NvControlContract, modifier: Modifier = Modifie
     BoxWithConstraints(
         modifier
             .fillMaxWidth()
-            .background(NvColors.Scrim)
             .padding(start = 16.dp, end = 16.dp, top = 2.dp, bottom = 4.dp),
     ) {
         val narrow = maxWidth < 480.dp

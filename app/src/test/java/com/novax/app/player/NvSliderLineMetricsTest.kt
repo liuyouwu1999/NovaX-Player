@@ -16,4 +16,11 @@ class NvSliderLineMetricsTest {
         assertEquals(false, m.showsTimeRow)   // 时间由常驻层/顶栏承载（spec §5.2 口径）
         assertEquals(false, m.showsThumb)
     }
+    @Test fun `line 未播段专用色白50(根修2026-11-15真机缺陷 Track 20%白叠黑不可辨)`() {
+        // Color 分量经 8bit 量化（0.5f→0x80=0.50196），容差取 0.002
+        assertEquals(0.5f, NvLineTrackUnplayed.alpha, 0.002f)
+        assertEquals(1f, NvLineTrackUnplayed.red, 0.002f)
+        assertEquals(1f, NvLineTrackUnplayed.green, 0.002f)
+        assertEquals(1f, NvLineTrackUnplayed.blue, 0.002f)
+    }
 }

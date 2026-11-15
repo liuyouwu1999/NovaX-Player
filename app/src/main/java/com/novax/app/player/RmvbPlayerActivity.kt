@@ -2763,11 +2763,15 @@ class RmvbPlayerActivity : ComponentActivity() {
                 // T6 样式分发（spec §5.2 分发点②）：极简底栏 = rev4 §3.2 布局图两行——七钮黑条在上 +
                 // line 进度条贴底在下（R4，与主播放器对称；Column 顺序 P0：黑条在下会把细线顶离底缘，
                 // 破坏「原位顶替门控外常驻细线」的防双线语义）；章节刻度不上细轨口径不变。
+                // 2026-11-15 三星真机缺陷根修：Column 统一 Scrim 底（与主播放器对称）——黑条背景下延
+                // 覆盖触摸区连成连续黑块；黑条自带背景已上移宿主防双层叠加接缝；触摸/热区零影响
                 // T7 长视频风底栏（spec §3.3）= 贴底线（line 模式拖动加粗 thickenOnDrag）+ 单行底栏。
                 // 经典=ControlsBottom 直调零变化
                 when (uiControlStyle) {
                     NvControlStyle.MINIMAL -> Column(
-                        Modifier.fillMaxWidth(),
+                        Modifier
+                            .fillMaxWidth()
+                            .background(NvColors.Scrim),
                     ) {
                         MinimalBottomBar(controlContract)
                         NvChapterSlider(
