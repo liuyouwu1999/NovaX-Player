@@ -38,6 +38,7 @@
 
     <!-- 플레이어 그룹 -->
     <string name="settings_default_speed">기본 배속</string>
+    <string name="settings_control_style">컨트롤 스타일</string>
     <string name="settings_speed_fixed">고정 1x</string>
     <string name="settings_speed_remember">마지막 배속 기억</string>
     <string name="settings_long_press_seek">길게 눌러 빨리 감기</string>

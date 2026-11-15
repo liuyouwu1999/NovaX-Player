@@ -38,6 +38,7 @@
 
     <!-- Player group -->
     <string name="settings_default_speed">Default speed</string>
+    <string name="settings_control_style">Control layer style</string>
     <string name="settings_speed_fixed">Fixed 1x</string>
     <string name="settings_speed_remember">Remember last</string>
     <string name="settings_long_press_seek">Long-press to seek</string>

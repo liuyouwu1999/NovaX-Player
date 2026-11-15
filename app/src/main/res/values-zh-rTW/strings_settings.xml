@@ -38,6 +38,7 @@
 
     <!-- 播放器組 -->
     <string name="settings_default_speed">預設倍速</string>
+    <string name="settings_control_style">控制層樣式</string>
     <string name="settings_speed_fixed">固定 1x</string>
     <string name="settings_speed_remember">記憶上次</string>
     <string name="settings_long_press_seek">長按快進</string>

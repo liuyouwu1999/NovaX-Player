@@ -62,6 +62,10 @@ import com.novax.app.data.update.UpdateCheckResult
 import com.novax.app.NvAppLanguage
 import com.novax.app.player.KEY_AUDIO_LANG
 import com.novax.app.player.KEY_BACKGROUND_PLAY
+import com.novax.app.player.KEY_CONTROL_STYLE
+import com.novax.app.player.NvControlStyle
+import com.novax.app.player.dataStoreValue
+import com.novax.app.player.parseControlStyle
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import com.novax.app.player.KEY_METERED_REMIND_MODE
 import com.novax.app.player.METERED_REMIND_EVERY
@@ -469,6 +473,26 @@ private fun PlaybackGroupPage(vm: SettingsViewModel, prefs: Preferences?, onBack
                     onChecked = { vm.set(KEY_RMVBFramesSkip, it) },
                     showDivider = false,
                 )
+            }
+        }
+        item {
+            // T9（spec §4/§7）：控制层样式——纵排三张 Canvas 迷你预览卡（P2-3），单选即写；
+            // 当前值经 parseControlStyle 读 KEY_CONTROL_STYLE（null/未知回退 CLASSIC，spec §6），
+            // 写入对齐本页其他行（vm.set → putPlayerPref；prefs 为 DataStore 流自动重组）
+            NvSettingsCard(stringResource(R.string.settings_control_style)) {
+                val currentStyle = parseControlStyle(prefs?.get(KEY_CONTROL_STYLE))
+                Column(
+                    Modifier.padding(vertical = NvSpacing.S),
+                    verticalArrangement = Arrangement.spacedBy(NvSpacing.S),
+                ) {
+                    NvControlStyle.entries.forEach { style ->
+                        NvStylePreviewCard(
+                            style,
+                            selected = style == currentStyle,
+                            onClick = { vm.set(KEY_CONTROL_STYLE, style.dataStoreValue) },
+                        )
+                    }
+                }
             }
         }
     }

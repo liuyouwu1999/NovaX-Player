@@ -38,6 +38,7 @@
 
     <!-- プレイヤーグループ -->
     <string name="settings_default_speed">デフォルトの倍速</string>
+    <string name="settings_control_style">コントロールスタイル</string>
     <string name="settings_speed_fixed">固定 1x</string>
     <string name="settings_speed_remember">前回の倍速を記憶</string>
     <string name="settings_long_press_seek">長押しで早送り</string>
