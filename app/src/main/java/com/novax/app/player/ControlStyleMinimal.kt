@@ -3,7 +3,9 @@ package com.novax.app.player
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -11,10 +13,18 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.LockOpen
+import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.outlined.Close
+import androidx.compose.material.icons.outlined.LockOpen
 import androidx.compose.material.icons.outlined.MoreVert
+import androidx.compose.material.icons.outlined.Remove
+import androidx.compose.material.icons.outlined.Settings
+import androidx.compose.material.icons.outlined.Subtitles
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -22,7 +32,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -37,7 +50,9 @@ import com.novax.app.ui.theme.NvPlayerBlue
  *   常驻半透明小字当前时间；**纯展示零热区**（不挂任何 pointerInput——拖动进度需先 tap 唤起，
  *   避免底缘带「单击唤起 vs 横滑全屏 seek vs tap-seek」三方冲突，评审 P0-3）。
  * - 唤起态：rev4 §3.2 蓝块顶栏（蓝✕/位置时间/标题/剩余时间/蓝⋯——⋯=极简档次要功能
- *   唯一入口族）；中央与底部无任何按钮行，底栏唯一内容 = NvChapterSlider line 模式（由宿主接线）。
+ *   唯一入口族）+ 左右侧钮列（左=锁三态/CC 字幕/齿轮更多，右=倍速三件套 ⊕/档位标签/⊖——
+ *   垂直定位由调用侧 R4 负责）；中央与底部无任何按钮行，底栏唯一内容 = NvChapterSlider
+ *   line 模式（由宿主接线）。
  * - 状态与回调全部来自 [NvControlContract]（样式包不自带业务状态）。
  */
 
@@ -154,5 +169,103 @@ internal fun MinimalTopBar(c: NvControlContract, modifier: Modifier = Modifier) 
         ) {
             Icon(Icons.Outlined.MoreVert, stringResource(R.string.player_sheet_more), Modifier.size(24.dp), tint = Color.White)
         }
+    }
+}
+
+/**
+ * 极简倍速三件套步进（rev4 §3.2 右列 ⊕/⊖）：加 delta 后吸附 0.1 网格并 clamp 0.1~5.0
+ * （复用 [snapPlaybackSpeed]，防裸浮点累加漂移透出到引擎与显示）。重置不走本函数
+ * （组件层直接 onSetSpeed(1f)，契约语义=SpeedSheet.onPick 同款五动作）。
+ */
+fun nvSpeedStep(current: Float, delta: Float): Float = snapPlaybackSpeed(current + delta)
+
+/**
+ * 侧钮列共用圆钮（rev4 §3.2）：46dp 黑色半透明圆底（Black 55%，nPlayer Simple Line 实测）
+ * + 24dp 白 icon。与顶栏蓝块不同——侧钮列是「圆」不是「圆角方块」，1:1 对照用户归档截图。
+ */
+@Composable
+private fun MinimalRailButton(onClick: () -> Unit, contentDescription: String, icon: ImageVector) {
+    Box(
+        Modifier
+            .size(46.dp)
+            .background(Color.Black.copy(alpha = 0.55f), CircleShape)
+            .clickable(onClick = onClick),
+        contentAlignment = Alignment.Center,
+    ) {
+        Icon(icon, contentDescription, Modifier.size(24.dp), tint = Color.White)
+    }
+}
+
+/**
+ * 极简唤起态左列（rev4 §3.2）：锁（三态图标与 NvPlayerControlRow.LockSlot 同口径——
+ * 全锁 Filled.Lock/半锁 Filled.LockOpen/未锁 Outlined.LockOpen，cd 复用 player_cd_lock）
+ * → CC 字幕（Outlined.Subtitles，cd 复用 player_sheet_subtitles）→ 齿轮更多
+ * （Outlined.Settings，cd 复用 player_sheet_more）。
+ * **垂直定位由调用侧负责**（R4 接线：align(CenterStart)+offset(y=屏高×6%)）——组件只交付纯 Column。
+ */
+@Composable
+internal fun MinimalSideRail(c: NvControlContract, modifier: Modifier = Modifier) {
+    Column(modifier, verticalArrangement = Arrangement.spacedBy(12.dp)) {
+        MinimalRailButton(
+            onClick = c.onLock,
+            contentDescription = stringResource(R.string.player_cd_lock),
+            icon = when (c.lockMode) {
+                2 -> Icons.Filled.Lock
+                1 -> Icons.Filled.LockOpen     // 半锁：实心开锁（与未锁的空心开锁区分，LockSlot 同款）
+                else -> Icons.Outlined.LockOpen
+            },
+        )
+        MinimalRailButton(
+            onClick = c.onSubtitle,
+            contentDescription = stringResource(R.string.player_sheet_subtitles),
+            icon = Icons.Outlined.Subtitles,
+        )
+        MinimalRailButton(
+            onClick = c.onMore,
+            contentDescription = stringResource(R.string.player_sheet_more),
+            icon = Icons.Outlined.Settings,
+        )
+    }
+}
+
+/**
+ * 极简唤起态右列（rev4 §3.2）：倍速三件套 ⊕/当前档标签/⊖。
+ * - ⊕/⊖ = [nvSpeedStep] ±0.1 步进（吸附防漂移）经 c.onSetSpeed 提交；
+ * - 中间恒显 [formatSpeedLabel] 当前档（"1x"/"1.5x"），非 1x 时 [NvPlayerBlue] 高亮，
+ *   点击重置 c.onSetSpeed(1f)（1x 时点击无效果，幂等）。
+ * **垂直定位由调用侧负责**（R4 接线：align(CenterEnd)+offset(y=屏高×6%)）——组件只交付纯 Column。
+ */
+@Composable
+internal fun MinimalSpeedRail(c: NvControlContract, modifier: Modifier = Modifier) {
+    // i18n：semantics 块非组合上下文，资源解析提升到组合期（streaming SPEED 槽同款）
+    val resetCd = stringResource(R.string.player_speed_reset)
+    Column(modifier, verticalArrangement = Arrangement.spacedBy(12.dp)) {
+        MinimalRailButton(
+            onClick = { c.onSetSpeed(nvSpeedStep(c.speed, +0.1f)) },
+            contentDescription = stringResource(R.string.player_speed_plus),
+            icon = Icons.Outlined.Add,
+        )
+        Box(
+            Modifier
+                .size(46.dp)
+                .background(Color.Black.copy(alpha = 0.55f), CircleShape)
+                .clickable(onClick = { c.onSetSpeed(1f) })
+                // Text 无 cd 参数：重置语义挂 Box semantics（streaming SPEED 槽同款姿势）
+                .semantics { contentDescription = resetCd },
+            contentAlignment = Alignment.Center,
+        ) {
+            Text(
+                formatSpeedLabel(c.speed),
+                style = NvTypography.LabelLarge,
+                color = if (c.speed != 1f) NvPlayerBlue else Color.White,
+                maxLines = 1,
+                softWrap = false,
+            )
+        }
+        MinimalRailButton(
+            onClick = { c.onSetSpeed(nvSpeedStep(c.speed, -0.1f)) },
+            contentDescription = stringResource(R.string.player_speed_minus),
+            icon = Icons.Outlined.Remove,
+        )
     }
 }

@@ -105,6 +105,9 @@
     <string name="player_cd_next_none">无下一个（文件夹队列末尾）</string>
     <string name="player_speed">倍速</string>
     <string name="player_speed_current">倍速（当前 %1$s）</string>
+    <string name="player_speed_plus">加快倍速（+0.1x）</string>
+    <string name="player_speed_minus">减慢倍速（-0.1x）</string>
+    <string name="player_speed_reset">倍速重置为 1x</string>
     <string name="player_cd_play">播放</string>
     <string name="player_cd_pause">暂停</string>
     <string name="player_cd_rewind_sec">快退%1$d秒</string>

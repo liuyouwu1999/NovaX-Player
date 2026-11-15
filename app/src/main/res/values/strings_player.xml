@@ -105,6 +105,9 @@
     <string name="player_cd_next_none">No next (end of folder queue)</string>
     <string name="player_speed">Speed</string>
     <string name="player_speed_current">Speed (current %1$s)</string>
+    <string name="player_speed_plus">Speed up (+0.1x)</string>
+    <string name="player_speed_minus">Speed down (-0.1x)</string>
+    <string name="player_speed_reset">Reset speed to 1x</string>
     <string name="player_cd_play">Play</string>
     <string name="player_cd_pause">Pause</string>
     <string name="player_cd_rewind_sec">Rewind %1$d s</string>

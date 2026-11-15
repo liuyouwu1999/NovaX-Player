@@ -105,6 +105,9 @@
     <string name="player_cd_next_none">次なし（フォルダーキューの末尾）</string>
     <string name="player_speed">倍速</string>
     <string name="player_speed_current">倍速（現在 %1$s）</string>
+    <string name="player_speed_plus">倍速を上げる（+0.1x）</string>
+    <string name="player_speed_minus">倍速を下げる（-0.1x）</string>
+    <string name="player_speed_reset">倍速を1xに戻す</string>
     <string name="player_cd_play">再生</string>
     <string name="player_cd_pause">一時停止</string>
     <string name="player_cd_rewind_sec">%1$d秒 巻き戻し</string>

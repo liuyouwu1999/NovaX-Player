@@ -105,6 +105,9 @@
     <string name="player_cd_next_none">다음 항목 없음(폴더 대기열 끝)</string>
     <string name="player_speed">배속</string>
     <string name="player_speed_current">배속(현재 %1$s)</string>
+    <string name="player_speed_plus">배속 빠르게(+0.1x)</string>
+    <string name="player_speed_minus">배속 느리게(-0.1x)</string>
+    <string name="player_speed_reset">배속 1x로 초기화</string>
     <string name="player_cd_play">재생</string>
     <string name="player_cd_pause">일시정지</string>
     <string name="player_cd_rewind_sec">%1$d초 되감기</string>
