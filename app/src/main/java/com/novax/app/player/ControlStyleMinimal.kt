@@ -1,17 +1,21 @@
 package com.novax.app.player
 
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.outlined.ArrowBack
+import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material.icons.outlined.MoreVert
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -19,19 +23,21 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.novax.app.R
 import com.novax.app.ui.components.NvTypography
 import com.novax.app.ui.theme.NvColors
+import com.novax.app.ui.theme.NvPlayerBlue
 
 /**
  * 极简样式包（spec 2026-11-15 §3.2，T6）：nPlayer Simple Line 式。
  * - 常驻层（不受控制层显隐门控）：贴屏幕最底缘细线（已播 Primary/未播半透明白）+ 线右上方
  *   常驻半透明小字当前时间；**纯展示零热区**（不挂任何 pointerInput——拖动进度需先 tap 唤起，
  *   避免底缘带「单击唤起 vs 横滑全屏 seek vs tap-seek」三方冲突，评审 P0-3）。
- * - 唤起态：细顶栏（返回+标题+总时长+更多键——评审 P0-1：极简档全部次要功能唯一入口）；
- *   中央与底部无任何按钮行，底栏唯一内容 = NvChapterSlider line 模式（由宿主接线）。
+ * - 唤起态：rev4 §3.2 蓝块顶栏（蓝✕/位置时间/标题/剩余时间/蓝⋯——⋯=极简档次要功能
+ *   唯一入口族）；中央与底部无任何按钮行，底栏唯一内容 = NvChapterSlider line 模式（由宿主接线）。
  * - 状态与回调全部来自 [NvControlContract]（样式包不自带业务状态）。
  */
 
@@ -81,38 +87,72 @@ internal fun MinimalPersistentLayer(c: NvControlContract, modifier: Modifier = M
 }
 
 /**
- * 极简唤起态顶栏（spec §3.2）：返回 + 标题（ellipsis）+ 总时长 + 更多键（P0-1：极简档
- * 唯一功能入口，nPlayer Simple Line 同款带菜单键）。细半透明 32dp 一行，无动作键抽屉。
- * 总时长在引擎解析出真实时长前不显示（durationMs<=0 时空占位误导，时间信息由常驻层小字承载）。
+ * 剩余时间标签（rev4 §3.2 顶栏右半）：`-` + [formatTime]（durationMs−positionMs）。
+ * 隐藏口径（返 null）：durationMs<=0（直播/无时长，rev2 总时长隐藏先例）；position 越界
+ * （负值或超出时长=数据未就绪/竞态脏值，宁缺勿错）；diff<=0（恰播完）。
+ */
+internal fun remainingLabel(durationMs: Long, positionMs: Long): String? {
+    if (durationMs <= 0) return null
+    if (positionMs < 0 || positionMs > durationMs) return null
+    val diff = durationMs - positionMs
+    if (diff <= 0) return null
+    return "-" + formatTime(diff)
+}
+
+/**
+ * 极简唤起态顶栏（rev4 §3.2，nPlayer 截图 1:1 复刻）：深色半透明横条 44dp，左起——
+ * 蓝✕（[NvPlayerBlue] 圆角方块=退出播放器）→ 位置时间（positionMs，复用 [formatTime]）
+ * → 标题（居中弹性占位/省略号截断）→ 剩余时间（负号格式，[remainingLabel] 隐藏口径）
+ * → 蓝⋯（更多面板入口，极简档次要功能唯一入口族）。
+ * 签名（契约 + modifier）与 rev2 一致，两侧调用点零改动。
  */
 @Composable
 internal fun MinimalTopBar(c: NvControlContract, modifier: Modifier = Modifier) {
     Row(
-        modifier.fillMaxWidth().height(32.dp).padding(horizontal = 8.dp),
+        // scrim 同款半透明深底（宿主外层另有 ScrimStrong→透明渐变，两层叠加出 nPlayer 深色横条观感）
+        modifier.fillMaxWidth().height(44.dp).background(NvColors.Scrim).padding(horizontal = 8.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        IconButton(onClick = c.onBack, modifier = Modifier.size(32.dp)) {
-            Icon(Icons.AutoMirrored.Outlined.ArrowBack, stringResource(R.string.player_back), Modifier.size(20.dp), tint = Color.White)
+        Box(
+            Modifier
+                .size(44.dp)
+                .background(NvPlayerBlue, RoundedCornerShape(10.dp))
+                .clickable(onClick = c.onBack),
+            contentAlignment = Alignment.Center,
+        ) {
+            Icon(Icons.Outlined.Close, stringResource(R.string.player_cd_close), Modifier.size(24.dp), tint = Color.White)
         }
+        Text(
+            formatTime(c.positionMs),
+            color = Color.White,
+            style = NvTypography.LabelMedium,
+            modifier = Modifier.padding(horizontal = 10.dp),
+        )
         Text(
             c.title,
             color = Color.White,
             style = NvTypography.LabelMedium,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
-            modifier = Modifier
-                .weight(1f)
-                .padding(horizontal = 8.dp),
+            textAlign = TextAlign.Center,
+            modifier = Modifier.weight(1f),
         )
-        if (c.durationMs > 0) {
+        remainingLabel(c.durationMs, c.positionMs)?.let {
             Text(
-                formatTime(c.durationMs),
-                color = Color.White.copy(alpha = 0.8f),
-                style = NvTypography.LabelSmall,
+                it,
+                color = Color.White.copy(alpha = 0.85f),
+                style = NvTypography.LabelMedium,
+                modifier = Modifier.padding(horizontal = 10.dp),
             )
-        }
-        IconButton(onClick = c.onMore, modifier = Modifier.size(32.dp)) {
-            Icon(Icons.Outlined.MoreVert, stringResource(R.string.player_sheet_more), Modifier.size(20.dp), tint = Color.White)
+        } ?: Spacer(Modifier.width(10.dp))
+        Box(
+            Modifier
+                .size(44.dp)
+                .background(NvPlayerBlue, RoundedCornerShape(10.dp))
+                .clickable(onClick = c.onMore),
+            contentAlignment = Alignment.Center,
+        ) {
+            Icon(Icons.Outlined.MoreVert, stringResource(R.string.player_sheet_more), Modifier.size(24.dp), tint = Color.White)
         }
     }
 }

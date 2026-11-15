@@ -185,6 +185,14 @@ object NvColors {
     val Error: Color @Composable @ReadOnlyComposable get() = LocalNvPalette.current.Error
 }
 
+/**
+ * nPlayer 1:1 复刻蓝块色（spec 2026-11-15 §3.2 rev4，截图实测 #4578C7）。
+ * 有意不入 NvPalette/NvColors 调色板体系：palette 是主题切换 token（播放器专用遮罩类
+ * token 如 Scrim 双套同值入板），而这是复刻自竞品截图的**固定常量**——不随主题/暗亮变化
+ * （播放器 Activity 恒深色），入板 = 双套重复一个永不变值。集中定义防散落硬编码。
+ */
+val NvPlayerBlue = Color(0xFF4578C7)
+
 private fun nvColorScheme(p: NvPalette, dark: Boolean) = if (dark) {
     darkColorScheme(
         primary = p.Primary,
