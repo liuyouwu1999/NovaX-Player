@@ -27,6 +27,7 @@ import com.novax.app.ui.components.NvShape
 import com.novax.app.ui.components.NvSpacing
 import com.novax.app.ui.components.NvTypography
 import com.novax.app.ui.theme.NvColors
+import com.novax.app.ui.theme.NvPlayerBlue
 
 /**
  * 控制层样式迷你预览卡（T9，spec 2026-11-15 §7）：Canvas 示意（非截图），
@@ -34,7 +35,7 @@ import com.novax.app.ui.theme.NvColors
  * 选中态 Primary 2dp 描边（系统主题切换式样例，用户拍板「不盲切」）；
  * 三档示意要点按 spec §7 逐条画全——
  *  经典：顶条（返回点+标题线+格子串）+ 底部两行（七点+粗线）；
- *  极简：顶细条 + 贴底细线（已播 Primary）+ 右下角时间点；
+ *  极简（rev4）：顶条两端蓝块 + 左/右缘三点竖排 + 底部一行七点 + 贴缘细线；
  *  长视频风：顶条（返回点+标题线+四点）+ 单行（五点+时间线段）+ 贴底细线。
  * 样式名复用 T8 三语言键（player_style_classic/minimal/streaming）。
  */
@@ -63,11 +64,18 @@ fun NvStylePreviewCard(style: NvControlStyle, selected: Boolean, onClick: () -> 
         ) {
             // 画布坐标按 dp 网格换算（1u = 1dp），密度无关
             val u = 1.dp.toPx()
-            drawTopStrip(u)
             when (style) {
-                NvControlStyle.CLASSIC -> drawClassic(u, primary)
+                // 共用顶条（返回点+标题线）仅经典/长视频风；极简 rev4 顶条=两端蓝块，分支内自绘
+                // （不走共用顶条，防"返回点+标题线"残留）
+                NvControlStyle.CLASSIC -> {
+                    drawTopStrip(u)
+                    drawClassic(u, primary)
+                }
                 NvControlStyle.MINIMAL -> drawMinimal(u, primary)
-                NvControlStyle.STREAMING -> drawStreaming(u, primary)
+                NvControlStyle.STREAMING -> {
+                    drawTopStrip(u)
+                    drawStreaming(u, primary)
+                }
             }
         }
         Text(
@@ -89,7 +97,7 @@ private fun NvControlStyle.labelRes(): Int = when (this) {
     NvControlStyle.STREAMING -> R.string.player_style_streaming
 }
 
-/** 通用顶条：返回点 + 标题线（三档共有，spec §7） */
+/** 通用顶条：返回点 + 标题线（经典/长视频风共有，spec §7；极简 rev4 顶条两端蓝块分支内自绘，不走此条） */
 private fun DrawScope.drawTopStrip(u: Float) {
     drawCircle(Color.White.copy(alpha = 0.8f), radius = 2.5f * u, center = Offset(10f * u, 10.5f * u))
     drawRoundRect(
@@ -147,10 +155,38 @@ private fun DrawScope.drawClassic(u: Float, primary: Color) {
     drawCircle(Color.White.copy(alpha = 0.9f), radius = 2.8f * u, center = Offset(44f * u, 54.5f * u))
 }
 
-/** 极简：贴底细线 + 右下角时间点（常驻层小字示意，§3.2） */
+/**
+ * 极简（rev4，spec §7 示意 1:1 对应真机形态）：顶条两端蓝块（[NvPlayerBlue] ✕/⋯ 圆角方块，
+ * 44dp 块按画布比例缩至 8dp、圆角 10dp 同比缩至 1.8dp）+ 左缘三点竖排（锁/字幕/齿轮）+
+ * 右缘三点竖排（倍速三件套 ⊕/速度/⊖）+ 底部一行七点（黑条七钮等距，中央暂停加大）+
+ * 贴缘细线（line 进度条，已播 Primary）。顶条不走共用 [drawTopStrip]（无返回点/标题线）。
+ */
 private fun DrawScope.drawMinimal(u: Float, primary: Color) {
+    // 顶条两端蓝块：真实形态=44dp 顶栏两端 44dp NvPlayerBlue 圆角(10dp)方块（✕ 退出/⋯ 更多）
+    val blueCorner = CornerRadius(1.8f * u)
+    drawRoundRect(
+        NvPlayerBlue,
+        cornerRadius = blueCorner,
+        topLeft = Offset(5f * u, 5.5f * u),
+        size = Size(8f * u, 8f * u),
+    )
+    drawRoundRect(
+        NvPlayerBlue,
+        cornerRadius = blueCorner,
+        topLeft = Offset(107f * u, 5.5f * u),
+        size = Size(8f * u, 8f * u),
+    )
+    // 左缘三点竖排（锁/CC 字幕/齿轮）+ 右缘三点竖排（倍速三件套：46dp 圆钮列）
+    listOf(24f, 34f, 44f).forEach { y ->
+        drawCircle(Color.White.copy(alpha = 0.7f), radius = 2f * u, center = Offset(9f * u, y * u))
+        drawCircle(Color.White.copy(alpha = 0.7f), radius = 2f * u, center = Offset(111f * u, y * u))
+    }
+    // 底部一行七点：锁/上集/快退/暂停/快进/下集/比例（等距，中央暂停 58dp 加大）
+    listOf(-39f, -26f, -13f, 0f, 13f, 26f, 39f).forEach { dx ->
+        val r = if (dx == 0f) 2.8f else 2f
+        drawCircle(Color.White.copy(alpha = 0.7f), radius = r * u, center = Offset((60f + dx) * u, 56f * u))
+    }
     drawBottomEdgeLine(u, primary, playedWidthDp = 48f)
-    drawCircle(Color.White.copy(alpha = 0.6f), radius = 1.8f * u, center = Offset(111f * u, 59.5f * u))
 }
 
 /** 长视频风：顶条右端四点（图标簇）+ 单行五点[中央暂停加大]+时间线段 + 贴底细线 */
