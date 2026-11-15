@@ -2405,7 +2405,11 @@ fun PlayerScreen(
                         // T7 顶栏 hasCast 防死按钮口径，纯函数签名不为此扩参
                         .filterNot { it == QuickControlId.CAST && playUrl == null },
                     quickSkipSec = controlContract.skipSec,
-                    onQuickControl = { id -> controlContract.dispatchQuickControl(id) },
+                    // 终审必修：LOCK 进全锁态后面板不得存留（否则被面板绕过）；PREV/NEXT 换集同理先压弹层
+                    onQuickControl = { id ->
+                        if (id == QuickControlId.LOCK || id == QuickControlId.PREV || id == QuickControlId.NEXT) sheet = null
+                        controlContract.dispatchQuickControl(id)
+                    },
                     controlStyle = controlStyle,
                     onControlStylePick = { style ->
                         uiScope.launch { runCatching { context.putPlayerPref(KEY_CONTROL_STYLE, style.dataStoreValue) } }

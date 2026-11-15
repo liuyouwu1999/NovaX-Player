@@ -3089,6 +3089,8 @@ class RmvbPlayerActivity : ComponentActivity() {
                         skipSec = uiSkipSec,
                         onAction = { id ->
                             when (id) {
+                                // 终审必修：LOCK/PREV/NEXT 直接动作类也先收弹层（全锁态/换集不得被面板压住）
+                                QuickControlId.LOCK, QuickControlId.PREV, QuickControlId.NEXT,
                                 QuickControlId.SPEED, QuickControlId.SUBTITLE, QuickControlId.AUDIO, QuickControlId.INFO ->
                                     uiShowMoreSheet = false
                                 else -> {}
