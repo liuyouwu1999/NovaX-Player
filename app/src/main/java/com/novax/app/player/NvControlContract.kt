@@ -45,4 +45,15 @@ data class NvControlContract(
     val onSetSpeed: (Float) -> Unit = {},
     /** 拖动松手 seek（line/classic 进度条共用） */
     val onSeek: (Long) -> Unit = {},
+    /** ⋯精简菜单打开态（rev5 §3.2 MinimalQuickMenu / §5.1）：编排层持有（样式包不得自带
+     *  影响编排层行为的业务状态）；编排层自动隐藏计时在 true 期间挂起（主侧 LaunchedEffect
+     *  key 门控、RMVB 侧 hide job 挂起——对「显隐超时零改动」的唯一显式豁免）。复位规则=
+     *  任何控制层隐藏出口（锁定收层/全锁/错误态）与样式热切换一律复位 false（spec §5.1），
+     *  防旗标残留→自动隐藏永久挂起/跨样式残留 */
+    val quickMenuOpen: Boolean = false,
+    /** ⋯块点击切换（rev5 §5.1）：开↔关互切；菜单非 LOCK 行点击后的统一关菜单也走本回调 */
+    val onToggleQuickMenu: () -> Unit = {},
+    /** ⋯菜单投屏行渲染门控（rev5 §5.1）：主侧=playUrl 非 null 时 true，RMVB 恒 false
+     *  （hasQuality 同型先例；行集剔除由 [quickMenuRows] 消费） */
+    val hasCast: Boolean = true,
 )

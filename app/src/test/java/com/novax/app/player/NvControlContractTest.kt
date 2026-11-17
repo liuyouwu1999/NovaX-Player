@@ -29,4 +29,15 @@ class NvControlContractTest {
         c.onSetSpeed(1.5f)          // 默认 no-op 不崩
         assertNotNull(c.onSetSpeed) // 字段存在性锚定
     }
+    // rev5（2026-11-18 顶栏=进度条）：契约扩三字段——quickMenuOpen（⋯菜单打开态，编排层持有，
+    // 自动隐藏计时挂起的唯一显式豁免 spec §5.1）/ onToggleQuickMenu（⋯块点击切换）/
+    // hasCast（⋯菜单投屏行门控，主侧=playUrl 非 null、RMVB 恒 false；hasQuality 同型先例）。
+    // 行为接线在 T3/T4 两侧编排层，JVM 只锚默认值与 no-op 安全（onSetSpeed 用例同姿势）。
+    @Test fun `rev5 三新字段默认值安全`() {
+        val c = NvControlContract()
+        assertEquals(false, c.quickMenuOpen)
+        assertEquals(true, c.hasCast)
+        c.onToggleQuickMenu()       // 默认 no-op 不崩
+        assertNotNull(c.onToggleQuickMenu) // 字段存在性锚定
+    }
 }

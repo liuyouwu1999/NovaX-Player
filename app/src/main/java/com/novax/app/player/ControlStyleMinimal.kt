@@ -123,6 +123,43 @@ internal fun remainingLabel(durationMs: Long, positionMs: Long): String? {
 }
 
 /**
+ * 顶栏已播填充宽（rev5 §3.2 顶栏=进度条，T1）：nPlayer 实证 max 规则——最小填充宽
+ * （[leadWidthPx]，调用侧按 ✕块 48dp+当前时间文字实测宽传入）与比例宽（[progress]×
+ * [barWidthPx]）取较大者，低进度（nPlayer 截图 00:02/45:19）时填充仍完整覆盖✕与时间文字；
+ * 结果 coerce 0~栏宽（窄屏 lead 超栏宽不溢出，plan 审核 P2-3）；progress<0 等脏值经 max
+ * 自然回退最小宽（宁多勿缺，填充前缘只进不退）。
+ */
+internal fun minimalFillWidthPx(leadWidthPx: Float, progress: Float, barWidthPx: Float): Float =
+    maxOf(leadWidthPx, progress * barWidthPx).coerceIn(0f, barWidthPx)
+
+/**
+ * 是否画顶栏填充（rev5 §3.2 / plan 审核 P2-2，T1）：durationMs<=0（直播/无时长）完全不画
+ * 填充——整栏仅半透明深底、无最小宽蓝段（无进度可言），拖动/点跳不可用，✕/⋯/文字照常。
+ * 组件层守卫（MinimalSeekTopBar）以本纯函数为可断言口径（spec §9）。
+ */
+internal fun minimalDrawsFill(durationMs: Long): Boolean = durationMs > 0
+
+/**
+ * ⋯精简菜单行键（rev5 §3.2 MinimalQuickMenu，T1）：行式列表渲染顺序=声明序
+ * （锁定/上一集/下一集/画中画/投屏/退出播放器，spec 布局口径；与底栏锁/上下集重复属
+ * §5.5 更多面板冗余同先例的有意冗余）。
+ */
+enum class QuickMenuRow { LOCK, PREV, NEXT, PIP, CAST, EXIT }
+
+/**
+ * ⋯精简菜单行集（rev5 §3.2；spec §5.3 键集思想，[quickControlsFor] 同型写法，T1）：
+ * RMVB 剔 PIP/CAST（两引擎能力差异）；主侧 hasCast=false 剔 CAST（运行时门控——playUrl
+ * 为 null 时隐藏投屏行，与经典顶栏藏投屏键同口径，hasQuality 同型先例）。两机制独立叠加
+ * （RMVB 接线恒 hasCast=false，双重剔除幂等，plan 复审已核无冲突）。
+ */
+internal fun quickMenuRows(isRmvb: Boolean, hasCast: Boolean): List<QuickMenuRow> =
+    QuickMenuRow.entries.filter { row ->
+        val rmvbExcluded = isRmvb && (row == QuickMenuRow.PIP || row == QuickMenuRow.CAST)
+        val castHidden = row == QuickMenuRow.CAST && !hasCast
+        !rmvbExcluded && !castHidden
+    }
+
+/**
  * 极简唤起态顶栏（rev4 §3.2，nPlayer 截图 1:1 复刻）：深色半透明横条 44dp，左起——
  * 蓝✕（[NvPlayerBlue] 圆角方块=退出播放器）→ 位置时间（positionMs，复用 [formatTime]）
  * → 标题（居中弹性占位/省略号截断）→ 剩余时间（负号格式，[remainingLabel] 隐藏口径）
