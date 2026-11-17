@@ -615,9 +615,9 @@ internal fun minimalBottomSlots(narrow: Boolean): List<MinimalSlot> =
  * 锁 │ 上集 │ 快退(skipSec) │ 暂停 │ 快进(skipSec) │ 下集 │ 画面比例。
  * - **底部无进度条（rev5）**：线不在本栏——唯一进度显示=顶栏 [MinimalSeekTopBar]（rev4
  *   「宿主 Column { 底栏; NvChapterSlider(LINE) }」的贴底线为过渡期形态，rev5 作废）。
- *   **背景本组件不自画**（仍由宿主 Column 统一承载 `Modifier.background(NvColors.Scrim)`，
+ *   **背景本组件不自画**（仍由宿主 Box 统一承载 `Modifier.background(NvColors.Scrim)`，
  *   黑条背景向下延伸覆盖线触摸区=连续黑块，2026-11-15 三星真机缺陷根修）；背景收回组件
- *   自带必须与宿主 Column 拆除**同任务原子完成**（T3/T4），防组件 Scrim+宿主 Scrim 双层
+ *   自带必须与宿主 Box 拆除**同任务原子完成**（T4），防组件 Scrim+宿主 Scrim 双层
  *   叠加（rev4 根修 83ef321 的接缝教训）——本任务背景代码零改动，仅 kdoc 注明 rev5 目标口径。
  * - 暂停 = 经典 PauseSlot 同款 NvGlassChip 58dp/30dp 磨砂圆钮（宽幅）；窄幅尺寸走
  *   [nvNarrowControlMetrics]/[nvRowIconFor]（streaming 底栏同源档位，五钮才放得下）。

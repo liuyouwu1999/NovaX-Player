@@ -2173,15 +2173,6 @@ fun PlayerScreen(
         // persistentLayerVisible/MinimalPersistentLayer 函数本体仍在 ControlStyleMinimal.kt
         // （RMVB 侧槽位 T4 拆，本体 T5 死代码清理时删）
 
-        // R5 极简蓝⋯精简「播放管理」菜单（rev5 §3.2 MinimalQuickMenu）：与顶栏/底栏同层挂载，
-        // 渲染条件=样式 MINIMAL 且 quickMenuOpen 且控制层可见（controlsShown 等价式，spec 复审
-        // P1-1 口径）；不传 sizing/align modifier——组件根自带 fillMaxSize 全屏拦截层（tap 外点
-        // 仅关菜单+drag 全消费防手势穿透）。防自动隐藏=隐藏计时 quickMenuOpen key 门控（上方
-        // effect 显式豁免）；复位矩阵=锁定收层/全锁/错误态/热切四路（编排层持有）
-        if (controlStyle == NvControlStyle.MINIMAL && quickMenuOpen && controlsShown) {
-            MinimalQuickMenu(controlContract, isRmvb = false)
-        }
-
         // R4 极简唤起态左右侧钮列（rev4 §3.2 布局图）：左=锁三态/CC 字幕/齿轮更多，右=倍速三件套
         //（R3 组件纯 Column，垂直定位由本调用侧负责）。几何中心向下偏屏高 6%（即中心位于屏高 56%，
         // 实测用户截图）；挂独立 AnimatedVisibility 复用 controlsShown 同表达式——全锁/半锁/错误态
@@ -2208,6 +2199,19 @@ fun PlayerScreen(
                     MinimalSpeedRail(controlContract)
                 }
             }
+        }
+
+        // R5 极简蓝⋯精简「播放管理」菜单（rev5 §3.2 MinimalQuickMenu）：与顶栏/底栏/侧列同层挂载，
+        // 渲染条件=样式 MINIMAL 且 quickMenuOpen 且控制层可见（controlsShown 等价式，spec 复审
+        // P1-1 口径）；不传 sizing/align modifier——组件根自带 fillMaxSize 全屏拦截层（tap 外点
+        // 仅关菜单+drag 全消费防手势穿透）。**必须在左右侧钮列之后挂载**（T3 复审 P1-1）：
+        // 同一 Box 内后组合兄弟节点命中优先——先挂则拦截层盖不住侧列，菜单开着 tap 侧钮=动作
+        // 执行且菜单不关、从侧钮起手横滑穿透祖先手势（seek/亮度/音量），「外点仅关菜单」「菜单
+        // 开着横滑零手势响应」两锚在侧列区域破防。后挂=最上层：拦截层覆盖侧列，菜单卡亦不受影响。
+        // 防自动隐藏=隐藏计时 quickMenuOpen key 门控（上方 effect 显式豁免）；复位矩阵=锁定
+        // 收层/全锁/错误态/热切四路（编排层持有）
+        if (controlStyle == NvControlStyle.MINIMAL && quickMenuOpen && controlsShown) {
+            MinimalQuickMenu(controlContract, isRmvb = false)
         }
 
         // 长按倍速提示（2026-09-18 用户需求，B 站同款）：画面正上方小胶囊，随长按出现/松手消失。
