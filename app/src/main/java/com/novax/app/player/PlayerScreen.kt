@@ -109,6 +109,7 @@ import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -408,6 +409,12 @@ fun PlayerScreen(
     var controlsBandHeightPx by remember { mutableFloatStateOf(0f) }
     // 2026-09-29 不可跳转片源的提示只弹一次（每次拖/点都弹会刷屏）
     var unseekableToastShown by remember { mutableStateOf(false) }
+    // R5（2026-11-18 rev5 极简样式）蓝⋯精简「播放管理」菜单打开态（spec §5.1 rev5 契约扩展①）：
+    // 编排层持有（样式包不得自带影响编排层行为的业务状态）。true 期间自动隐藏计时挂起
+    // （下方 LaunchedEffect key 门控，对显隐超时零改动的显式豁免，spec §5.2/§5.4 唯一口径）；
+    // 复位=任何控制层隐藏出口（锁定收层/全锁/错误态）与样式热切换一律 false（防旗标残留
+    // →自动隐藏永久挂起/跨样式残留，spec 复审 P1-1）
+    var quickMenuOpen by remember { mutableStateOf(false) }
     // 2026-09-19 用户需求（锁定交互重做）：按一下锁定按钮 = 完全锁定（钉死当前朝向），
     // 双击左下角锁图标解锁。不再用 SCREEN_ORIENTATION_LOCKED——它冻结「当前旋转角」，
     // 锁屏（电源键）期间系统按竖屏渲染会把竖屏冻下来，解锁后方向漂移（真机 bug 根因）。
@@ -1278,8 +1285,11 @@ fun PlayerScreen(
 
     // 控制层 4s 自动隐藏（2026-11-09 审计 A1 统一：暂停/缓冲中常驻，与兜底页 keepControls 同口径；
     // isPlaying 必须进 key 集——通知栏/耳机键/睡眠定时等外部暂停不 bump controlsTick，只加条件挡不住）
-    LaunchedEffect(controlsVisible, controlsTick, isPlaying) {
-        if (controlsVisible && !locked && isPlaying) {
+    // R5：quickMenuOpen 进 key 集+条件体（spec §5.1 显隐超时唯一豁免）——⋯菜单打开期间计时挂起。
+    // 只加条件体不够：delay 中途开菜单时 effect 不重启，到点仍会收层；进 key 后菜单打开→effect
+    // 重启→条件 false 空转（含救已 delay 中途的 job），菜单关闭→重启→重新计时 4s，两态语义都对
+    LaunchedEffect(controlsVisible, controlsTick, isPlaying, quickMenuOpen) {
+        if (controlsVisible && !locked && isPlaying && !quickMenuOpen) {
             delay(CONTROL_AUTO_HIDE_MS)
             controlsVisible = false
         }
@@ -1792,6 +1802,17 @@ fun PlayerScreen(
         // 模式，缺失/脏值回退 classic）。契约 = 状态+回调从下方顶/底栏现有调用点平移——CLASSIC 分支
         // 不切契约（直调原组件，减小回归面），MINIMAL 分支消费（STREAMING 分支 T7 接）
         val controlStyle = parseControlStyle(playerPrefs?.get(KEY_CONTROL_STYLE))
+        // R5 复位矩阵两路（spec 复审 P1-1 口径；锁定收层/全锁两路见 lockFromControls 与
+        // 经典底栏 onLock 的同句复位）：
+        // ①错误态——errorMessage 是渲染门控而非 controlsVisible 出口（错误态赋值点不动
+        //   controlsVisible），不复位则错误恢复后菜单重现且隐藏计时永久挂起
+        LaunchedEffect(errorMessage) {
+            if (errorMessage != null) quickMenuOpen = false
+        }
+        // ②样式热切换——防 quickMenuOpen 旗标跨样式残留（新样式无⋯块可关，隐藏计时挂死）
+        LaunchedEffect(controlStyle) {
+            quickMenuOpen = false
+        }
         // 进度条松手 seek（从 NvPlayerBottomBar onSeek 平移：坏索引/不可跳片源拒绝并一次性提示）
         val sliderSeek: (Long) -> Unit = { target ->
             if (!player.isCurrentMediaItemSeekable) {
@@ -1813,6 +1834,7 @@ fun PlayerScreen(
                 LOCK_HALF -> {
                     halfLocked = true
                     controlsVisible = false
+                    quickMenuOpen = false   // R5 复位矩阵：锁定收层出口一律复位（spec 复审 P1-1）
                     // 升全锁入口=角标长按（口径随「立即收起」，2026-10-10）
                     Toast.makeText(context, context.getString(R.string.player_half_lock_toast), Toast.LENGTH_SHORT).show()
                 }
@@ -1821,6 +1843,7 @@ fun PlayerScreen(
                     locked = true
                     halfLocked = false
                     controlsVisible = false
+                    quickMenuOpen = false   // R5 复位矩阵：全锁同口径
                     Toast.makeText(context, context.getString(R.string.player_locked_toast), Toast.LENGTH_SHORT).show()
                 }
             }
@@ -1866,6 +1889,12 @@ fun PlayerScreen(
             // R1：极简档倍速三件套直设倍速——与 SpeedSheet.onPick 同款提交链（不关面板）
             onSetSpeed = applyPickedSpeed,
             onSeek = sliderSeek,
+            // R5（rev5 §5.1 契约扩展三字段）：⋯菜单打开态（编排层持有，见上方声明）+ ⋯块
+            // 切换回调（controlsTick++ 不必——隐藏计时门控走 quickMenuOpen key，非 tick 机制）
+            // + ⋯菜单投屏行门控（playUrl 为 null 时隐藏该行，与经典顶栏藏投屏键同口径）
+            quickMenuOpen = quickMenuOpen,
+            onToggleQuickMenu = { quickMenuOpen = !quickMenuOpen },
+            hasCast = playUrl != null,
         )
         // 顶栏：顶部渐变遮罩 + 顶栏，从上缘滑入/滑出
         AnimatedVisibility(
@@ -1879,14 +1908,21 @@ fun PlayerScreen(
             Box(
                 Modifier
                     .fillMaxWidth()
-                    .background(Brush.verticalGradient(listOf(NvColors.ScrimStrong, Color.Transparent))),
+                    // R5：宿主渐变对 MINIMAL 分支不挂载（spec §3.2）——MinimalSeekTopBar 栏自带
+                    // 完整底色（未播段半透明深底），渐变叠上去会成非均匀色破坏 1:1「画面透出」观感；
+                    // classic/streaming 分支渐变原样（.then 包裹与直挂渲染树等价）
+                    .then(
+                        if (controlStyle == NvControlStyle.MINIMAL) Modifier
+                        else Modifier.background(Brush.verticalGradient(listOf(NvColors.ScrimStrong, Color.Transparent))),
+                    ),
             ) {
-                // T6 样式分发（spec §5.2 分发点②）：极简=细顶栏（返回+标题+总时长+更多键，
-                // P0-1 极简档唯一功能入口）；经典=既有顶栏直调零变化
+                // T6 样式分发（spec §5.2 分发点②）：极简=顶栏即进度条（rev5 §3.2 MinimalSeekTopBar，
+                // 整栏拖 scrub/单点定跳；onDragStart 收父层手势 seek 预览浮层——子节点接管本次滑动
+                // 两套 seek 预览不得共存，经典 slider 同口径）；经典=既有顶栏直调零变化
                 // T7 长视频风=图标簇平铺顶栏（投屏/字幕/音轨/更多，spec §3.3）——hasCast 对齐
                 // 经典档投屏键口径（playUrl 为 null 的极端入口藏键防死按钮，onCast 契约此时本就是 no-op）
                 when (controlStyle) {
-                    NvControlStyle.MINIMAL -> MinimalTopBar(controlContract)
+                    NvControlStyle.MINIMAL -> MinimalSeekTopBar(controlContract, onDragStart = { showSeekPreview = false })
                     NvControlStyle.STREAMING -> StreamingTopBar(controlContract, hasCast = playUrl != null)
                     else -> NvPlayerTopBar(
                         title = title,
@@ -1968,33 +2004,21 @@ fun PlayerScreen(
                 slideOutVertically(tween(NvMotion.DurationNormal, easing = NvMotion.CurveAccelerate)) { it },
             modifier = Modifier.align(Alignment.BottomCenter),
         ) {
-            // T6 样式分发（spec §5.2 分发点②）：极简底栏 = rev4 §3.2 布局图两行——七钮黑条在上 +
-            // line 进度条贴底在下（R4；Column 顺序 P0：黑条在下会把细线顶离底缘，破坏「原位顶替
-            // 门控外常驻细线」的防双线语义）；原位顶替/章节刻度不上细轨（chapters=emptyList）口径不变。
-            // 2026-11-15 三星真机缺陷根修：Column 统一 Scrim 底——黑条背景下延覆盖进度条 48dp 触摸区，
-            // 按钮+线连成连续黑块、线贴块底缘=贴屏幕底缘（黑条自带背景已上移宿主防双层叠加接缝；
-            // background 只画背景不吞事件，slider 触摸/热区零影响）
+            // T6 样式分发（spec §5.2 分发点②）：极简底栏 = rev5 §3.2 纯按钮黑条——底部无进度条
+            // （唯一进度显示=顶栏 MinimalSeekTopBar），rev4「宿主 Column { 底栏; 贴底 line slider }」
+            // 拆除（「唤起态 line 原位顶替常驻线」机制 rev5 作废）。背景宿主承载**恰好一层** Scrim
+            // （组件级背景收回统一 T4 一起做：届时两侧宿主容器全拆、组件自带背景一次到位，
+            // 防中间提交双层叠加——83ef321 接缝教训，MinimalBottomBar kdoc 已注明）。
+            // band 置零（spec §5.2-③）：MINIMAL 底部无 slider 无人喂值，SideEffect 显式归零——
+            // 防热切 classic/streaming→minimal 后旧 band 残留造成屏底手势死区（按下被整体退场又不被消费）
             // T7 长视频风底栏（spec §3.3）= 贴底线（line 模式拖动加粗 thickenOnDrag）+ 单行底栏；
             // else 分支（经典）= 既有底栏整体平移，内容逐字不动
             when (controlStyle) {
-                NvControlStyle.MINIMAL -> Column(
-                    Modifier
-                        .fillMaxWidth()
-                        .background(NvColors.Scrim),
-                ) {
-                    MinimalBottomBar(controlContract)
-                    NvChapterSlider(
-                        positionMs = positionMs,
-                        bufferedMs = bufferedMs,
-                        durationMs = durationMs,
-                        chapters = emptyList(),
-                        onSeek = sliderSeek,
-                        // 进度条一旦开始被拖动，父层手势 seek 浮层立即收起（与经典档同口径）
-                        onDragStart = { showSeekPreview = false },
-                        // band 计量：滑块热区高度喂父层手势退场判定（T3：line/classic 两模式同口径）
-                        onSliderBandPx = { controlsBandHeightPx = it },
-                        visual = NvSliderVisual.LINE,
-                    )
+                NvControlStyle.MINIMAL -> {
+                    SideEffect { controlsBandHeightPx = 0f }
+                    Box(Modifier.fillMaxWidth().background(NvColors.Scrim)) {
+                        MinimalBottomBar(controlContract)
+                    }
                 }
                 NvControlStyle.STREAMING -> Column(
                     Modifier.fillMaxWidth(),
@@ -2121,6 +2145,7 @@ fun PlayerScreen(
                                     LOCK_HALF -> {
                                         halfLocked = true
                                         controlsVisible = false
+                                        quickMenuOpen = false   // R5 复位矩阵：锁定收层出口一律复位（spec 复审 P1-1）
                                         // 2026-10-10 精简+口径随「立即收起」更新（升全锁入口=角标长按）
                                         Toast.makeText(context, context.getString(R.string.player_half_lock_toast), Toast.LENGTH_SHORT).show()
                                     }
@@ -2129,6 +2154,7 @@ fun PlayerScreen(
                                         locked = true
                                         halfLocked = false
                                         controlsVisible = false
+                                        quickMenuOpen = false   // R5 复位矩阵：全锁同口径
                                         Toast.makeText(context, context.getString(R.string.player_locked_toast), Toast.LENGTH_SHORT).show()
                                     }
                                 }
@@ -2142,11 +2168,18 @@ fun PlayerScreen(
             }
         }
 
-        // T6 极简常驻层（spec §3.2/§5.2 分发点①，门控外=AnimatedVisibility 之外）：贴底细线+
-        // 时间小字，零热区（纯展示不消费触摸）。未锁/半锁显示、全锁/错误态隐藏；唤起时隐藏——
-        // 由上方门控内 line 进度条原位顶替（persistentLayerVisible，二轮 P1-2 防双线裁决）
-        if (controlStyle == NvControlStyle.MINIMAL && persistentLayerVisible(locked, errorMessage != null, controlsShown)) {
-            MinimalPersistentLayer(controlContract, Modifier.align(Alignment.BottomCenter))
+        // R5（rev5 §3.2）：极简常驻层槽位删除——MINIMAL 档不再挂载任何常驻元素（rev2 贴底
+        // 细线+时间小字全删），控制层隐藏后画面=纯视频+字幕（「不挡字幕」的完整含义）。
+        // persistentLayerVisible/MinimalPersistentLayer 函数本体仍在 ControlStyleMinimal.kt
+        // （RMVB 侧槽位 T4 拆，本体 T5 死代码清理时删）
+
+        // R5 极简蓝⋯精简「播放管理」菜单（rev5 §3.2 MinimalQuickMenu）：与顶栏/底栏同层挂载，
+        // 渲染条件=样式 MINIMAL 且 quickMenuOpen 且控制层可见（controlsShown 等价式，spec 复审
+        // P1-1 口径）；不传 sizing/align modifier——组件根自带 fillMaxSize 全屏拦截层（tap 外点
+        // 仅关菜单+drag 全消费防手势穿透）。防自动隐藏=隐藏计时 quickMenuOpen key 门控（上方
+        // effect 显式豁免）；复位矩阵=锁定收层/全锁/错误态/热切四路（编排层持有）
+        if (controlStyle == NvControlStyle.MINIMAL && quickMenuOpen && controlsShown) {
+            MinimalQuickMenu(controlContract, isRmvb = false)
         }
 
         // R4 极简唤起态左右侧钮列（rev4 §3.2 布局图）：左=锁三态/CC 字幕/齿轮更多，右=倍速三件套
