@@ -167,8 +167,8 @@ internal fun quickMenuRows(isRmvb: Boolean, hasCast: Boolean): List<QuickMenuRow
  *   手势协程读最新值（NvChapterSlider 2026-09-16 审计 P2-9 同款教训：时长不做 pointerInput
  *   key，防起播早期「未知→就绪」重启协程致 onDragEnd 不回调）。
  * - **宿主渐变不挂载**（spec §3.2，plan 审核）：顶栏宿主的 ScrimStrong→透明渐变对 MINIMAL
- *   分支不叠加（渐变叠在未播段半透明深底上会成非均匀色，破坏 1:1「画面透出」观感）——由
- *   两侧编排接线（T3/T4）落地，过渡期宿主渐变仍在属预期混合态，本 doc 先行注明。
+ *   分支不叠加（渐变叠在未播段半透明深底上会成非均匀色，破坏 1:1「画面透出」观感）——
+ *   两侧编排接线（T3/T4）已落地：主播放器/RMVB 兜底页 MINIMAL 宿主渐变恒不挂载。
  * - [onDragStart]：拖动开始钩子（可选，T3 接线收父层 seek 预览浮层用；NvChapterSlider
  *   onDragStart 同口径），默认 null 不影响编译。
  */

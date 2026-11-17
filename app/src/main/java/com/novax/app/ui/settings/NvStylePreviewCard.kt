@@ -35,7 +35,7 @@ import com.novax.app.ui.theme.NvPlayerBlue
  * 选中态 Primary 2dp 描边（系统主题切换式样例，用户拍板「不盲切」）；
  * 三档示意要点按 spec §7 逐条画全——
  *  经典：顶条（返回点+标题线+格子串）+ 底部两行（七点+粗线）；
- *  极简（rev4）：顶条两端蓝块 + 左/右缘三点竖排 + 底部一行七点 + 贴缘细线；
+ *  极简（rev5）：顶栏进度条（左段实蓝+右段暗条+两端蓝块）+ 左/右缘三点竖排 + 底部一行七点黑条；
  *  长视频风：顶条（返回点+标题线+四点）+ 单行（五点+时间线段）+ 贴底细线。
  * 样式名复用 T8 三语言键（player_style_classic/minimal/streaming）。
  */
@@ -65,13 +65,13 @@ fun NvStylePreviewCard(style: NvControlStyle, selected: Boolean, onClick: () -> 
             // 画布坐标按 dp 网格换算（1u = 1dp），密度无关
             val u = 1.dp.toPx()
             when (style) {
-                // 共用顶条（返回点+标题线）仅经典/长视频风；极简 rev4 顶条=两端蓝块，分支内自绘
+                // 共用顶条（返回点+标题线）仅经典/长视频风；极简 rev5 顶栏=进度条通栏，分支内自绘
                 // （不走共用顶条，防"返回点+标题线"残留）
                 NvControlStyle.CLASSIC -> {
                     drawTopStrip(u)
                     drawClassic(u, primary)
                 }
-                NvControlStyle.MINIMAL -> drawMinimal(u, primary)
+                NvControlStyle.MINIMAL -> drawMinimal(u)
                 NvControlStyle.STREAMING -> {
                     drawTopStrip(u)
                     drawStreaming(u, primary)
@@ -97,7 +97,7 @@ private fun NvControlStyle.labelRes(): Int = when (this) {
     NvControlStyle.STREAMING -> R.string.player_style_streaming
 }
 
-/** 通用顶条：返回点 + 标题线（经典/长视频风共有，spec §7；极简 rev4 顶条两端蓝块分支内自绘，不走此条） */
+/** 通用顶条：返回点 + 标题线（经典/长视频风共有，spec §7；极简 rev5 顶栏进度条分支内自绘，不走此条） */
 private fun DrawScope.drawTopStrip(u: Float) {
     drawCircle(Color.White.copy(alpha = 0.8f), radius = 2.5f * u, center = Offset(10f * u, 10.5f * u))
     drawRoundRect(
@@ -156,13 +156,30 @@ private fun DrawScope.drawClassic(u: Float, primary: Color) {
 }
 
 /**
- * 极简（rev4，spec §7 示意 1:1 对应真机形态）：顶条两端蓝块（[NvPlayerBlue] ✕/⋯ 圆角方块，
- * 44dp 块按画布比例缩至 8dp、圆角 10dp 同比缩至 1.8dp）+ 左缘三点竖排（锁/字幕/齿轮）+
- * 右缘三点竖排（倍速三件套 ⊕/速度/⊖）+ 底部一行七点（黑条七钮等距，中央暂停加大）+
- * 贴缘细线（line 进度条，已播 Primary）。顶条不走共用 [drawTopStrip]（无返回点/标题线）。
+ * 极简（rev5，spec §7 示意 1:1 对应真机形态）：顶栏=进度条通栏（右段暗条打底 + 左段实蓝
+ * [NvPlayerBlue] 从卡左缘起铺 ≈55% 示意已播 + 两端蓝块=✕/⋯，48dp 块按画布比例缩至 8dp、
+ * 圆角 10dp 同比缩至 1.8dp）+ 左缘三点竖排（旋转/字幕/齿轮）+ 右缘三点竖排（倍速三件套
+ * ⊕/速度/⊖）+ 底部黑条一行七点（半透明黑条底色块示意，七钮等距，中央暂停加大）。
+ * 无贴缘细线（rev5 唯一进度显示=顶栏填充）。顶栏不走共用 [drawTopStrip]（无返回点/标题线）。
  */
-private fun DrawScope.drawMinimal(u: Float, primary: Color) {
-    // 顶条两端蓝块：真实形态=44dp 顶栏两端 44dp NvPlayerBlue 圆角(10dp)方块（✕ 退出/⋯ 更多）
+private fun DrawScope.drawMinimal(u: Float) {
+    // 顶栏通栏暗条：真实形态=48dp 通栏半透明黑打底（画面透出）；黑底卡上纯黑不可辨，
+    // 沿用本文件未播段语言以半透明白示意暗条段
+    drawRoundRect(
+        Color.White.copy(alpha = 0.25f),
+        cornerRadius = CornerRadius(1.25f * u),
+        topLeft = Offset(0f, 5.5f * u),
+        size = Size(120f * u, 8f * u),
+    )
+    // 已播段实蓝从卡左缘起铺（真实形态=蓝填充 x=0 起、无时长不铺；此处 ≈55% 示意已播）
+    drawRoundRect(
+        NvPlayerBlue,
+        cornerRadius = CornerRadius(1.25f * u),
+        topLeft = Offset(0f, 5.5f * u),
+        size = Size(66f * u, 8f * u),
+    )
+    // 两端蓝块：真实形态=48dp 通栏两端 48dp 见方 NvPlayerBlue 圆角(10dp)方块（✕ 退出/⋯ 更多）；
+    // 左块落在实蓝段内同色相融=真机已播覆盖✕块的同款观感，右块在暗条段可辨
     val blueCorner = CornerRadius(1.8f * u)
     drawRoundRect(
         NvPlayerBlue,
@@ -176,17 +193,24 @@ private fun DrawScope.drawMinimal(u: Float, primary: Color) {
         topLeft = Offset(107f * u, 5.5f * u),
         size = Size(8f * u, 8f * u),
     )
-    // 左缘三点竖排（锁/CC 字幕/齿轮）+ 右缘三点竖排（倍速三件套：46dp 圆钮列）
+    // 左缘三点竖排（旋转/CC 字幕/齿轮）+ 右缘三点竖排（倍速三件套：46dp 圆钮列）
     listOf(24f, 34f, 44f).forEach { y ->
         drawCircle(Color.White.copy(alpha = 0.7f), radius = 2f * u, center = Offset(9f * u, y * u))
         drawCircle(Color.White.copy(alpha = 0.7f), radius = 2f * u, center = Offset(111f * u, y * u))
     }
-    // 底部一行七点：锁/上集/快退/暂停/快进/下集/比例（等距，中央暂停 58dp 加大）
+    // 底部黑条：真实形态=底栏自带 Scrim 半透明黑贴底线、之下无任何进度条（rev5）；黑底卡上
+    // 纯黑不可辨，同用半透明白示意底条色块
+    drawRoundRect(
+        Color.White.copy(alpha = 0.25f),
+        cornerRadius = CornerRadius(1.25f * u),
+        topLeft = Offset(0f, 48f * u),
+        size = Size(120f * u, 20f * u),
+    )
+    // 底条一行七点：锁/上集/快退/暂停/快进/下集/比例（等距，中央暂停 58dp 加大）
     listOf(-39f, -26f, -13f, 0f, 13f, 26f, 39f).forEach { dx ->
         val r = if (dx == 0f) 2.8f else 2f
-        drawCircle(Color.White.copy(alpha = 0.7f), radius = r * u, center = Offset((60f + dx) * u, 56f * u))
+        drawCircle(Color.White.copy(alpha = 0.7f), radius = r * u, center = Offset((60f + dx) * u, 58f * u))
     }
-    drawBottomEdgeLine(u, primary, playedWidthDp = 48f)
 }
 
 /** 长视频风：顶条右端四点（图标簇）+ 单行五点[中央暂停加大]+时间线段 + 贴底细线 */
