@@ -5,7 +5,7 @@ import org.junit.Assert.assertEquals
 import org.junit.Test
 
 /**
- * R2 极简顶栏（rev4 §3.2 蓝块顶栏）纯函数锚：剩余时间标签。
+ * rev5 极简顶栏（MinimalSeekTopBar 右半）纯函数锚：剩余时间标签 remainingLabel。
  * 语义：durationMs<=0（直播/无时长）或 position 越界/diff<=0 → null=隐藏；
  * 否则 "-" + formatTime(durationMs-positionMs)（复用仓内 formatTime，mm:ss / h:mm:ss 双档）。
  */

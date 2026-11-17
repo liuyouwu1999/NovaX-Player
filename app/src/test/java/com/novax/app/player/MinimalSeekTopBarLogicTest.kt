@@ -26,6 +26,9 @@ class MinimalSeekTopBarLogicTest {
     @Test fun `progress 为一时填充铺满整栏`() =
         assertEquals(400f, minimalFillWidthPx(leadWidthPx = 100f, progress = 1f, barWidthPx = 400f), 0.001f)
 
+    @Test fun `progress 超一时 coerce 到栏宽`() =   // max(100, 1.2×400=480) → coerce 400（T1 复审 P2-1 上界锚）
+        assertEquals(400f, minimalFillWidthPx(leadWidthPx = 100f, progress = 1.2f, barWidthPx = 400f), 0.001f)
+
     @Test fun `中间进度低比例取最小宽`() =   // max(100, 0.2×400=80) = 100
         assertEquals(100f, minimalFillWidthPx(leadWidthPx = 100f, progress = 0.2f, barWidthPx = 400f), 0.001f)
 

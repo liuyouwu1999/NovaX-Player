@@ -2168,10 +2168,8 @@ fun PlayerScreen(
 
         // R5（rev5 §3.2）：极简常驻层槽位删除——MINIMAL 档不再挂载任何常驻元素（rev2 贴底
         // 细线+时间小字全删），控制层隐藏后画面=纯视频+字幕（「不挡字幕」的完整含义）。
-        // persistentLayerVisible/MinimalPersistentLayer 函数本体仍在 ControlStyleMinimal.kt
-        // （RMVB 侧槽位 T4 拆，本体 T5 死代码清理时删）
 
-        // R4 极简唤起态左右侧钮列（rev4 §3.2 布局图）：左=锁三态/CC 字幕/齿轮更多，右=倍速三件套
+        // R5 极简唤起态左右侧钮列（rev5 §3.2）：左=画面旋转/CC 字幕/齿轮更多，右=倍速三件套
         //（R3 组件纯 Column，垂直定位由本调用侧负责）。几何中心向下偏屏高 6%（即中心位于屏高 56%，
         // 实测用户截图）；挂独立 AnimatedVisibility 复用 controlsShown 同表达式——全锁/半锁/错误态
         // 随控制层同隐藏；fade 时长/缓动与顶/底栏同款（侧列无上下缘语义，不带 slide）。

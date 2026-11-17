@@ -381,7 +381,7 @@ class RmvbPlayerActivity : ComponentActivity() {
     /** 2026-10-08：滑动快进步长（KEY_SWIPE_FULL_PERCENT，整屏=片长百分比 1~50 默认 10）——与主播放器同键 */
     private var uiSwipeFullPercent by mutableIntStateOf(10)
     /** T6 控制层样式（2026-11-15 spec §3）：novax_control_style，applyPrefs 一次性读入（本页其余
-     *  键同口径，会话内不随设置页热更）；CLASSIC 兜底。MINIMAL=极简常驻层+细顶栏（§3.2） */
+     *  键同口径，会话内不随设置页热更）；CLASSIC 兜底。MINIMAL=顶栏进度条+⋯菜单+无常驻层（§3.2 rev5） */
     private var uiControlStyle by mutableStateOf(NvControlStyle.CLASSIC)
     // R5（2026-11-18 rev5）蓝⋯精简「播放管理」菜单打开态（spec §5.1 rev5 契约扩展①，主侧
     // PlayerScreen quickMenuOpen 同款）：编排层持有（样式包不得自带影响编排层行为的业务状态）。
@@ -2861,10 +2861,8 @@ class RmvbPlayerActivity : ComponentActivity() {
 
             // R5（rev5 §3.2）：极简常驻层槽位删除——MINIMAL 档不再挂载任何常驻元素（rev2 贴底
             // 细线+时间小字全删），控制层隐藏后画面=纯视频+字幕（「不挡字幕」的完整含义）。
-            // persistentLayerVisible/MinimalPersistentLayer 函数本体仍在 ControlStyleMinimal.kt
-            //（主侧槽位 T3 已拆，本体 T5 死代码清理时删）
 
-            // R4 极简唤起态左右侧钮列（rev4 §3.2 布局图，与主播放器对称接线）：左=锁三态/CC 字幕/
+            // R5 极简唤起态左右侧钮列（rev5 §3.2，与主播放器对称接线）：左=画面旋转/CC 字幕/
             // 齿轮更多，右=倍速三件套（R3 组件纯 Column，垂直定位由本调用侧负责）。几何中心向下偏
             // 屏高 6%（中心位于屏高 56%）；visible 复用 uiControlsVisible && uiError == null 同表达式
             //（全锁/半锁/错误态随控制层同隐藏）；fade 时长/缓动与顶/底栏同款、不带 slide；
