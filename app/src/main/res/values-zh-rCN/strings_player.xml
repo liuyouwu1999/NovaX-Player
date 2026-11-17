@@ -239,6 +239,7 @@
     <string name="player_cd_mirror_current">画面镜像（当前 %1$s）</string>
     <string name="player_cd_rotate_current">画面旋转（当前 %1$d°）</string>
     <string name="player_cd_more_rmvb">更多（AB 循环/睡眠定时）</string>
+    <string name="player_quick_exit">退出播放器</string>
     <string name="player_seek_preview">%1$s（松手跳转）</string>
     <string name="player_loop_b_after_a">B 点需在 A 点之后</string>
 

@@ -240,6 +240,7 @@
     <string name="player_cd_mirror_current">화면 좌우 반전(현재 %1$s)</string>
     <string name="player_cd_rotate_current">화면 회전(현재 %1$d°)</string>
     <string name="player_cd_more_rmvb">더보기(AB 루프/수면 타이머)</string>
+    <string name="player_quick_exit">플레이어 종료</string>
     <string name="player_seek_preview">%1$s(손을 떼면 이동)</string>
     <string name="player_loop_b_after_a">B 지점은 A 지점 이후여야 합니다</string>
 

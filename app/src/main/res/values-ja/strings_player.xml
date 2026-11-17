@@ -240,6 +240,7 @@
     <string name="player_cd_mirror_current">画面ミラー（現在 %1$s）</string>
     <string name="player_cd_rotate_current">画面回転（現在 %1$d°）</string>
     <string name="player_cd_more_rmvb">その他（AB ループ/スリープタイマー）</string>
+    <string name="player_quick_exit">プレーヤーを終了</string>
     <string name="player_seek_preview">%1$s（指を離してジャンプ）</string>
     <string name="player_loop_b_after_a">B 点は A 点より後である必要があります</string>
 

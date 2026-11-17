@@ -240,6 +240,7 @@
     <string name="player_cd_mirror_current">Mirror picture (current %1$s)</string>
     <string name="player_cd_rotate_current">Rotate picture (current %1$d°)</string>
     <string name="player_cd_more_rmvb">More (AB loop / sleep timer)</string>
+    <string name="player_quick_exit">Exit player</string>
     <string name="player_seek_preview">%1$s (release to seek)</string>
     <string name="player_loop_b_after_a">Point B must be after point A</string>
 
