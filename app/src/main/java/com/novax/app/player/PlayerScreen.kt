@@ -2006,9 +2006,9 @@ fun PlayerScreen(
         ) {
             // T6 样式分发（spec §5.2 分发点②）：极简底栏 = rev5 §3.2 纯按钮黑条——底部无进度条
             // （唯一进度显示=顶栏 MinimalSeekTopBar），rev4「宿主 Column { 底栏; 贴底 line slider }」
-            // 拆除（「唤起态 line 原位顶替常驻线」机制 rev5 作废）。背景宿主承载**恰好一层** Scrim
-            // （组件级背景收回统一 T4 一起做：届时两侧宿主容器全拆、组件自带背景一次到位，
-            // 防中间提交双层叠加——83ef321 接缝教训，MinimalBottomBar kdoc 已注明）。
+            // 拆除（「唤起态 line 原位顶替常驻线」机制 rev5 作废）。背景=组件自带 Scrim 恰好一层
+            //（R5-T4 收口：T3 过渡期宿主 Box 承载已拆，主/RMVB 两侧原子完成防双层叠加——
+            // 83ef321 接缝教训，MinimalBottomBar kdoc 已注明）。
             // band 置零（spec §5.2-③）：MINIMAL 底部无 slider 无人喂值，SideEffect 显式归零——
             // 防热切 classic/streaming→minimal 后旧 band 残留造成屏底手势死区（按下被整体退场又不被消费）
             // T7 长视频风底栏（spec §3.3）= 贴底线（line 模式拖动加粗 thickenOnDrag）+ 单行底栏；
@@ -2016,9 +2016,7 @@ fun PlayerScreen(
             when (controlStyle) {
                 NvControlStyle.MINIMAL -> {
                     SideEffect { controlsBandHeightPx = 0f }
-                    Box(Modifier.fillMaxWidth().background(NvColors.Scrim)) {
-                        MinimalBottomBar(controlContract)
-                    }
+                    MinimalBottomBar(controlContract)   // R5-T4：背景组件自带，宿主 Box 承载退役
                 }
                 NvControlStyle.STREAMING -> Column(
                     Modifier.fillMaxWidth(),

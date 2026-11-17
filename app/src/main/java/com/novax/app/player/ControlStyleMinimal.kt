@@ -614,11 +614,11 @@ internal fun minimalBottomSlots(narrow: Boolean): List<MinimalSlot> =
  * （Arrangement.SpaceEvenly，实测用户截图等距分布）——
  * 锁 │ 上集 │ 快退(skipSec) │ 暂停 │ 快进(skipSec) │ 下集 │ 画面比例。
  * - **底部无进度条（rev5）**：线不在本栏——唯一进度显示=顶栏 [MinimalSeekTopBar]（rev4
- *   「宿主 Column { 底栏; NvChapterSlider(LINE) }」的贴底线为过渡期形态，rev5 作废）。
- *   **背景本组件不自画**（仍由宿主 Box 统一承载 `Modifier.background(NvColors.Scrim)`，
- *   黑条背景向下延伸覆盖线触摸区=连续黑块，2026-11-15 三星真机缺陷根修）；背景收回组件
- *   自带必须与宿主 Box 拆除**同任务原子完成**（T4），防组件 Scrim+宿主 Scrim 双层
- *   叠加（rev4 根修 83ef321 的接缝教训）——本任务背景代码零改动，仅 kdoc 注明 rev5 目标口径。
+ *   「宿主 Column { 底栏; NvChapterSlider(LINE) }」的贴底线已随 T3/T4 拆除，rev5 作废）。
+ *   **背景组件自带**（根 `background(NvColors.Scrim)`，R5-T4 收回完成）：黑条背景向下延伸
+ *   覆盖触摸区=连续黑块不悬空（2026-11-15 三星真机缺陷根修语义由组件延续），主/RMVB 两侧
+ *   宿主裸调用恰好一层；「宿主 Box/Column 统一承载」旧口径退役（83ef321 接缝教训=背景收回
+ *   与宿主拆除必须同任务原子完成，T4 已两侧原子落地）。
  * - 暂停 = 经典 PauseSlot 同款 NvGlassChip 58dp/30dp 磨砂圆钮（宽幅）；窄幅尺寸走
  *   [nvNarrowControlMetrics]/[nvRowIconFor]（streaming 底栏同源档位，五钮才放得下）。
  * - 上/下集**灰置不隐藏**（NvClusterButton enabled，nPlayer 一致口径）；锁=三态图标
@@ -630,6 +630,9 @@ internal fun MinimalBottomBar(c: NvControlContract, modifier: Modifier = Modifie
     BoxWithConstraints(
         modifier
             .fillMaxWidth()
+            // R5-T4 背景收回组件自带（恰好一层 Scrim，两侧宿主裸调用）：background 在 padding
+            // 之前=背景铺满整栏含内边距区，与旧宿主 Box 承载逐像素同观感
+            .background(NvColors.Scrim)
             .padding(start = 16.dp, end = 16.dp, top = 2.dp, bottom = 4.dp),
     ) {
         val narrow = maxWidth < 480.dp

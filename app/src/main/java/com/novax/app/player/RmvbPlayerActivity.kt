@@ -383,6 +383,13 @@ class RmvbPlayerActivity : ComponentActivity() {
     /** T6 控制层样式（2026-11-15 spec §3）：novax_control_style，applyPrefs 一次性读入（本页其余
      *  键同口径，会话内不随设置页热更）；CLASSIC 兜底。MINIMAL=极简常驻层+细顶栏（§3.2） */
     private var uiControlStyle by mutableStateOf(NvControlStyle.CLASSIC)
+    // R5（2026-11-18 rev5）蓝⋯精简「播放管理」菜单打开态（spec §5.1 rev5 契约扩展①，主侧
+    // PlayerScreen quickMenuOpen 同款）：编排层持有（样式包不得自带影响编排层行为的业务状态）。
+    // true 期间 keepControls 的 4s 隐藏 job 挂起（launch 体首行门控 + onToggleQuickMenu 打开路径
+    // 显式 cancel 在途 job——对「显隐超时零改动」的显式豁免，spec §5.2/§5.4 唯一口径）；复位=
+    // 任何控制层隐藏出口（锁定收层/全锁）与错误态/样式热切换一律 false（防旗标残留→自动隐藏
+    // 永久挂起/跨样式残留，spec 复审 P1-1；四出口同句复位 + 两路 LaunchedEffect 见组合体契约组装处）
+    private var uiQuickMenuOpen by mutableStateOf(false)
     private var uiAspectIndex by mutableIntStateOf(0)
     private var uiShowSpeedSheet by mutableStateOf(false)
     private var uiShowMoreSheet by mutableStateOf(false)
@@ -2218,6 +2225,27 @@ class RmvbPlayerActivity : ComponentActivity() {
                         var zoomStartMidY = 0f
                         do {
                             val ev = awaitPointerEvent()
+                            // R5 消费退场（rev5-T2 复审 P1-1 强制修复）：⋯菜单 MinimalQuickMenu
+                            // 全屏拦截层（仅菜单开着时挂载）在 Main pass 先于本祖先状态机处理事件，
+                            // 其 consume 的拖动若仍被本机照常处理，菜单开着横滑照样写亮度/音量/
+                            // 提交 seek——「菜单开着横滑=零手势响应」破防。仅在本机未取模式的待定段
+                            // 检查（mode==MODE_NONE 且速度锁未发）：本机自有消费（MODE_SEEK/
+                            // BRIGHTNESS/VOLUME 与速度锁的 change.consume()）不触发退场；与主播放器
+                            // PlayerGestures Pressing 态消费退场同款姿势。无菜单时无消费者，
+                            // isConsumed 恒 false，本机手势零变化
+                            if (mode == MODE_NONE && !speedLockFired && ev.changes.any { it.isConsumed }) {
+                                // 收尾同主播放器 awaitAllUp（PlayerGestures 消费退场收尾）：吞掉至
+                                // 全部抬起再退场——拦截层已接管本次手势，后续事件不再喂本状态机；
+                                // 当前事件若已全部抬起（tap 外点）直接退场，防 awaitPointerEvent
+                                // 悬挂到下次触摸
+                                if (ev.changes.any { it.pressed }) {
+                                    while (true) {
+                                        val rest = awaitPointerEvent()
+                                        if (rest.changes.none { it.pressed }) break
+                                    }
+                                }
+                                break
+                            }
                             val change = ev.changes.firstOrNull() ?: break
                             val dx = change.position.x - downX
                             val dy = change.position.y - gestureStartY   // 纵向累计位移（2026-09-20 起亮度/音量共用此基准）
@@ -2625,6 +2653,19 @@ class RmvbPlayerActivity : ComponentActivity() {
                 }
             }
 
+            // R5 复位矩阵两路（spec 复审 P1-1 口径，主侧 PlayerScreen 同款；锁定收层/全锁两路
+            // 见契约 onLock 与 ControlsBottom onLock 的同句复位）：
+            // ①错误态——uiError 是渲染门控而非 uiControlsVisible 出口（错误态赋值点不动
+            //   uiControlsVisible），不复位则错误恢复后菜单重现且隐藏计时永久挂起
+            LaunchedEffect(uiError) {
+                if (uiError != null) uiQuickMenuOpen = false
+            }
+            // ②样式热切换——防 uiQuickMenuOpen 旗标跨样式残留（新样式无⋯块可关，隐藏计时挂死）。
+            //   菜单开着时热切在结构上不可达（⋯菜单全屏拦截层盖住侧列齿轮/⋯块，更多面板打不开），
+            //   本路是防御性复位——与主侧同矩阵口径
+            LaunchedEffect(uiControlStyle) {
+                uiQuickMenuOpen = false
+            }
             // T6 极简样式分发（spec 2026-11-15 §5.2 分发点）：契约组装——状态读 ui* 域、回调接本页
             // 既有同源入口（锁块从 ControlsBottom onLock 平移，语义逐字同源）。CLASSIC 分支不切契约
             //（ControlsBottom 直调，减小回归面），MINIMAL 消费（STREAMING 分支 T7 接）
@@ -2654,6 +2695,7 @@ class RmvbPlayerActivity : ComponentActivity() {
                         LOCK_HALF -> {
                             uiHalfLocked = true
                             uiControlsVisible = false
+                            uiQuickMenuOpen = false   // R5 复位矩阵：锁定收层出口一律复位（spec 复审 P1-1）
                             toast(getString(R.string.player_half_lock_toast))
                         }
                         else -> {
@@ -2669,6 +2711,7 @@ class RmvbPlayerActivity : ComponentActivity() {
                             uiLocked = true
                             uiHalfLocked = false
                             uiControlsVisible = false
+                            uiQuickMenuOpen = false   // R5 复位矩阵：全锁同口径
                             uiLockHintVisible = true
                             toast(getString(R.string.player_locked_toast))
                         }
@@ -2693,6 +2736,23 @@ class RmvbPlayerActivity : ComponentActivity() {
                     resumeSeekArmed = false
                     vlcPlayer?.let { it.time = target.coerceIn(0L, it.length.coerceAtLeast(0L)) }
                 },
+                // R5（rev5 §5.1 契约扩展三字段，主侧 PlayerScreen 同款）：⋯菜单打开态 + ⋯块切换
+                // 回调 + 投屏行门控——RMVB 无投屏恒 false（quickMenuRows 键集剔除 + hasCast
+                // 运行时门控双机制独立叠加，plan 复审已核无冲突）
+                quickMenuOpen = uiQuickMenuOpen,
+                onToggleQuickMenu = {
+                    uiQuickMenuOpen = !uiQuickMenuOpen
+                    if (uiQuickMenuOpen) {
+                        // 打开：显式 cancel 在途隐藏 job（plan 审核 P1-3）——keepControls 可能已
+                        // schedule 且 delay 中途，仅靠 launch 体门控救不了「3.9s 时开菜单、
+                        // 0.1s 后到点被收走」竞态；门控（launch 处）是双保险
+                        controlsHideJob?.cancel()
+                    } else {
+                        // 关闭：重新 schedule（否则菜单关闭后无人排程，自动隐藏失效到下一次交互）
+                        keepControls()
+                    }
+                },
+                hasCast = false,
             )
             // 控制层（2026-09-20 动效与主播放器对齐）：顶行从屏幕上缘滑入/滑出、底栏从下缘滑入/滑出，
             // 时长/缓动统一引用 NvMotion（与 PlayerScreen 控制层同源）；两块 visible 同表达式保证同相位
@@ -2711,15 +2771,24 @@ class RmvbPlayerActivity : ComponentActivity() {
                 Box(
                     Modifier
                         .fillMaxWidth()
-                        .background(Brush.verticalGradient(listOf(NvColors.ScrimStrong, Color.Transparent))),
+                        // R5：宿主渐变对 MINIMAL 分支不挂载（spec §3.2，主侧 PlayerScreen 同款
+                        // .then 条件化）——MinimalSeekTopBar 栏自带完整底色（未播段半透明深底），
+                        // 渐变叠上去会成非均匀色破坏 1:1「画面透出」观感；classic/streaming 分支
+                        // 渐变原样（.then 包裹与直挂渲染树等价）
+                        .then(
+                            if (uiControlStyle == NvControlStyle.MINIMAL) Modifier
+                            else Modifier.background(Brush.verticalGradient(listOf(NvColors.ScrimStrong, Color.Transparent))),
+                        ),
                 ) {
-                    // T6 样式分发（spec §5.2 分发点②）：极简=细顶栏（返回+标题+总时长+更多键，
-                    // P0-1 极简档唯一功能入口，onMore 开 NvPlayerPopup 更多弹层）；经典=既有共享
+                    // T6 样式分发（spec §5.2 分发点②）：极简=顶栏即进度条（rev5 §3.2
+                    // MinimalSeekTopBar，整栏拖 scrub/单点定跳/蓝⋯精简菜单入口）；经典=既有共享
                     // 顶栏直调零变化。T7 长视频风=图标簇平铺顶栏（spec §3.3）——RMVB 宿主
                     // hasCast=false 自动减投屏键（§5.3 键集参数化思想），字幕/音轨/更多键经契约
                     // 接本页既有面板入口（uiShowSubSheet/uiShowAudioSheet/uiShowMoreSheet）
                     when (uiControlStyle) {
-                        NvControlStyle.MINIMAL -> MinimalTopBar(controlContract)
+                        // R5：不接 onDragStart——uiSeekPreviewMs 是手势 seek 的预览气泡，
+                        // 与顶栏拖动互不相干（主侧收预览浮层的需求本页不存在）
+                        NvControlStyle.MINIMAL -> MinimalSeekTopBar(controlContract)
                         NvControlStyle.STREAMING -> StreamingTopBar(controlContract, hasCast = false)
                         else -> NvPlayerTopBar(
                             title = title,
@@ -2760,29 +2829,17 @@ class RmvbPlayerActivity : ComponentActivity() {
                     slideOutVertically(tween(NvMotion.DurationNormal, easing = NvMotion.CurveAccelerate)) { it },
                 modifier = Modifier.align(Alignment.BottomCenter),
             ) {
-                // T6 样式分发（spec §5.2 分发点②）：极简底栏 = rev4 §3.2 布局图两行——七钮黑条在上 +
-                // line 进度条贴底在下（R4，与主播放器对称；Column 顺序 P0：黑条在下会把细线顶离底缘，
-                // 破坏「原位顶替门控外常驻细线」的防双线语义）；章节刻度不上细轨口径不变。
-                // 2026-11-15 三星真机缺陷根修：Column 统一 Scrim 底（与主播放器对称）——黑条背景下延
-                // 覆盖触摸区连成连续黑块；黑条自带背景已上移宿主防双层叠加接缝；触摸/热区零影响
+                // T6 样式分发（spec §5.2 分发点②）：极简底栏 = rev5 §3.2 纯按钮黑条——底部无进度条
+                //（唯一进度显示=顶栏 MinimalSeekTopBar），rev4「宿主 Column { 底栏; 贴底 line
+                // slider }」拆除（「唤起态 line 原位顶替常驻线」机制 rev5 作废）。背景=组件自带
+                // Scrim 恰好一层（R5-T4 收口：宿主 Column 承载退役，主/RMVB 两侧原子完成防双层
+                // 叠加——83ef321 接缝教训，MinimalBottomBar kdoc 已注明）。band 置零不适用本页：
+                // RMVB 手势机无 band 消费点（全文件零 controlsHeightPx/onSliderBandPx，主侧
+                // spec §5.2-③ 需求源于主播放器 band 退场计量，本页无该机制——grep 核实如实跳过）
                 // T7 长视频风底栏（spec §3.3）= 贴底线（line 模式拖动加粗 thickenOnDrag）+ 单行底栏。
                 // 经典=ControlsBottom 直调零变化
                 when (uiControlStyle) {
-                    NvControlStyle.MINIMAL -> Column(
-                        Modifier
-                            .fillMaxWidth()
-                            .background(NvColors.Scrim),
-                    ) {
-                        MinimalBottomBar(controlContract)
-                        NvChapterSlider(
-                            positionMs = uiPositionMs,
-                            bufferedMs = 0L,
-                            durationMs = uiDurationMs,
-                            chapters = emptyList(),
-                            onSeek = controlContract.onSeek,
-                            visual = NvSliderVisual.LINE,
-                        )
-                    }
+                    NvControlStyle.MINIMAL -> MinimalBottomBar(controlContract)
                     NvControlStyle.STREAMING -> Column(
                         Modifier.fillMaxWidth(),
                     ) {
@@ -2802,14 +2859,10 @@ class RmvbPlayerActivity : ComponentActivity() {
                 }
             }
 
-            // T6 极简常驻层（spec §3.2/§5.2 分发点①，门控外=AnimatedVisibility 之外）：贴底细线+
-            // 时间小字，零热区。未锁/半锁显示、全锁/错误态隐藏；唤起时隐藏——由上方门控内 line
-            // 进度条原位顶替（persistentLayerVisible，与主播放器对称接线）
-            if (uiControlStyle == NvControlStyle.MINIMAL &&
-                persistentLayerVisible(uiLocked, uiError != null, uiControlsVisible && uiError == null)
-            ) {
-                MinimalPersistentLayer(controlContract, Modifier.align(Alignment.BottomCenter))
-            }
+            // R5（rev5 §3.2）：极简常驻层槽位删除——MINIMAL 档不再挂载任何常驻元素（rev2 贴底
+            // 细线+时间小字全删），控制层隐藏后画面=纯视频+字幕（「不挡字幕」的完整含义）。
+            // persistentLayerVisible/MinimalPersistentLayer 函数本体仍在 ControlStyleMinimal.kt
+            //（主侧槽位 T3 已拆，本体 T5 死代码清理时删）
 
             // R4 极简唤起态左右侧钮列（rev4 §3.2 布局图，与主播放器对称接线）：左=锁三态/CC 字幕/
             // 齿轮更多，右=倍速三件套（R3 组件纯 Column，垂直定位由本调用侧负责）。几何中心向下偏
@@ -2836,6 +2889,22 @@ class RmvbPlayerActivity : ComponentActivity() {
                         MinimalSpeedRail(controlContract)
                     }
                 }
+            }
+
+            // R5 极简蓝⋯精简「播放管理」菜单（rev5 §3.2 MinimalQuickMenu）：与顶栏/底栏/侧列同层
+            // 挂载，渲染条件=样式 MINIMAL 且 uiQuickMenuOpen 且控制层可见（主侧 controlsShown
+            // 等价式，spec 复审 P1-1 口径）；不传 sizing/align modifier——组件根自带 fillMaxSize
+            // 全屏拦截层（tap 外点仅关菜单+drag 全消费防手势穿透）。**必须在左右侧钮列之后挂载**
+            //（T3 复审 P1-1 同口径，z 序机制=同一 Box 内后组合兄弟节点命中优先——先挂则拦截层
+            // 盖不住侧列：菜单开着 tap 侧钮=动作执行且菜单不关、从侧钮起手横滑穿透祖先手势
+            //（seek/亮度/音量），两冒烟锚在侧列区域破防；后挂=最上层拦截层全覆盖，菜单卡不受影响）。
+            // 防自动隐藏=隐藏 job 门控（uiQuickMenuOpen=true 挂起+开路径显式 cancel 在途 job）；
+            // 复位矩阵=锁定收层/全锁/错误态/热切四路（编排层持有）
+            if (uiControlStyle == NvControlStyle.MINIMAL &&
+                uiQuickMenuOpen &&
+                uiControlsVisible && !uiLocked && uiError == null
+            ) {
+                MinimalQuickMenu(controlContract, isRmvb = true)
             }
 
             // 手势 HUD（2026-09-20 与主播放器同步）：亮度左缘 / 音量右缘竖条（CenterStart/
@@ -3252,6 +3321,7 @@ class RmvbPlayerActivity : ComponentActivity() {
                             LOCK_HALF -> {
                                 uiHalfLocked = true
                                 uiControlsVisible = false
+                                uiQuickMenuOpen = false   // R5 复位矩阵：锁定收层出口一律复位（spec 复审 P1-1）
                                 // 2026-10-10 精简+口径随「立即收起」更新（升全锁入口=角标长按）
                                 toast(getString(R.string.player_half_lock_toast))
                             }
@@ -3268,6 +3338,7 @@ class RmvbPlayerActivity : ComponentActivity() {
                                 uiLocked = true
                                 uiHalfLocked = false
                                 uiControlsVisible = false
+                                uiQuickMenuOpen = false   // R5 复位矩阵：全锁同口径
                                 uiLockHintVisible = true   // BUG-C-R4-08：提示层原实现无人置 true，是死 UI
                                 toast(getString(R.string.player_locked_toast))
                             }
@@ -3544,6 +3615,13 @@ class RmvbPlayerActivity : ComponentActivity() {
         controlsHideJob?.cancel()
         controlsHideJob = lifecycleScope.launch {
             delay(4_000)
+            // R5 ⋯菜单防自动隐藏门控（spec §5.1 显隐超时唯一豁免，主侧 LaunchedEffect 条件体
+            // && !quickMenuOpen 同款）：⋯菜单打开期间到点不收层（控制层与菜单 >4s 均不消失，
+            // spec §9 冒烟锚）。打开路径已显式 cancel 在途 job，本门控为双保险——兜「菜单开着时
+            // 其他复活路径（Playing 事件/skip 等）调 keepControls 排程」的场景；关菜单走
+            // onToggleQuickMenu 关路径 keepControls 重新排程。半锁期 uiQuickMenuOpen 恒 false
+            // （锁定收层出口复位链），本门控对半锁 4s 必收语义零影响
+            if (uiQuickMenuOpen) return@launch
             val hide = if (uiHalfLocked && !uiLocked) {
                 true
             } else {
