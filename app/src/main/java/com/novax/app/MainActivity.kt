@@ -45,6 +45,7 @@ import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material.icons.outlined.VideoLibrary
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
+import androidx.datastore.preferences.core.stringSetPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.preferencesDataStore
 import androidx.navigation.NavHostController
@@ -95,6 +96,14 @@ private val KEY_BACK_EXIT = booleanPreferencesKey("novax_ui_back_exit")
 
 /** 库页排序持久化（BUG-C-R6-16：排序选择重启恢复；2026-10-16 默认基准 ADDED→TITLE，机制不变） */
 internal val KEY_LIB_SORT = stringPreferencesKey("novax_ui_lib_sort")
+
+/**
+ * 扫描失败横幅按源持久压制集（2026-11-19 用户拍板「× 后不再出现」）：存被压制源的
+ * sourceId 十进制串集合（FailedScanSuppressions 运算）。× 关闭 = 该源加入；手动扫描
+ * （LibraryViewModel.rescan）解除；持久化——重启后压制仍生效（区别于旧会话级时间戳语义）。
+ * 源删除后集合残留无害：该源不会再产生 FAILED 行，新源是新 id（残留不清理，留待天然收敛）。
+ */
+internal val KEY_FAILED_SCAN_SUPPRESSED = stringSetPreferencesKey("novax_ui_failed_scan_suppressed")
 
 /** 通知权限「已问过」标记（首启一次性请求，拒绝也算已问；请求时机在隐私同意之后，spec §1.2） */
 private val KEY_NOTIF_PERM_ASKED = booleanPreferencesKey("novax_notif_perm_asked")

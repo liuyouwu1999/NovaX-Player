@@ -42,6 +42,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import androidx.datastore.preferences.core.edit
+import com.novax.app.KEY_FAILED_SCAN_SUPPRESSED
 import com.novax.app.KEY_LIB_SORT
 import com.novax.app.novaxUiPrefs
 
@@ -139,7 +140,14 @@ class LibraryViewModel(app: Application) : AndroidViewModel(app) {
     private val sourceSheetVisible = MutableStateFlow(false)
     private val itemSheet = MutableStateFlow<MediaItemWithWatch?>(null)
     private val notedScanDismissedAt = MutableStateFlow(0L)
-    private val failedScanDismissedAt = MutableStateFlow(0L)
+
+    /**
+     * 扫描失败横幅按源持久压制集（2026-11-19 用户拍板「× 后不再出现」，取代旧会话级
+     * failedScanDismissedAt 时间戳语义）：× 关闭 = 该源 sourceId 加入（DataStore 持久化，
+     * 重启仍生效——自动扫描重跑失败/lastScanAt 更新不再让横幅回场）；手动扫描（[rescan]）
+     * 清空解除，新一轮失败允许再报。运算纯函数见 [FailedScanSuppressions]。
+     */
+    private val suppressedFailedSources = MutableStateFlow<Set<String>>(emptySet())
 
     /** 源列表内存缓存：播放地址 / 收藏键的 LOCAL 分支判定用（同步读） */
     @Volatile
@@ -154,6 +162,13 @@ class LibraryViewModel(app: Application) : AndroidViewModel(app) {
                     .map { it[KEY_LIB_SORT] }
                     .first()
                     ?.let { saved -> LibrarySort.entries.firstOrNull { it.name == saved }?.let { sortFlow.value = it } }
+            }
+            // 扫描失败压制集恢复（2026-11-19 按源持久压制核心）：重启后 × 关过的源仍不报
+            runCatching {
+                context.novaxUiPrefs.data
+                    .map { it[KEY_FAILED_SCAN_SUPPRESSED] }
+                    .first()
+                    ?.let { saved -> suppressedFailedSources.value = saved }
             }
             sourceDao.observeAll().collect { cachedSources = it }
         }
@@ -193,7 +208,7 @@ class LibraryViewModel(app: Application) : AndroidViewModel(app) {
         val sourceSheet: Boolean,
         val itemSheet: MediaItemWithWatch?,
         val notedDismissedAt: Long,
-        val failedDismissedAt: Long,
+        val failedSuppressed: Set<String>,
     )
 
     private data class Base(val viewMode: ViewMode, val filters: Filters, val folder: LibraryFolder?)
@@ -213,7 +228,7 @@ class LibraryViewModel(app: Application) : AndroidViewModel(app) {
         favoriteKeysFlow,
         combine(viewModeFlow, combine(mediaTypeFlow, watchedFlow, sortFlow, sourceFilterFlow, ::Filters), folderFilterFlow, ::Base),
         combine(
-            sortSheetVisible, sourceSheetVisible, itemSheet, notedScanDismissedAt, failedScanDismissedAt,
+            sortSheetVisible, sourceSheetVisible, itemSheet, notedScanDismissedAt, suppressedFailedSources,
         ) { a, b, c, n, f -> Sheets(a, b, c, n, f) },
     ) { items, env, favoriteKeys, base, sheets ->
         cachedSources = env.sources
@@ -285,7 +300,7 @@ class LibraryViewModel(app: Application) : AndroidViewModel(app) {
             sourceSheetVisible = sheets.sourceSheet,
             itemSheet = sheets.itemSheet,
             notedScanDismissedAt = sheets.notedDismissedAt,
-            failedScanDismissedAt = sheets.failedDismissedAt,
+            failedScanSuppressedSourceIds = sheets.failedSuppressed,
         )
     }
         // 性能修复（重活下主线程之外）：combine 变换（filter/sort/folders 映射/pinyin 转换）原先随
@@ -341,18 +356,30 @@ class LibraryViewModel(app: Application) : AndroidViewModel(app) {
     fun showItemSheet(item: MediaItemWithWatch) { itemSheet.value = item }
     fun dismissItemSheet() { itemSheet.value = null }
 
-    // ── 扫描结果横幅关闭（2026-10-26：会话级，见 LibraryUiState.notedScanDismissedAt 注释）──
+    // ── 扫描结果横幅关闭（提示横幅 2026-10-26 会话级，见 LibraryUiState.notedScanDismissedAt；
+    //    失败横幅 2026-11-19 用户拍板改按源持久压制，见 suppressedFailedSources）──
     fun dismissNotedScan() {
         uiState.value.notedScan?.let { notedScanDismissedAt.value = it.lastScanAt }
     }
 
+    /** 失败横幅 ×：该源加入持久压制集（重启仍生效），直到手动扫描（[rescan]）解除 */
     fun dismissFailedScan() {
-        uiState.value.failedScan?.let { failedScanDismissedAt.value = it.lastScanAt }
+        val failed = uiState.value.failedScan ?: return
+        suppressedFailedSources.value = FailedScanSuppressions.suppressed(suppressedFailedSources.value, failed.sourceId)
+        viewModelScope.launch {
+            runCatching { context.novaxUiPrefs.edit { it[KEY_FAILED_SCAN_SUPPRESSED] = suppressedFailedSources.value } }
+        }
     }
 
     // ── 重新扫描（C12 §二.1 T2：顶栏 Sync 图标 → 全部源串行重扫；再点取消）──
     fun rescan() {
         viewModelScope.launch {
+            // 手动扫描解除失败压制（库页唯一手动扫描入口：顶栏刷新/「立即扫描」空态钮/重扫确认框
+            // 都汇于此）：新一轮失败允许再报（2026-11-19 用户拍板语义）
+            if (suppressedFailedSources.value.isNotEmpty()) {
+                suppressedFailedSources.value = FailedScanSuppressions.cleared(suppressedFailedSources.value)
+                runCatching { context.novaxUiPrefs.edit { it[KEY_FAILED_SCAN_SUPPRESSED] = suppressedFailedSources.value } }
+            }
             val sources = sourceDao.getAll()
             if (sources.isNotEmpty()) scanner.scanAll(sources)
         }
@@ -548,6 +575,31 @@ class LibraryViewModel(app: Application) : AndroidViewModel(app) {
     }
 }
 
+/**
+ * 扫描失败横幅按源持久压制（2026-11-19 用户拍板「× 后不再出现」）集合运算纯函数（JVM 可测，
+ * DataStore 接线为薄壳：stringSetPreferencesKey 原生存取 Set&lt;String&gt;，无自定义序列化）。
+ * 语义：× 关闭 = 该源失败横幅不再出现——自动扫描重跑失败（lastScanAt 更新）、重启 App 均
+ * 不回场；直到用户手动扫描（LibraryViewModel.rescan）解除，新一轮失败允许再报。取代旧
+ * 2026-10-26 会话级时间戳语义（failedScanDismissedAt，已删——自动扫描每次启动重跑失败时
+ * lastScanAt 必然更新，横幅必然回来，正是用户报的 bug）。源删除后集合残留无害：该源不会再
+ * 产生 FAILED 行，新源是新 id（不主动清理，残留键在下次手动扫描清空时天然收敛）。
+ */
+internal object FailedScanSuppressions {
+
+    /** DataStore stringSet 元素：sourceId 十进制串（原生存取，往返即恢复） */
+    fun keyOf(sourceId: Long): String = sourceId.toString()
+
+    /** × 关闭：把当前失败源加入压制集（幂等，返回新集） */
+    fun suppressed(current: Set<String>, sourceId: Long): Set<String> = current + keyOf(sourceId)
+
+    /** 手动扫描（rescan）：解除全部压制，新一轮失败允许再报 */
+    fun cleared(current: Set<String>): Set<String> = emptySet()
+
+    /** 失败横幅入选谓词：FAILED 且源不在压制集 */
+    fun visible(state: ScanStateEntity, suppressed: Set<String>): Boolean =
+        state.status == ScanStatus.FAILED && keyOf(state.sourceId) !in suppressed
+}
+
 data class LibraryUiState(
     val folder: LibraryFolder? = null,
     val seriesGroups: List<LibrarySeriesGroup> = emptyList(),   // 2026-09-15 D4：剧集 Tab 聚合组
@@ -570,15 +622,20 @@ data class LibraryUiState(
     // 2026-10-26 用户反馈「扫描提示横幅关不掉」：会话级关闭基准—— dismissing 记录被关横幅的
     // lastScanAt，仅压制「这次及更早」的提示；之后新扫描产生的新失败/新提示（lastScanAt 更大）
     // 会重新出现。不落库不清 DB 诊断记录，重启 App 后未消的问题仍会提醒。
+    // （失败横幅不走此基准：2026-11-19 用户拍板改按源持久压制，见下方 failedScanSuppressedSourceIds）
     val notedScanDismissedAt: Long = 0L,
-    val failedScanDismissedAt: Long = 0L,
+
+    /** 失败横幅按源持久压制集（2026-11-19，取代已删的 failedScanDismissedAt 时间戳语义）：
+     *  DataStore 持久化，重启仍生效；手动扫描清空解除。运算见 [FailedScanSuppressions] */
+    val failedScanSuppressedSourceIds: Set<String> = emptySet(),
 ) {
     /** 任一源扫描中（实时进度为准；scan_state 表供冷启动完成态判定） */
     val scanning: Boolean get() = progress.values.any { it.status == ScanStatus.RUNNING }
 
-    /** 最近一次扫描失败（S7 顶部横幅文案数据；已被用户关闭的旧失败不再回场） */
+    /** 最近一次扫描失败（S7 顶部横幅文案数据；2026-11-19 用户拍板：× = 按源持久压制——
+     *  被关源无论失败多少次/lastScanAt 多新都不再出现，重启也不回场，直到手动扫描解除） */
     val failedScan: ScanStateEntity?
-        get() = scans.firstOrNull { it.status == ScanStatus.FAILED && it.lastScanAt > failedScanDismissedAt }
+        get() = scans.firstOrNull { FailedScanSuppressions.visible(it, failedScanSuppressedSourceIds) }
 
     /** 最近一次「完成但带提示」的扫描（2026-10-19：失读/失效扫描根跳过降级为 DONE+note 后的可见出口） */
     val notedScan: ScanStateEntity?
