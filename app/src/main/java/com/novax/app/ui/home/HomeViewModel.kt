@@ -19,6 +19,8 @@ import com.novax.app.data.scanner.ScanProgress
 import com.novax.app.ui.files.NvFilesDeepLink
 import com.novax.app.ui.files.folderTargetOf as sharedFolderTargetOf
 import com.novax.app.data.thumb.NvThumbHolder
+import com.novax.app.data.thumb.ThumbCache
+import java.io.File
 import com.novax.app.data.privacy.NvFavoriteCipherRows
 import com.novax.app.data.privacy.NvFavoriteDirect
 import com.novax.app.data.privacy.NvHistoryCipherRows
@@ -111,8 +113,13 @@ class HomeViewModel(private val appContext: Context) : ViewModel() {
      * (sourceId,path) 直连键取 mi.thumbnailPath，LOCAL 播放历史是 (null, 绝对路径)
      * 恒不命中 → 本地片在首页恒渐变占位（帧封面明明已抽）。仅对 thumbPath==null 且
      * sourceId==null 的行：绝对路径按 LOCAL 源根前缀反查 (源id, 相对路径) 再查
-     * media_items（(sourceId,path) 唯一索引单行查）。流量上限 = 继续观看 LIMIT 50，
-     * 且只对缺图行逐行查；NAS 源键直连命中不进本路径，零开销。
+     * media_items（(sourceId,path) 唯一索引单行查）。
+     *
+     * 未入库回退（2026-11-19，用户报：本地源文件页浏览有封面、首页继续观看卡恒占位——
+     * 该源未被扫描进媒体库，media_items 无行可查）：findByKey 落空时回退查**文件页旁路
+     * 封面缓存**（[browserBypassThumb]，与文件页/通知栏封面同源），文件存在且非空即取。
+     * 流量上限 = 继续观看 LIMIT 50，且只对缺图行逐行查（每行一次 stat + md5），零网络；
+     * NAS 源键直连命中不进本路径，零开销。
      */
     private suspend fun enrichLocalThumbs(
         rows: List<com.novax.app.data.db.ContinueWatchingRow>,
@@ -125,16 +132,25 @@ class HomeViewModel(private val appContext: Context) : ViewModel() {
             .filter { it.second.isNotEmpty() }
             .toList()
         if (locals.isEmpty()) return rows
-        return rows.map { row ->
-            if (row.thumbnailPath != null || row.entry.sourceId != null) return@map row
-            val abs = row.entry.path
-            val hit = locals.firstNotNullOfOrNull { (sid, root) ->
-                if (abs.length > root.length + 1 && abs.startsWith("$root/")) sid to abs.substring(root.length)
-                else null
-            } ?: return@map row
-            val thumb = runCatching { mediaItemDao.findByKey(hit.first, hit.second)?.thumbnailPath }.getOrNull()
-            if (thumb != null) row.copy(thumbnailPath = thumb) else row
-        }
+        return enrichLocalThumbRows(
+            rows,
+            locals,
+            thumbLookup = { sid, rel ->
+                runCatching { mediaItemDao.findByKey(sid, rel)?.thumbnailPath }.getOrNull()
+            },
+            bypassLookup = ::browserBypassThumb,
+        )
+    }
+
+    /**
+     * 文件页旁路封面只读回退（2026-11-19；口径同 NvNotificationArtwork 通知栏第 4 级回退）：
+     * 用户文件夹所见即首页所得。纯磁盘零网络（isFile/length 一次 stat + [ThumbCache.browserThumbFile]
+     * 的 md5 key）；旁路缓存被 ThumbCache 独立 LRU（BROWSER_MAX_BYTES）或系统清 cacheDir
+     * 清掉后回退落空 → 占位，与文件页同生命周期（一致性对齐，非新缺陷——文件页同样会丢）。
+     */
+    private fun browserBypassThumb(sourceId: Long, relPath: String, absPath: String): String? {
+        val f = ThumbCache.browserThumbFile(appContext, sourceId, relPath, File(absPath).length())
+        return if (f.isFile && f.length() > 0) f.absolutePath else null
     }
 
     private val librarySnapshot = combine(
@@ -321,4 +337,37 @@ class HomeViewModel(private val appContext: Context) : ViewModel() {
                     HomeViewModel(appContext) as T
             }
     }
+}
+
+/**
+ * 继续观看 LOCAL 行封面回填（纯函数，JVM 可测；VM [HomeViewModel.enrichLocalThumbs] 接线）：
+ * 反查命中（源id, 源内相对路径）后 ①媒体库（media_items）命中优先 → ②落空回退**文件页旁路
+ * 封面缓存**（bypassLookup，2026-11-19 未入库视频回退——源未扫描进媒体库时 media_items
+ * 无行，文件页浏览抽的旁路封面照取，用户文件夹所见即首页所得）→ ③旁路缺失保持原行
+ * （渐变占位，与文件页同生命周期——旁路 LRU/系统清 cacheDir 后落空是一致行为，非新缺陷）。
+ *
+ * 输入行必须是**解密后的明文行**（combine 上游 decryptDisplay 已解密/滤掉密文行，Task 14
+ * 口径）：旁路 stat 只对明文绝对路径发生，绝不 stat 密文 hash 路径；NAS 行（sourceId!=null）
+ * 与已有图行原样透传不进通道（NAS 旁路封面 stat 需网络，挂账不做）。每缺图行恰一次
+ * thumbLookup + 至多一次 bypassLookup（bypassLookup 内一次 stat + md5），零网络。
+ *
+ * @param locals 已归一的 LOCAL 源 (源id, 去尾分隔符根路径) 列表
+ * @param thumbLookup (源id, 相对路径) → media_items.thumbnailPath（可挂起，DAO 单行查）
+ * @param bypassLookup (源id, 相对路径, 绝对路径) → 旁路封面文件绝对路径（文件存在且非空，否则 null）
+ */
+internal suspend fun enrichLocalThumbRows(
+    rows: List<com.novax.app.data.db.ContinueWatchingRow>,
+    locals: List<Pair<Long, String>>,
+    thumbLookup: suspend (sourceId: Long, relPath: String) -> String?,
+    bypassLookup: (sourceId: Long, relPath: String, absPath: String) -> String?,
+): List<com.novax.app.data.db.ContinueWatchingRow> = rows.map { row ->
+    if (row.thumbnailPath != null || row.entry.sourceId != null) return@map row
+    val abs = row.entry.path
+    val hit = locals.firstNotNullOfOrNull { (sid, root) ->
+        if (abs.length > root.length + 1 && abs.startsWith("$root/")) sid to abs.substring(root.length)
+        else null
+    } ?: return@map row
+    thumbLookup(hit.first, hit.second)?.let { return@map row.copy(thumbnailPath = it) }
+    bypassLookup(hit.first, hit.second, abs)?.let { return@map row.copy(thumbnailPath = it) }
+    row
 }
