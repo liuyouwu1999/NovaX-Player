@@ -17,7 +17,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
-import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -211,11 +210,11 @@ internal fun MinimalSeekTopBar(
     Box(
         modifier
             .fillMaxWidth()
-            // 2026-11-19 用户反馈「进度条贴顶，拖动易拉下状态栏」：整体下移一个状态栏高度
-            // （statusBarsPadding 取值不受状态栏隐藏影响，沉浸式下恒定）；拖动/tap 热区随条
-            // 下移，手势起点离开状态栏下拉冲突区；经典档顶栏避挖孔（displayCutout）同族意图，
-            // rev5 极简漏了对齐——组件内加，主/RMVB 两处挂载点自动生效
-            .statusBarsPadding()
+            // 2026-11-19 用户反馈「进度条贴顶，拖动易拉下状态栏」：整体下移屏高 7%
+            // （[nvMinimalTopOffsetOf]，用户拍板「大概的固定比例」——statusBarsPadding 在
+            // vivo 沉浸式下实测不生效[hide 后 insets 上报不可靠]，改静态比例让位）；拖动/tap
+            // 热区随条下移，手势起点离开状态栏下拉冲突区；组件内改，主/RMVB 两挂载点自动生效
+            .padding(top = nvMinimalTopOffsetOf(androidx.compose.ui.platform.LocalConfiguration.current.screenHeightDp))
             // 2026-11-19 用户拍板「进度条不贴左右两边/靠近边边很难点到」：顶栏整体内移（悬浮条，
             // nPlayer 同款），左右各让 16dp——边缘区留给根手势层；pointerInput 挂在 padding 之后
             // =手势区=内移后的条（tap/drag 坐标系自洽）
@@ -374,9 +373,9 @@ internal fun MinimalQuickMenu(c: NvControlContract, isRmvb: Boolean, modifier: M
         Column(
             Modifier
                 .align(Alignment.TopEnd)
-                // 与顶栏同步避让状态栏（顶栏 statusBarsPadding 下移后，菜单 offset 参考
-                // 仍从屏顶算起——先消费同款 insets padding 再偏移顶栏高，菜单顶仍贴顶栏下缘）
-                .statusBarsPadding()
+                // 与顶栏同步让位（顶栏下移屏高 7% 后，菜单 offset 参考仍从屏顶算起——
+                // 先加同款顶部 padding 再偏移顶栏高，菜单顶仍贴顶栏下缘）
+                .padding(top = nvMinimalTopOffsetOf(androidx.compose.ui.platform.LocalConfiguration.current.screenHeightDp))
                 .offset(y = MinimalSeekTopBarHeight)
                 .width(220.dp)
                 .clip(NvShape.Dialog)

@@ -32,6 +32,11 @@ class QuickControlsFilterTest {
         org.junit.Assert.assertEquals(40.1f, nvMinimalBarInsetOf(891).value, 0.01f) // 横屏≈40dp nPlayer 同款
     }
 
+    @Test fun `顶栏顶部让位按屏高7%比例`() {
+        org.junit.Assert.assertEquals(28.77f, nvMinimalTopOffsetOf(411).value, 0.01f) // 横屏≈29dp≈状态栏高度
+        org.junit.Assert.assertEquals(56f, nvMinimalTopOffsetOf(800).value, 0.01f)   // 竖屏≈56dp
+    }
+
     @Test fun `经典档顶栏底栏全覆盖组恒空`() {
         assertEquals(emptyList<QuickControlId>(), quickControlsFor(isRmvb = false, hasQuality = true, style = NvControlStyle.CLASSIC, narrow = false))
         assertEquals(emptyList<QuickControlId>(), quickControlsFor(isRmvb = true, hasQuality = true, style = NvControlStyle.CLASSIC, narrow = true))

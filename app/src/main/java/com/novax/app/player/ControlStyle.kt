@@ -67,6 +67,15 @@ internal fun nvPanelNarrowOf(screenWidthDp: Int): Boolean =
 fun nvMinimalBarInsetOf(screenWidthDp: Int): androidx.compose.ui.unit.Dp =
     androidx.compose.ui.unit.Dp(screenWidthDp * 0.045f)
 
+/**
+ * 极简顶栏/⋯菜单顶部让位（2026-11-19 用户拍板「大概的固定比例，自适应」）：屏高 7%。
+ * 背景=拖顶栏进度条易与状态栏下拉手势冲突，本应 statusBarsPadding 避让——但沉浸式播放器
+ * hide 系统栏后部分机型（vivo 实测）insets 上报不可靠（状态栏平时隐藏、下拉才临时 overlay），
+ * 改用屏高比例静态让位：横屏 ≈29dp（≈状态栏高度）、竖屏 ≈56dp。纯函数 JVM 可测。
+ */
+fun nvMinimalTopOffsetOf(screenHeightDp: Int): androidx.compose.ui.unit.Dp =
+    androidx.compose.ui.unit.Dp(screenHeightDp * 0.07f)
+
 /** 「播放控制」组键集（spec §5.5 T8 + 2026-11-19 用户拍板方案 A：按当前样式智能去重）。
  *  两层过滤叠加：
  *  ①RMVB 键集剔除先例保持（spec §5.3）：PIP/清晰度/投屏恒剔，QUALITY 另受 hasQuality；
