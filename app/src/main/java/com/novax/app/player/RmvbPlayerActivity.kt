@@ -3181,15 +3181,7 @@ class RmvbPlayerActivity : ComponentActivity() {
                             controlContract.dispatchQuickControl(id)
                         },
                     )
-                    // T8：「控制样式」组三选一——uiControlStyle 直写内存态即时换形态
-                    //（applyPrefs 仅初次/回前台重读）+ DataStore 落盘（与主播放器同键同值）
-                    ControlStyleSection(
-                        current = uiControlStyle,
-                        onPick = { style ->
-                            uiControlStyle = style
-                            lifecycleScope.launch { runCatching { putPlayerPref(KEY_CONTROL_STYLE, style.dataStoreValue) } }
-                        },
-                    )
+                    //「控制样式」播放中切换组已移除（2026-11-19 用户拍板：样式切换只留设置页入口）
                     NvSheetText(stringResource(R.string.player_ab_loop_section))
                     NvSheetListItem(stringResource(R.string.player_set_loop_a), selected = false) {
                         features.loopAMs = vlcPlayer?.time ?: 0L

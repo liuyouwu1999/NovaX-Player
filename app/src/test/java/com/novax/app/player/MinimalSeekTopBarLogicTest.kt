@@ -8,9 +8,10 @@ import org.junit.Test
 
 /**
  * rev5 极简顶栏=进度条（spec 2026-11-15 §3.2 rev5 / §9，T1）纯函数锚：
- * - [minimalFillWidthPx]：顶栏已播填充宽 = max(最小宽, 比例×栏宽) coerce 0~栏宽。最小宽
- *   （lead）=✕块 48dp+当前时间文字宽——nPlayer 截图 00:02/45:19 时填充仍完整覆盖✕与时间
- *   文字的实证 max 规则；窄屏 lead 超栏宽 coerce 到栏宽不溢出（plan 审核 P2-3）。
+ * - [minimalFillWidthPx]：顶栏已播填充宽 = 比例×栏宽 线性映射，coerce 0~栏宽
+ *   （2026-11-19 用户拍板弃 nPlayer「lead 最小填充宽 max 规则」——真机两 bug：0% 时✕块
+ *   右侧残留色块左右不对称、低进度拖动前缘钉死无反馈拖不回 00:00。改版后 0%=无填充、
+ *   ✕块右缘即前缘、100%=与右⋯块贴合、全程跟手）。
  * - [minimalDrawsFill]：durationMs>0 才画填充；≤0（直播/无时长）整栏只画半透明深底、
  *   无最小宽蓝段（spec §3.2「无进度可言」口径，plan 审核 P2-2 提为可断言纯函数）。
  * - [quickMenuRows]：⋯精简菜单行键集（spec §5.3 键集思想，quickControlsFor 同型）——
@@ -20,26 +21,23 @@ import org.junit.Test
 class MinimalSeekTopBarLogicTest {
     // —— minimalFillWidthPx ——
 
-    @Test fun `progress 为零时填充取最小宽完整覆盖叉块与时间`() =
-        assertEquals(100f, minimalFillWidthPx(leadWidthPx = 100f, progress = 0f, barWidthPx = 400f), 0.001f)
+    @Test fun `progress 为零时填充宽为零叉块右缘即前缘`() =
+        assertEquals(0f, minimalFillWidthPx(progress = 0f, barWidthPx = 400f), 0.001f)
 
     @Test fun `progress 为一时填充铺满整栏`() =
-        assertEquals(400f, minimalFillWidthPx(leadWidthPx = 100f, progress = 1f, barWidthPx = 400f), 0.001f)
+        assertEquals(400f, minimalFillWidthPx(progress = 1f, barWidthPx = 400f), 0.001f)
 
-    @Test fun `progress 超一时 coerce 到栏宽`() =   // max(100, 1.2×400=480) → coerce 400（T1 复审 P2-1 上界锚）
-        assertEquals(400f, minimalFillWidthPx(leadWidthPx = 100f, progress = 1.2f, barWidthPx = 400f), 0.001f)
+    @Test fun `progress 超一时 coerce 到栏宽`() =   // 1.2×400=480 → coerce 400（T1 复审 P2-1 上界锚）
+        assertEquals(400f, minimalFillWidthPx(progress = 1.2f, barWidthPx = 400f), 0.001f)
 
-    @Test fun `中间进度低比例取最小宽`() =   // max(100, 0.2×400=80) = 100
-        assertEquals(100f, minimalFillWidthPx(leadWidthPx = 100f, progress = 0.2f, barWidthPx = 400f), 0.001f)
+    @Test fun `中间进度按比例宽走`() =   // 0.2×400 = 80（线性，无下限）
+        assertEquals(80f, minimalFillWidthPx(progress = 0.2f, barWidthPx = 400f), 0.001f)
 
-    @Test fun `中间进度高比例按比例宽走`() =   // max(100, 0.5×400=200) = 200
-        assertEquals(200f, minimalFillWidthPx(leadWidthPx = 100f, progress = 0.5f, barWidthPx = 400f), 0.001f)
+    @Test fun `中间进度高比例按比例宽走`() =   // 0.5×400 = 200
+        assertEquals(200f, minimalFillWidthPx(progress = 0.5f, barWidthPx = 400f), 0.001f)
 
-    @Test fun `最小宽超过栏宽时 coerce 到栏宽`() =
-        assertEquals(400f, minimalFillWidthPx(leadWidthPx = 500f, progress = 1f, barWidthPx = 400f), 0.001f)
-
-    @Test fun `负 progress 回退最小宽`() =
-        assertEquals(100f, minimalFillWidthPx(leadWidthPx = 100f, progress = -0.5f, barWidthPx = 400f), 0.001f)
+    @Test fun `负 progress coerce 到零`() =
+        assertEquals(0f, minimalFillWidthPx(progress = -0.5f, barWidthPx = 400f), 0.001f)
 
     // —— minimalDrawsFill ——
 

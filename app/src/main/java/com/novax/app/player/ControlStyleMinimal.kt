@@ -55,12 +55,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.text.AnnotatedString
-import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -116,14 +113,16 @@ internal fun remainingLabel(durationMs: Long, positionMs: Long): String? {
 }
 
 /**
- * 顶栏已播填充宽（rev5 §3.2 顶栏=进度条，T1）：nPlayer 实证 max 规则——最小填充宽
- * （[leadWidthPx]，调用侧按 ✕块 48dp+当前时间文字实测宽传入）与比例宽（[progress]×
- * [barWidthPx]）取较大者，低进度（nPlayer 截图 00:02/45:19）时填充仍完整覆盖✕与时间文字；
- * 结果 coerce 0~栏宽（窄屏 lead 超栏宽不溢出，plan 审核 P2-3）；progress<0 等脏值经 max
- * 自然回退最小宽（宁多勿缺，填充前缘只进不退）。
+ * 顶栏已播填充宽（rev5 §3.2 顶栏=进度条，T1；2026-11-19 用户拍板改线性映射）：比例宽
+ * [progress]×[barWidthPx] 直接映射，coerce 0~栏宽（progress 超界脏值不溢出）。
+ * **弃原 nPlayer「最小填充宽（lead）max 规则」**（原实现=max(✕块+时间文字宽, 比例宽)，
+ * 照 nPlayer 低进度截图做的）——用户真机实测两个 bug：①progress=0 时✕块右侧仍盖一条
+ * 主题色（✕块左右不对称）；②低进度拖动时填充前缘钉在 lead 宽不动（零视觉反馈），
+ * 拖回 00:00 感知「拖不到开头」。改版后语义：0%=无填充（✕块自身主题色即左端，
+ * 右缘=填充前缘，左右对称）、100%=填满与右⋯块贴合、中间全程前缘跟手。
  */
-internal fun minimalFillWidthPx(leadWidthPx: Float, progress: Float, barWidthPx: Float): Float =
-    maxOf(leadWidthPx, progress * barWidthPx).coerceIn(0f, barWidthPx)
+internal fun minimalFillWidthPx(progress: Float, barWidthPx: Float): Float =
+    (progress * barWidthPx).coerceIn(0f, barWidthPx)
 
 /**
  * 是否画顶栏填充（rev5 §3.2 / plan 审核 P2-2，T1）：durationMs<=0（直播/无时长）完全不画
@@ -158,9 +157,9 @@ internal fun quickMenuRows(isRmvb: Boolean, hasCast: Boolean): List<QuickMenuRow
  * 48dp 通栏（[MinimalSeekTopBarHeight]），**自绘进度**（不复用 NvChapterSlider：全宽填充+
  * 文字叠加 vs 底部轨道+时间行，结构差异过大）。
  * - 视觉：整栏未播段 `Color.Black.copy(alpha=0.45f)` 打底（画面透出，nPlayer 实测口径）；
- *   已播段主题色（NvColors.Primary，2026-11-19 用户拍板弃 nPlayer 蓝）从 x=0 起铺，宽=[minimalFillWidthPx]（lead=✕块 48dp+当前时间文字
- *   实测宽，TextMeasurer 同帧实测；lead 随显示文本变化即接受跳动——拖动跨小时格式跳变→
- *   前缘位移=nPlayer 同源口径，不做平滑，plan 审核 P2-3）；[minimalDrawsFill]==false
+ *   已播段主题色（NvColors.Primary，2026-11-19 用户拍板弃 nPlayer 蓝）从 x=0 起铺，宽=
+ *   [minimalFillWidthPx] 线性映射（2026-11-19 用户拍板弃 nPlayer「lead 最小填充宽」规则：
+ *   0%=无填充、✕块右缘即前缘左右对称、拖动全程跟手，见该函数 kdoc）；[minimalDrawsFill]==false
  *   （durationMs<=0 直播/无时长）不画任何主题色填充（整栏仅深底）。**三条禁令**（spec §3.2）：
  *   无缓冲段显示、无章节刻度、无拖动气泡（当前时间标签本身即预览）。
  * - 元素（Row 叠在 Canvas 上）：主题色✕块（48dp 见方圆角方块白图标=退出播放器）→ 当前时间
@@ -198,19 +197,11 @@ internal fun MinimalSeekTopBar(
     val currentOnSeek by rememberUpdatedState(c.onSeek)
     val currentDragStart by rememberUpdatedState(onDragStart)
 
-    val density = LocalDensity.current
-    val blockPx = with(density) { MinimalSeekTopBarHeight.toPx() }
-    val textMeasurer = rememberTextMeasurer()
     val timeStyle = NvTypography.LabelMedium
 
     // 显示口径：拖动中=拖动目标位置（当前时间与剩余时间一并跟随，kdoc 注明）
     val displayPos = dragPositionMs ?: c.positionMs
     val timeText = formatTime(displayPos)
-    // lead 实测宽 = 色块 48dp + 当前时间文字实测宽（AnnotatedString 走 TextMeasurer 成员
-    // measure，与显示 Text 同 style 同帧一致）
-    val leadWidthPx = blockPx + textMeasurer
-        .measure(AnnotatedString(timeText), style = timeStyle)
-        .size.width
 
     Box(
         modifier
@@ -260,7 +251,7 @@ internal fun MinimalSeekTopBar(
             drawRect(Color.Black.copy(alpha = 0.45f))
             if (drawsFill) {
                 val progress = (displayPos.toFloat() / c.durationMs).coerceIn(0f, 1f)
-                val fillPx = minimalFillWidthPx(leadWidthPx, progress, size.width)
+                val fillPx = minimalFillWidthPx(progress, size.width)
                 drawRect(accent, size = Size(fillPx, size.height))
             }
         }

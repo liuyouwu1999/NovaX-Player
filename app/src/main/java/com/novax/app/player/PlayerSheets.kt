@@ -581,8 +581,8 @@ internal fun quickControlLabel(id: QuickControlId, skipSec: Int): String = when 
  * （样式覆盖集去重 + RMVB 剔 PIP/清晰度/投屏 + QUALITY 有质量档才可见）；**ids 空=
  * 整组不渲染（含组名标签）**——经典档恒空整组隐藏。回调由宿主接 [dispatchQuickControl]
  * （与顶/底栏完全同源）。主/RMVB 两侧共用本组。
- * 组名键 player_quick_controls，与「控制样式」组名键 player_style_group 一字之差
- * 同面板共存（spec §5.5 防混淆备忘：键与常量必须显式区分）。
+ * 组名键 player_quick_controls（「控制样式」播放中切换组已于 2026-11-19 用户拍板移除——
+ * 样式切换收敛到设置页，防误触+切换副作用，键 player_style_group 同步退役）。
  */
 @Composable
 internal fun QuickControlsSection(
@@ -598,27 +598,10 @@ internal fun QuickControlsSection(
 }
 
 /**
- * 「控制样式」组（T8，spec §4 播放中切换入口）：三行单选，点击经宿主写
- * KEY_CONTROL_STYLE 即时生效——主播放器=rememberPlayerPrefs 实时流自动重组；
- * RMVB=宿主直写内存态（applyPrefs 仅初次/回前台重读）。选中态=NvSheetListItem
- * 既有勾标。与「播放控制」组（player_quick_controls）一字之差，显式区分（spec §5.5）。
- */
-@Composable
-internal fun ControlStyleSection(
-    current: NvControlStyle,
-    onPick: (NvControlStyle) -> Unit,
-) {
-    SheetSectionLabel(stringResource(R.string.player_style_group))
-    NvSheetListItem(stringResource(R.string.player_style_classic), selected = current == NvControlStyle.CLASSIC) { onPick(NvControlStyle.CLASSIC) }
-    NvSheetListItem(stringResource(R.string.player_style_minimal), selected = current == NvControlStyle.MINIMAL) { onPick(NvControlStyle.MINIMAL) }
-    NvSheetListItem(stringResource(R.string.player_style_streaming), selected = current == NvControlStyle.STREAMING) { onPick(NvControlStyle.STREAMING) }
-}
-
-/**
  * 「更多」面板（2026-09-17 功能项）：AB 循环 + 睡眠定时。
  * T8（2026-11-15 §5.5/§4）扩容：前置「播放控制」组（2026-11-19 起按样式智能去重，
- * 经典档组空整组隐藏，见 [QuickControlsSection]）+「控制样式」播放中切换组
- * （三样式共用同一份组内容，spec §5.5 实现单一性）。
+ * 经典档组空整组隐藏，见 [QuickControlsSection]）；「控制样式」播放中切换组已移除
+ * （2026-11-19 用户拍板：样式切换只留设置页入口）。
  * AB 循环走心跳判定（越过 B 点跳回 A），换集/重建引擎自动清空；
  * 睡眠定时跨重建有效，到点暂停。
  */
@@ -631,8 +614,6 @@ internal fun MoreActionsSheet(
     quickControls: List<QuickControlId>,
     quickSkipSec: Int,
     onQuickControl: (QuickControlId) -> Unit,
-    controlStyle: NvControlStyle,
-    onControlStylePick: (NvControlStyle) -> Unit,
     onSetLoopA: () -> Unit,
     onSetLoopB: () -> Unit,
     onClearLoop: () -> Unit,
@@ -641,7 +622,6 @@ internal fun MoreActionsSheet(
 ) {
     NvPlayerPopup(title = stringResource(R.string.player_sheet_more), onDismiss = onClose) {
         QuickControlsSection(quickControls, quickSkipSec, onQuickControl)
-        ControlStyleSection(controlStyle, onControlStylePick)
         SheetSectionLabel(stringResource(R.string.player_ab_loop_section))
         val loopActive = loopAMs >= 0 && loopBMs > loopAMs
         NvSheetListItem(stringResource(R.string.player_set_loop_a), selected = false, onClick = onSetLoopA)

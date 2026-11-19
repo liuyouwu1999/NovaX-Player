@@ -2476,9 +2476,8 @@ fun PlayerScreen(
                 // 方案 A：组键集按当前样式智能去重（外层有直接按钮的入口不进组，经典档恒空整组
                 // 隐藏），narrow=nvPanelNarrowOf 名义值（底栏实测阈值=屏宽−32dp<480 → 取 512
                 // 对齐，见 [nvPanelNarrowOf]，复审 P1-1）。回调走 controlContract.dispatchQuickControl
-                //（与顶/底栏同源）；QUALITY 行 hasQuality=onQuality 同条件源 isJellyfinSource；
-                // 样式直写 KEY_CONTROL_STYLE，playerPrefs 实时流回读 controlStyle 即时换形态
-                //（面板选中勾标同帧刷新）
+                //（与顶/底栏同源）；QUALITY 行 hasQuality=onQuality 同条件源 isJellyfinSource。
+                //「控制样式」切换组已移除（2026-11-19 用户拍板：样式切换只留设置页入口）
                 PlayerSheet.MORE -> MoreActionsSheet(
                     loopAMs = features.loopAMs,
                     loopBMs = features.loopBMs,
@@ -2499,10 +2498,6 @@ fun PlayerScreen(
                     onQuickControl = { id ->
                         if (id == QuickControlId.LOCK || id == QuickControlId.PREV || id == QuickControlId.NEXT) sheet = null
                         controlContract.dispatchQuickControl(id)
-                    },
-                    controlStyle = controlStyle,
-                    onControlStylePick = { style ->
-                        uiScope.launch { runCatching { context.putPlayerPref(KEY_CONTROL_STYLE, style.dataStoreValue) } }
                     },
                     onSetLoopA = {
                         Log.d("NvABLoop", "set A = ${player.currentPosition}")

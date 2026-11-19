@@ -129,7 +129,6 @@
          コントロールスタイル組名/三スタイル名——両組名キーは一語違いのため明示的に区別。
          行ラベルは既存 player_sheet_*/player_cd_* キーを再利用（新規行キーなし） -->
     <string name="player_quick_controls">再生コントロール</string>
-    <string name="player_style_group">コントロールスタイル</string>
     <string name="player_style_classic">クラシック</string>
     <string name="player_style_minimal">ミニマル</string>
     <string name="player_style_streaming">ロング動画</string>

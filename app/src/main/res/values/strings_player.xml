@@ -129,7 +129,6 @@
          in-playback style picker. Group names differ by one word — keep keys distinct.
          Row labels reuse existing player_sheet_*/player_cd_* keys (no new row keys). -->
     <string name="player_quick_controls">Playback controls</string>
-    <string name="player_style_group">Control style</string>
     <string name="player_style_classic">Classic</string>
     <string name="player_style_minimal">Minimal</string>
     <string name="player_style_streaming">Long-form video</string>
