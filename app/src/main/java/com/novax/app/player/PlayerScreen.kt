@@ -2170,19 +2170,19 @@ fun PlayerScreen(
         // 细线+时间小字全删），控制层隐藏后画面=纯视频+字幕（「不挡字幕」的完整含义）。
 
         // R5 极简唤起态左右侧钮列（rev5 §3.2）：左=画面旋转/CC 字幕/齿轮更多，右=倍速三件套
-        //（R3 组件纯 Column，垂直定位由本调用侧负责）。几何中心向下偏屏高 6%（即中心位于屏高 56%，
-        // 实测用户截图）；挂独立 AnimatedVisibility 复用 controlsShown 同表达式——全锁/半锁/错误态
-        // 随控制层同隐藏；fade 时长/缓动与顶/底栏同款（侧列无上下缘语义，不带 slide）。
-        // 屏高取法=BoxWithConstraints.maxHeight：与 root Box 实际布局约束一致（折叠/分屏/多窗口下
-        // 跟真实可用高走），优于 LocalConfiguration 名义值；全屏透明容器零 pointerInput 零热区
+        //（R3 组件纯 Column，垂直定位由本调用侧负责）。2026-11-19 用户拍板：几何中心=屏高正中
+        //（原 rev4 实测的向下偏 6% 口径废弃——用户真机观感偏下）；挂独立 AnimatedVisibility 复用
+        // controlsShown 同表达式——全锁/半锁/错误态随控制层同隐藏；fade 时长/缓动与顶/底栏同款
+        //（侧列无上下缘语义，不带 slide）。屏高取法=BoxWithConstraints.maxHeight：与 root Box
+        // 实际布局约束一致（折叠/分屏/多窗口下跟真实可用高走），优于 LocalConfiguration 名义值；
+        // 全屏透明容器零 pointerInput 零热区
         if (controlStyle == NvControlStyle.MINIMAL) {
             BoxWithConstraints(Modifier.fillMaxSize()) {
-                val railOffsetY = maxHeight * 0.06f
                 AnimatedVisibility(
                     visible = controlsShown,
                     enter = fadeIn(tween(NvMotion.DurationSlow, easing = NvMotion.CurveDecelerate)),
                     exit = fadeOut(tween(NvMotion.DurationNormal, easing = NvMotion.CurveAccelerate)),
-                    modifier = Modifier.align(Alignment.CenterStart).offset(y = railOffsetY),
+                    modifier = Modifier.align(Alignment.CenterStart),
                 ) {
                     MinimalSideRail(controlContract)
                 }
@@ -2190,7 +2190,7 @@ fun PlayerScreen(
                     visible = controlsShown,
                     enter = fadeIn(tween(NvMotion.DurationSlow, easing = NvMotion.CurveDecelerate)),
                     exit = fadeOut(tween(NvMotion.DurationNormal, easing = NvMotion.CurveAccelerate)),
-                    modifier = Modifier.align(Alignment.CenterEnd).offset(y = railOffsetY),
+                    modifier = Modifier.align(Alignment.CenterEnd),
                 ) {
                     MinimalSpeedRail(controlContract)
                 }

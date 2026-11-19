@@ -86,10 +86,11 @@ import com.novax.app.ui.theme.NvColors
  */
 
 /**
- * rev5 极简顶栏通栏高/两端色块见方边长（spec §3.2 48dp 口径）；[MinimalQuickMenu] 下拉
- * offset 同源引用（单一口径，防两处 48dp 漂移）。
+ * rev5 极简顶栏通栏高/两端色块见方边长（spec §3.2 48dp 口径；2026-11-19 用户反馈「太粗」
+ * 48→40dp，接近 nPlayer 截图实测比例≈屏高 9.6%）；[MinimalQuickMenu] 下拉
+ * offset 同源引用（单一口径，防两处漂移）。
  */
-internal val MinimalSeekTopBarHeight = 48.dp
+internal val MinimalSeekTopBarHeight = 40.dp
 
 /**
  * 剩余时间标签（rev5 §3.2 顶栏右半）：`-` + [formatTime]（durationMs−positionMs）。
@@ -503,15 +504,19 @@ internal fun minimalBottomSlots(narrow: Boolean): List<MinimalSlot> =
 /**
  * 极简唤起态底栏（rev4 §3.2 布局沿用，rev5 口径修订）：黑色半透明横条内七钮一行**等距**
  * （Arrangement.SpaceEvenly，实测用户截图等距分布）——
- * 锁 │ 上集 │ 快退(skipSec) │ 暂停 │ 快进(skipSec) │ 下集 │ 画面比例。
+ * 锁 │ 上集 │ 快退(skipSec) │ 暂停 │ 快进(skipSec) │ 下集 │ 画面比例（**纯图标无文字**，
+ * 2026-11-19 用户拍板，整条变薄）。
  * - **底部无进度条（rev5）**：线不在本栏——唯一进度显示=顶栏 [MinimalSeekTopBar]（rev4
  *   「宿主 Column { 底栏; NvChapterSlider(LINE) }」的贴底线已随 T3/T4 拆除，rev5 作废）。
  *   **背景组件自带**（根 `background(NvColors.Scrim)`，R5-T4 收回完成）：黑条背景向下延伸
  *   覆盖触摸区=连续黑块不悬空（2026-11-15 三星真机缺陷根修语义由组件延续），主/RMVB 两侧
  *   宿主裸调用恰好一层；「宿主 Box/Column 统一承载」旧口径退役（83ef321 接缝教训=背景收回
  *   与宿主拆除必须同任务原子完成，T4 已两侧原子落地）。
- * - 暂停 = 经典 PauseSlot 同款 NvGlassChip 58dp/30dp 磨砂圆钮（宽幅）；窄幅尺寸走
- *   [nvNarrowControlMetrics]/[nvRowIconFor]（streaming 底栏同源档位，五钮才放得下）。
+ * - **2026-11-19 用户视觉拍板**：①说明文字全部去除（上集/下集/15s/比例 caption=null 与
+ *   showLabel=false，整条变薄——底栏只剩图标行）；②「每个按键大小对齐」——暂停钮不再放大
+ *   （58→48dp 与行内其它钮一致，窄幅同档 btn），全行统一 btn/rowIcon；语义全部由 cd 与
+ *   既有面板兜底（步长仍由 skipSec 设置驱动，视觉不标数）。
+ * - 暂停 = 经典 PauseSlot 同款 NvGlassChip + GlassFillStrong 磨砂圆钮（尺寸与行内其它钮一致）。
  * - 上/下集**灰置不隐藏**（NvClusterButton enabled，nPlayer 一致口径）；锁=三态图标
  *   （LockSlot 同口径无 caption；rev5 左列锁移除后本钮+⋯菜单锁行=锁入口全集）；比例=开
  *   比例面板（onAspect）。
@@ -528,8 +533,9 @@ internal fun MinimalBottomBar(c: NvControlContract, modifier: Modifier = Modifie
     ) {
         val narrow = maxWidth < 480.dp
         val slots = minimalBottomSlots(narrow)
-        val (pauseSize, btn) = if (narrow) nvNarrowControlMetrics(maxWidth) else 58.dp to 48.dp
-        val pauseIcon = if (narrow) pauseSize * 0.48f else 30.dp
+        // 2026-11-19 用户拍板「每个按键大小对齐」：暂停钮不再放大（58→48dp 与其它钮一致；窄幅同档 btn），
+        // 全行统一 btn 尺寸+rowIcon 图标；说明文字全部去除（caption=null/showLabel=false，整条变薄）
+        val btn = if (narrow) nvNarrowControlMetrics(maxWidth).second else 48.dp
         val rowIcon = if (narrow) nvRowIconFor(btn) else 24.dp
         Row(
             Modifier.fillMaxWidth(),
@@ -552,7 +558,7 @@ internal fun MinimalBottomBar(c: NvControlContract, modifier: Modifier = Modifie
                     }
                     MinimalSlot.PREV -> NvClusterButton(
                         icon = Icons.Outlined.SkipPrevious,
-                        caption = stringResource(R.string.player_prev_episode),
+                        caption = null,
                         enabled = c.hasPrev,
                         contentDescription = if (c.hasPrev) stringResource(R.string.player_cd_prev)
                         else stringResource(R.string.player_cd_prev_none),
@@ -560,13 +566,14 @@ internal fun MinimalBottomBar(c: NvControlContract, modifier: Modifier = Modifie
                         iconSize = rowIcon,
                         onClick = c.onPrev,
                     )
-                    MinimalSlot.REW -> NvSkipStepButton(rewind = true, sec = c.skipSec, size = btn, iconSize = rowIcon) {
+                    MinimalSlot.REW -> NvSkipStepButton(rewind = true, sec = c.skipSec, size = btn, iconSize = rowIcon, showLabel = false) {
                         c.onSkipBy(-c.skipSec * 1000L)
                     }
-                    // 暂停圆钮：经典 PauseSlot 同款 NvGlassChip + GlassFillStrong 磨砂强填充（返工⑤口径）
+                    // 暂停圆钮：经典 PauseSlot 同款 NvGlassChip + GlassFillStrong 磨砂强填充（返工⑤口径）；
+                    // 2026-11-19 对齐：48dp 与行内其它钮一致
                     MinimalSlot.PAUSE -> NvGlassChip(
-                        modifier = Modifier.size(pauseSize),
-                        shape = RoundedCornerShape(pauseSize / 2),
+                        modifier = Modifier.size(btn),
+                        shape = RoundedCornerShape(btn / 2),
                         fill = NvColors.GlassFillStrong,
                         fillOverlay = true,
                         onClick = c.onTogglePlay,
@@ -574,16 +581,16 @@ internal fun MinimalBottomBar(c: NvControlContract, modifier: Modifier = Modifie
                         Icon(
                             if (c.isPlaying) Icons.Filled.Pause else Icons.Filled.PlayArrow,
                             if (c.isPlaying) stringResource(R.string.player_cd_pause) else stringResource(R.string.player_cd_play),
-                            Modifier.size(pauseIcon).align(Alignment.Center),
+                            Modifier.size(rowIcon + 4.dp).align(Alignment.Center),
                             tint = NvColors.TextPrimary,
                         )
                     }
-                    MinimalSlot.FWD -> NvSkipStepButton(rewind = false, sec = c.skipSec, size = btn, iconSize = rowIcon) {
+                    MinimalSlot.FWD -> NvSkipStepButton(rewind = false, sec = c.skipSec, size = btn, iconSize = rowIcon, showLabel = false) {
                         c.onSkipBy(c.skipSec * 1000L)
                     }
                     MinimalSlot.NEXT -> NvClusterButton(
                         icon = Icons.Outlined.SkipNext,
-                        caption = stringResource(R.string.player_next_episode),
+                        caption = null,
                         enabled = c.hasNext,
                         contentDescription = if (c.hasNext) stringResource(R.string.player_cd_next)
                         else stringResource(R.string.player_cd_next_none),
@@ -594,7 +601,7 @@ internal fun MinimalBottomBar(c: NvControlContract, modifier: Modifier = Modifie
                     // 比例钮：开比例面板（窄幅收更多面板兜底，spec §3.2 窄幅口径）
                     MinimalSlot.ASPECT -> NvClusterButton(
                         icon = Icons.Outlined.AspectRatio,
-                        caption = stringResource(R.string.player_aspect_short),
+                        caption = null,
                         enabled = true,
                         contentDescription = stringResource(R.string.player_sheet_aspect),
                         size = btn,

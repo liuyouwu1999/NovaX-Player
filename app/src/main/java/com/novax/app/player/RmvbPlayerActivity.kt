@@ -2863,18 +2863,18 @@ class RmvbPlayerActivity : ComponentActivity() {
             // 细线+时间小字全删），控制层隐藏后画面=纯视频+字幕（「不挡字幕」的完整含义）。
 
             // R5 极简唤起态左右侧钮列（rev5 §3.2，与主播放器对称接线）：左=画面旋转/CC 字幕/
-            // 齿轮更多，右=倍速三件套（R3 组件纯 Column，垂直定位由本调用侧负责）。几何中心向下偏
-            // 屏高 6%（中心位于屏高 56%）；visible 复用 uiControlsVisible && uiError == null 同表达式
+            // 齿轮更多，右=倍速三件套（R3 组件纯 Column，垂直定位由本调用侧负责）。2026-11-19
+            // 用户拍板：几何中心=屏高正中（原 rev4 向下偏 6% 口径废弃——用户真机观感偏下）；
+            // visible 复用 uiControlsVisible && uiError == null 同表达式
             //（全锁/半锁/错误态随控制层同隐藏）；fade 时长/缓动与顶/底栏同款、不带 slide；
             // 屏高取法=BoxWithConstraints.maxHeight（真实布局约束，折叠/分屏安全）
             if (uiControlStyle == NvControlStyle.MINIMAL) {
                 BoxWithConstraints(Modifier.fillMaxSize()) {
-                    val railOffsetY = maxHeight * 0.06f
                     AnimatedVisibility(
                         visible = uiControlsVisible && uiError == null,
                         enter = fadeIn(tween(NvMotion.DurationSlow, easing = NvMotion.CurveDecelerate)),
                         exit = fadeOut(tween(NvMotion.DurationNormal, easing = NvMotion.CurveAccelerate)),
-                        modifier = Modifier.align(Alignment.CenterStart).offset(y = railOffsetY),
+                        modifier = Modifier.align(Alignment.CenterStart),
                     ) {
                         MinimalSideRail(controlContract)
                     }
@@ -2882,7 +2882,7 @@ class RmvbPlayerActivity : ComponentActivity() {
                         visible = uiControlsVisible && uiError == null,
                         enter = fadeIn(tween(NvMotion.DurationSlow, easing = NvMotion.CurveDecelerate)),
                         exit = fadeOut(tween(NvMotion.DurationNormal, easing = NvMotion.CurveAccelerate)),
-                        modifier = Modifier.align(Alignment.CenterEnd).offset(y = railOffsetY),
+                        modifier = Modifier.align(Alignment.CenterEnd),
                     ) {
                         MinimalSpeedRail(controlContract)
                     }

@@ -776,11 +776,12 @@ internal fun NvPlayerControlRow(
  *  提亮到 50% 局部色;**严禁动 NvColors.TextDisabled token**(17 文件全局消费) */
 private val NvClusterDisabled = Color.White.copy(alpha = 0.5f)
 
-/** 中央簇通用小键（上集/下集）：与快进快退键同构（图标 + 下方小字），置灰态用局部提亮色 NvClusterDisabled */
+/** 中央簇通用小键（上集/下集）：与快进快退键同构（图标 + 下方小字），置灰态用局部提亮色 NvClusterDisabled。
+ *  caption=null 纯图标（2026-11-19 用户拍板：极简底栏去说明文字，整条变薄）；既有调用方传非空不受影响 */
 @Composable
 internal fun NvClusterButton(
     icon: ImageVector,
-    caption: String,
+    caption: String?,
     enabled: Boolean,
     contentDescription: String,
     size: Dp,
@@ -788,18 +789,27 @@ internal fun NvClusterButton(
     onClick: () -> Unit,
 ) {
     IconButton(onClick = onClick, modifier = Modifier.size(size), enabled = enabled) {
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        if (caption == null) {
             Icon(
                 icon,
                 contentDescription,
                 Modifier.size(iconSize),
                 tint = if (enabled) Color.White else NvClusterDisabled,
             )
-            Text(
-                caption,
-                style = NvTypography.LabelSmall,
-                color = if (enabled) Color.White.copy(alpha = 0.85f) else NvClusterDisabled,
-            )
+        } else {
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Icon(
+                    icon,
+                    contentDescription,
+                    Modifier.size(iconSize),
+                    tint = if (enabled) Color.White else NvClusterDisabled,
+                )
+                Text(
+                    caption,
+                    style = NvTypography.LabelSmall,
+                    color = if (enabled) Color.White.copy(alpha = 0.85f) else NvClusterDisabled,
+                )
+            }
         }
     }
 }
@@ -807,17 +817,34 @@ internal fun NvClusterButton(
 // 2026-09-18 用户需求：快进/快退步长键（步长设置 10/15/25/30s，小字随档位显示）。
 // 图标库只有 5/10/30s 变体、无 15/25s——统一用双箭头 + 下方「Ns」小字组合，
 // 与上集/下集键同构（图标 + LabelSmall 小字），四键风格一致。
+// showLabel=false 纯图标（2026-11-19 用户拍板：极简底栏去说明文字；步长仍由 sec 参数驱动）
 @Composable
-internal fun NvSkipStepButton(rewind: Boolean, sec: Int, size: Dp, iconSize: Dp = 22.dp, onClick: () -> Unit) {
+internal fun NvSkipStepButton(
+    rewind: Boolean,
+    sec: Int,
+    size: Dp,
+    iconSize: Dp = 22.dp,
+    showLabel: Boolean = true,
+    onClick: () -> Unit,
+) {
     IconButton(onClick = onClick, modifier = Modifier.size(size)) {
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        if (showLabel) {
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Icon(
+                    if (rewind) Icons.Outlined.FastRewind else Icons.Outlined.FastForward,
+                    if (rewind) stringResource(R.string.player_cd_rewind_sec, sec) else stringResource(R.string.player_cd_forward_sec, sec),
+                    Modifier.size(iconSize),
+                    tint = Color.White,
+                )
+                Text("${sec}s", style = NvTypography.LabelSmall, color = Color.White.copy(alpha = 0.85f))
+            }
+        } else {
             Icon(
                 if (rewind) Icons.Outlined.FastRewind else Icons.Outlined.FastForward,
                 if (rewind) stringResource(R.string.player_cd_rewind_sec, sec) else stringResource(R.string.player_cd_forward_sec, sec),
                 Modifier.size(iconSize),
                 tint = Color.White,
             )
-            Text("${sec}s", style = NvTypography.LabelSmall, color = Color.White.copy(alpha = 0.85f))
         }
     }
 }
