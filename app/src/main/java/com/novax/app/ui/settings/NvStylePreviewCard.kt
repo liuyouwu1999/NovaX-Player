@@ -27,7 +27,6 @@ import com.novax.app.ui.components.NvShape
 import com.novax.app.ui.components.NvSpacing
 import com.novax.app.ui.components.NvTypography
 import com.novax.app.ui.theme.NvColors
-import com.novax.app.ui.theme.NvPlayerBlue
 
 /**
  * 控制层样式迷你预览卡（T9，spec 2026-11-15 §7）：Canvas 示意（非截图），
@@ -71,7 +70,7 @@ fun NvStylePreviewCard(style: NvControlStyle, selected: Boolean, onClick: () -> 
                     drawTopStrip(u)
                     drawClassic(u, primary)
                 }
-                NvControlStyle.MINIMAL -> drawMinimal(u)
+                NvControlStyle.MINIMAL -> drawMinimal(u, primary)
                 NvControlStyle.STREAMING -> {
                     drawTopStrip(u)
                     drawStreaming(u, primary)
@@ -156,13 +155,14 @@ private fun DrawScope.drawClassic(u: Float, primary: Color) {
 }
 
 /**
- * 极简（rev5，spec §7 示意 1:1 对应真机形态）：顶栏=进度条通栏（右段暗条打底 + 左段实蓝
- * [NvPlayerBlue] 从卡左缘起铺 ≈55% 示意已播 + 两端蓝块=✕/⋯，48dp 块按画布比例缩至 8dp、
- * 圆角 10dp 同比缩至 1.8dp）+ 左缘三点竖排（旋转/字幕/齿轮）+ 右缘三点竖排（倍速三件套
+ * 极简（rev5 + 2026-11-19 配色拍板，spec §7 示意 1:1 对应真机形态）：顶栏=进度条通栏（右段暗条打底
+ * + 左段实色 [primary]=NvColors.Primary 从卡左缘起铺 ≈55% 示意已播 + 两端色块=✕/⋯，48dp 块按画布
+ * 比例缩至 8dp、圆角 10dp 同比缩至 1.8dp）+ 左缘三点竖排（旋转/字幕/齿轮）+ 右缘三点竖排（倍速三件套
  * ⊕/速度/⊖）+ 底部黑条一行七点（半透明黑条底色块示意，七钮等距，中央暂停加大）。
  * 无贴缘细线（rev5 唯一进度显示=顶栏填充）。顶栏不走共用 [drawTopStrip]（无返回点/标题线）。
+ * 配色：真机用 NvColors.Primary（用户拍板弃 nPlayer 蓝），示意向量同源。
  */
-private fun DrawScope.drawMinimal(u: Float) {
+private fun DrawScope.drawMinimal(u: Float, primary: Color) {
     // 顶栏通栏暗条：真实形态=48dp 通栏半透明黑打底（画面透出）；黑底卡上纯黑不可辨，
     // 沿用本文件未播段语言以半透明白示意暗条段
     drawRoundRect(
@@ -171,25 +171,25 @@ private fun DrawScope.drawMinimal(u: Float) {
         topLeft = Offset(0f, 5.5f * u),
         size = Size(120f * u, 8f * u),
     )
-    // 已播段实蓝从卡左缘起铺（真实形态=蓝填充 x=0 起、无时长不铺；此处 ≈55% 示意已播）
+    // 已播段实色从卡左缘起铺（真实形态=主题色填充 x=0 起、无时长不铺；此处 ≈55% 示意已播）
     drawRoundRect(
-        NvPlayerBlue,
+        primary,
         cornerRadius = CornerRadius(1.25f * u),
         topLeft = Offset(0f, 5.5f * u),
         size = Size(66f * u, 8f * u),
     )
-    // 两端蓝块：真实形态=48dp 通栏两端 48dp 见方 NvPlayerBlue 圆角(10dp)方块（✕ 退出/⋯ 更多）；
-    // 左块落在实蓝段内同色相融=真机已播覆盖✕块的同款观感，右块在暗条段可辨
-    val blueCorner = CornerRadius(1.8f * u)
+    // 两端色块：真实形态=48dp 通栏两端 48dp 见方主题色圆角(10dp)方块（✕ 退出/⋯ 更多）；
+    // 左块落在实色段内同色相融=真机已播覆盖✕块的同款观感，右块在暗条段可辨
+    val blockCorner = CornerRadius(1.8f * u)
     drawRoundRect(
-        NvPlayerBlue,
-        cornerRadius = blueCorner,
+        primary,
+        cornerRadius = blockCorner,
         topLeft = Offset(5f * u, 5.5f * u),
         size = Size(8f * u, 8f * u),
     )
     drawRoundRect(
-        NvPlayerBlue,
-        cornerRadius = blueCorner,
+        primary,
+        cornerRadius = blockCorner,
         topLeft = Offset(107f * u, 5.5f * u),
         size = Size(8f * u, 8f * u),
     )

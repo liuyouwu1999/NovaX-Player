@@ -70,12 +70,11 @@ import com.novax.app.ui.components.NvTypography
 import com.novax.app.ui.components.popupGlassBackground
 import com.novax.app.ui.glass.NvGlassChip
 import com.novax.app.ui.theme.NvColors
-import com.novax.app.ui.theme.NvPlayerBlue
 
 /**
  * 极简样式包（spec 2026-11-15 §3.2 **rev5**，用户第三次拍板 2026-11-18）：nPlayer 1:1 复刻。
- * - **顶栏=进度条**（[MinimalSeekTopBar] 48dp 通栏）：蓝填充=已播比例，整栏可拖 scrub/单点
- *   定跳；两端蓝块——蓝✕=退出播放器、蓝⋯（横三点）=精简「播放管理」菜单
+ * - **顶栏=进度条**（[MinimalSeekTopBar] 48dp 通栏）：主题色填充=已播比例，整栏可拖 scrub/单点
+ *   定跳；两端主题色块——✕=退出播放器、⋯（横三点）=精简「播放管理」菜单
  *   （[MinimalQuickMenu]：锁定/上下集/画中画/投屏/退出播放器）；无缓冲段、无章节刻度、
  *   无拖动气泡（三条禁令）。
  * - 左列（[MinimalSideRail]）：画面旋转（首钮）→ CC 字幕 → 齿轮更多面板；右列
@@ -87,7 +86,7 @@ import com.novax.app.ui.theme.NvPlayerBlue
  */
 
 /**
- * rev5 极简顶栏通栏高/两端蓝块见方边长（spec §3.2 48dp 口径）；[MinimalQuickMenu] 下拉
+ * rev5 极简顶栏通栏高/两端色块见方边长（spec §3.2 48dp 口径）；[MinimalQuickMenu] 下拉
  * offset 同源引用（单一口径，防两处 48dp 漂移）。
  */
 internal val MinimalSeekTopBarHeight = 48.dp
@@ -117,7 +116,7 @@ internal fun minimalFillWidthPx(leadWidthPx: Float, progress: Float, barWidthPx:
 
 /**
  * 是否画顶栏填充（rev5 §3.2 / plan 审核 P2-2，T1）：durationMs<=0（直播/无时长）完全不画
- * 填充——整栏仅半透明深底、无最小宽蓝段（无进度可言），拖动/点跳不可用，✕/⋯/文字照常。
+ * 填充——整栏仅半透明深底、无最小宽色段（无进度可言），拖动/点跳不可用，✕/⋯/文字照常。
  * 组件层守卫（[MinimalSeekTopBar] 的填充绘制与拖动/tap-seek 门控）以本纯函数为唯一口径，
  * 不另写第二份判定（spec §9）。
  */
@@ -148,15 +147,15 @@ internal fun quickMenuRows(isRmvb: Boolean, hasCast: Boolean): List<QuickMenuRow
  * 48dp 通栏（[MinimalSeekTopBarHeight]），**自绘进度**（不复用 NvChapterSlider：全宽填充+
  * 文字叠加 vs 底部轨道+时间行，结构差异过大）。
  * - 视觉：整栏未播段 `Color.Black.copy(alpha=0.45f)` 打底（画面透出，nPlayer 实测口径）；
- *   已播段 [NvPlayerBlue] 从 x=0 起铺，宽=[minimalFillWidthPx]（lead=✕块 48dp+当前时间文字
+ *   已播段主题色（NvColors.Primary，2026-11-19 用户拍板弃 nPlayer 蓝）从 x=0 起铺，宽=[minimalFillWidthPx]（lead=✕块 48dp+当前时间文字
  *   实测宽，TextMeasurer 同帧实测；lead 随显示文本变化即接受跳动——拖动跨小时格式跳变→
  *   前缘位移=nPlayer 同源口径，不做平滑，plan 审核 P2-3）；[minimalDrawsFill]==false
- *   （durationMs<=0 直播/无时长）不画任何蓝填充（整栏仅深底）。**三条禁令**（spec §3.2）：
+ *   （durationMs<=0 直播/无时长）不画任何主题色填充（整栏仅深底）。**三条禁令**（spec §3.2）：
  *   无缓冲段显示、无章节刻度、无拖动气泡（当前时间标签本身即预览）。
- * - 元素（Row 叠在 Canvas 上）：蓝✕块（48dp 见方圆角方块白图标=退出播放器）→ 当前时间
+ * - 元素（Row 叠在 Canvas 上）：主题色✕块（48dp 见方圆角方块白图标=退出播放器）→ 当前时间
  *   （[formatTime]，拖动中=拖动目标值）→ 标题（居中弹性占位/省略号）→ 剩余时间
  *   （[remainingLabel]；**拖动中显示拖动目标的剩余**——与 nPlayer 同源口径，备选「拖动中
- *   隐藏剩余」二选一未采用，此处注明）→ 蓝⋯块（横三点 `Icons.Filled.MoreHoriz`，点击
+ *   隐藏剩余」二选一未采用，此处注明）→ 主题色⋯块（横三点 `Icons.Filled.MoreHoriz`，点击
  *   [NvControlContract.onToggleQuickMenu]；打开态（quickMenuOpen=true）加白描边高亮）。
  * - 交互（pointerInput 挂整栏，热区=栏全高）：横向拖动 scrub——本地 dragPositionMs 实时
  *   回显（时间标签+填充跟随），**拖动中不调引擎**，松手 onSeek 提交并清态（提交后回显对齐
@@ -196,7 +195,7 @@ internal fun MinimalSeekTopBar(
     // 显示口径：拖动中=拖动目标位置（当前时间与剩余时间一并跟随，kdoc 注明）
     val displayPos = dragPositionMs ?: c.positionMs
     val timeText = formatTime(displayPos)
-    // lead 实测宽 = 蓝块 48dp + 当前时间文字实测宽（AnnotatedString 走 TextMeasurer 成员
+    // lead 实测宽 = 色块 48dp + 当前时间文字实测宽（AnnotatedString 走 TextMeasurer 成员
     // measure，与显示 Text 同 style 同帧一致）
     val leadWidthPx = blockPx + textMeasurer
         .measure(AnnotatedString(timeText), style = timeStyle)
@@ -239,25 +238,27 @@ internal fun MinimalSeekTopBar(
                 }
             },
     ) {
-        // 底层 Canvas：整栏未播段半透明深底打底；已播段蓝从 x=0 起铺（无时长仅深底）
+        // 底层 Canvas：整栏未播段半透明深底打底；已播段主题色（Primary 橙黄，2026-11-19 用户拍板
+        // 弃 nPlayer 蓝）从 x=0 起铺（无时长仅深底）。DrawScope 非组合上下文：token 先提升局部值
+        val accent = NvColors.Primary
         Canvas(Modifier.matchParentSize()) {
             drawRect(Color.Black.copy(alpha = 0.45f))
             if (drawsFill) {
                 val progress = (displayPos.toFloat() / c.durationMs).coerceIn(0f, 1f)
                 val fillPx = minimalFillWidthPx(leadWidthPx, progress, size.width)
-                drawRect(NvPlayerBlue, size = Size(fillPx, size.height))
+                drawRect(accent, size = Size(fillPx, size.height))
             }
         }
         Row(
             Modifier.matchParentSize(),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            // 蓝✕块：48dp 见方圆角方块=退出播放器（圆角 10dp）
+            // 主题色✕块：48dp 见方圆角方块=退出播放器（圆角 10dp）
             val blockShape = RoundedCornerShape(10.dp)
             Box(
                 Modifier
                     .size(MinimalSeekTopBarHeight)
-                    .background(NvPlayerBlue, blockShape)
+                    .background(accent, blockShape)
                     .clickable(onClick = c.onBack),
                 contentAlignment = Alignment.Center,
             ) {
@@ -289,12 +290,12 @@ internal fun MinimalSeekTopBar(
                     modifier = Modifier.padding(horizontal = 10.dp),
                 )
             } ?: Spacer(Modifier.width(10.dp))
-            // 蓝⋯块：横三点=精简「播放管理」菜单入口（rev4 竖⋮ 改横⋯，nPlayer 1:1）；
+            // 主题色⋯块：横三点=精简「播放管理」菜单入口（rev4 竖⋮ 改横⋯，nPlayer 1:1）；
             // 打开态白描边高亮（打开/关闭态区分，kdoc 注明）
             Box(
                 Modifier
                     .size(MinimalSeekTopBarHeight)
-                    .background(NvPlayerBlue, blockShape)
+                    .background(accent, blockShape)
                     .then(if (c.quickMenuOpen) Modifier.border(1.5.dp, Color.White, blockShape) else Modifier)
                     .clickable(onClick = c.onToggleQuickMenu),
                 contentAlignment = Alignment.Center,
@@ -306,7 +307,7 @@ internal fun MinimalSeekTopBar(
 }
 
 /**
- * 极简蓝⋯精简「播放管理」菜单（rev5 §3.2 MinimalQuickMenu）：右上下拉深色半透明圆角卡。
+ * 极简⋯精简「播放管理」菜单（rev5 §3.2 MinimalQuickMenu）：右上下拉深色半透明圆角卡。
  * - 容器视觉=MoreActionsSheet 同款 token（[popupGlassBackground]+[NvShape.Dialog]，宽
  *   220dp；顶部 offset=[MinimalSeekTopBarHeight] 顶栏高下拉）；行集=[quickMenuRows]
  *   （isRmvb 天然无 PIP/CAST；渲染序=声明序），纯文字行（nPlayer ⋯菜单 1:1 无图标，
@@ -404,7 +405,7 @@ fun nvSpeedStep(current: Float, delta: Float): Float = snapPlaybackSpeed(current
 
 /**
  * 侧钮列共用圆钮（rev4 §3.2）：46dp 黑色半透明圆底（Black 55%，nPlayer Simple Line 实测）
- * + 24dp 白 icon。与顶栏蓝块不同——侧钮列是「圆」不是「圆角方块」，1:1 对照用户归档截图。
+ * + 24dp 白 icon。与顶栏色块不同——侧钮列是「圆」不是「圆角方块」，1:1 对照用户归档截图。
  */
 @Composable
 private fun MinimalRailButton(onClick: () -> Unit, contentDescription: String, icon: ImageVector) {
@@ -451,7 +452,7 @@ internal fun MinimalSideRail(c: NvControlContract, modifier: Modifier = Modifier
 /**
  * 极简唤起态右列（rev4 §3.2）：倍速三件套 ⊕/当前档标签/⊖。
  * - ⊕/⊖ = [nvSpeedStep] ±0.1 步进（吸附防漂移）经 c.onSetSpeed 提交；
- * - 中间恒显 [formatSpeedLabel] 当前档（"1x"/"1.5x"），非 1x 时 [NvPlayerBlue] 高亮，
+ * - 中间恒显 [formatSpeedLabel] 当前档（"1x"/"1.5x"），非 1x 时主题色高亮，
  *   点击重置 c.onSetSpeed(1f)（1x 时点击无效果，幂等）。
  * **垂直定位由调用侧负责**（R4 接线：align(CenterEnd)+offset(y=屏高×6%)）——组件只交付纯 Column。
  */
@@ -477,7 +478,7 @@ internal fun MinimalSpeedRail(c: NvControlContract, modifier: Modifier = Modifie
             Text(
                 formatSpeedLabel(c.speed),
                 style = NvTypography.LabelLarge,
-                color = if (c.speed != 1f) NvPlayerBlue else Color.White,
+                color = if (c.speed != 1f) NvColors.Primary else Color.White,
                 maxLines = 1,
                 softWrap = false,
             )
