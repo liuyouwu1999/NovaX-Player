@@ -752,7 +752,7 @@ git commit -m "feat(settings): 控制层样式设置行——纵排三张 Canvas
 ### Task 10: 全量验证 + 模拟器冒烟（spec §9 清单执行）
 
 **Files:**
-- 无代码改动；证据目录 Create: `_emutest/smoke_styles/`（gitignored 路径规范与既往冒烟一致——**不入公开仓**，README+截图存私有仓 `E:\视频播放器apk\_emutest\smoke_styles\`）
+- 无代码改动；证据目录 Create: `_emutest/smoke_styles/`（gitignored 路径规范与既往冒烟一致——**不入公开仓**，README+截图存私有仓 `私有仓 `_emutest/smoke_styles\`）
 
 **Interfaces:**
 - Consumes: T1-T9 全部。
@@ -775,7 +775,7 @@ Run: `"C:\tools\gitleaks\gitleaks.exe" detect --source E:/NovaX-Player`（no lea
 6. minimal 常驻层四态（未锁显示/半锁显示/全锁隐藏/错误态隐藏——错误态可用断网 WebDAV 文件触发）
 7. RMVB 顶栏收拢差异（顺序与现状一致、三处微变截图）
 
-- [ ] **Step 3: 写冒烟 README**（私有仓 `E:\视频播放器apk\_emutest\smoke_styles\README.md`：7 项表格+证据文件名+偏差记录）
+- [ ] **Step 3: 写冒烟 README**（私有仓 `私有仓 `_emutest/smoke_styles\README.md`：7 项表格+证据文件名+偏差记录）
 
 - [ ] **Step 4: 问题修复回灌**（如有；每修一处跑该任务测试+全量）
 

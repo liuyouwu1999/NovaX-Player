@@ -110,13 +110,13 @@
 ### Task R6: 全量验证 + 真机冒烟（rev4 专项）
 
 **Files:**
-- 证据：`E:\视频播放器apk\_emutest\smoke_styles_realm\`（追加 rev4 节）
+- 证据：`私有仓 `_emutest/smoke_styles_realm\`（追加 rev4 节）
 
 **Interfaces:**
-- Consumes: R1-R5 全部；三星 SM-F9160 已连接（adb serial R5CN909G3PD）。
+- Consumes: R1-R5 全部；验收真机已连接（serial 略）。
 
 - [ ] **Step 1: 全量单测绿 + gitleaks**（git 模式零泄漏）
-- [ ] **Step 2: 构建+装机**——`./gradlew :app:assembleRelease` 后取 `app/build/outputs/apk/release/app-arm64-v8a-release.apk`（AGP9 打包任务已合并族无单 ABI 任务，全量构建取 arm64 产物）；`adb install -r`（同签名覆盖，serial R5CN909G3PD）。
+- [ ] **Step 2: 构建+装机**——`./gradlew :app:assembleRelease` 后取 `app/build/outputs/apk/release/app-arm64-v8a-release.apk`（AGP9 打包任务已合并族无单 ABI 任务，全量构建取 arm64 产物）；`adb install -r`（同签名覆盖）。
 - [ ] **Step 3: 真机冒烟清单**（每项截图）：
   1. minimal 唤起态全貌（横屏）：蓝块✕/位置时间/标题/剩余时间/蓝块⋯/左三圆钮/右三圆钮/七钮底条/贴底线——与用户归档截图（`_research/player_ui/nplayer/user_photo_2026-11-15.jpg`）并排对照
   2. 倍速三件套：连点 ⊕ 十下（1.0→2.0 全档无漂移）+ 中间钮点击重置 1x + ⊖ 递减 + 非 1x 高亮
