@@ -18,6 +18,7 @@ val keystoreProps = Properties().apply {
 // 方案数学性质由 ReleaseVersionSchemeTest 锁定（跨日严格单调、2147 年内不溢出）。
 // 注意：AGP 9 新 Variant API 已无 per-output 重命名能力（javap 实证），产物名维持 AGP 默认，
 // 对外分发命名在归档时手工完成（docs/RELEASE.md §3）。
+// v1.0.0.24=202611191x（控制层样式设置卡置顶到播放器组首位——用户反馈挂页尾别人看不到，纯 UI 顺序调整）。
 // v1.0.0.23=202611190x（移除防截屏保护 FLAG_SECURE——全应用放开截屏，用户拍板；播放画面
 // 亦回归最近任务缩略图=同开关自然结果；隐私锁其余行为不变。+播放控制样式系统三档
 // 经典/极简/长视频风[rev5 极简=nPlayer 同款布局：顶栏即进度条/左右侧钮/⋯精简菜单/悬浮条
@@ -43,9 +44,9 @@ val keystoreProps = Properties().apply {
 // 整体路由兜底页+起播看门狗）；
 // v1.0.0.13=202611011x（AVI 误嗅劫持+视频轨缺失自动转软解+切集路由回主播放器）；
 // v1.0.0.12=202611010x（长按倍速黑闪修复）。
-val nvVersionName = "1.0.0.23"
+val nvVersionName = "1.0.0.24"
 val nvReleaseDate = 20261119
-val nvReleaseIndex = 0
+val nvReleaseIndex = 1
 val nvVersionBase: Int = run {
     // T11 评审移交：双守卫 + long 运算。Int 直乘在日期误改（多打一位/改超 21474836 年）时
     // 会静默回绕，require 拦不住；先升 long 再校验，配置期即炸而非产出错版号。

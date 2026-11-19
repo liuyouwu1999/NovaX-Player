@@ -239,6 +239,28 @@ private fun PlaybackGroupPage(vm: SettingsViewModel, prefs: Preferences?, onBack
     val ctx = LocalContext.current
     SettingsGroupPage(stringResource(R.string.settings_group_playback), onBack) {
         item {
+            // T9（spec §4/§7）：控制层样式——纵排三张 Canvas 迷你预览卡（P2-3），单选即写；
+            // 当前值经 parseControlStyle 读 KEY_CONTROL_STYLE（null/未知回退 CLASSIC，spec §6），
+            // 写入对齐本页其他行（vm.set → putPlayerPref；prefs 为 DataStore 流自动重组）。
+            // 2026-11-19 用户拍板置顶：样式系统是本页最大功能入口，原挂页尾（0.23 版）别人
+            // 看不到——挪到组内第一个 item（纯顺序调整，卡片内部零变化）
+            NvSettingsCard(stringResource(R.string.settings_control_style)) {
+                val currentStyle = parseControlStyle(prefs?.get(KEY_CONTROL_STYLE))
+                Column(
+                    Modifier.padding(vertical = NvSpacing.S),
+                    verticalArrangement = Arrangement.spacedBy(NvSpacing.S),
+                ) {
+                    NvControlStyle.entries.forEach { style ->
+                        NvStylePreviewCard(
+                            style,
+                            selected = style == currentStyle,
+                            onClick = { vm.set(KEY_CONTROL_STYLE, style.dataStoreValue) },
+                        )
+                    }
+                }
+            }
+        }
+        item {
             NvSettingsCard(null) {
                 NvSegmentedRow(
                     title = stringResource(R.string.settings_default_speed),
@@ -473,26 +495,6 @@ private fun PlaybackGroupPage(vm: SettingsViewModel, prefs: Preferences?, onBack
                     onChecked = { vm.set(KEY_RMVBFramesSkip, it) },
                     showDivider = false,
                 )
-            }
-        }
-        item {
-            // T9（spec §4/§7）：控制层样式——纵排三张 Canvas 迷你预览卡（P2-3），单选即写；
-            // 当前值经 parseControlStyle 读 KEY_CONTROL_STYLE（null/未知回退 CLASSIC，spec §6），
-            // 写入对齐本页其他行（vm.set → putPlayerPref；prefs 为 DataStore 流自动重组）
-            NvSettingsCard(stringResource(R.string.settings_control_style)) {
-                val currentStyle = parseControlStyle(prefs?.get(KEY_CONTROL_STYLE))
-                Column(
-                    Modifier.padding(vertical = NvSpacing.S),
-                    verticalArrangement = Arrangement.spacedBy(NvSpacing.S),
-                ) {
-                    NvControlStyle.entries.forEach { style ->
-                        NvStylePreviewCard(
-                            style,
-                            selected = style == currentStyle,
-                            onClick = { vm.set(KEY_CONTROL_STYLE, style.dataStoreValue) },
-                        )
-                    }
-                }
             }
         }
     }
