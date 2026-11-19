@@ -136,6 +136,7 @@ fun NvBottomSheet(
 fun NvPlayerPopup(
     title: String,
     onDismiss: () -> Unit,
+    panelFill: Color = NvColors.GlassFillStrong,
     content: @Composable ColumnScope.() -> Unit,
 ) {
     BackHandler(onBack = onDismiss)
@@ -155,7 +156,7 @@ fun NvPlayerPopup(
                 .fillMaxWidth(0.92f)
                 .heightIn(max = maxHeight * 0.85f)
                 .clip(NvShape.Dialog)
-                .then(popupGlassBackground())
+                .then(popupGlassBackground(NvShape.Dialog, panelFill))
                 // 面板本体吃掉点击（无 ripple），不漏到遮罩误关
                 .clickable(
                     interactionSource = remember { MutableInteractionSource() },
@@ -200,25 +201,31 @@ fun NvPlayerPopup(
  * blur 回高档 Fixed 28dp + GlassFillStrong 强填充（70% 暗面板底），保玻璃形状/圆角与边缘质感
  * （nvGlassSurface：clip 收口 + GlassSheen/GlassInnerShadow 不对称光效 + 1dp hairline 描边）；
  * 边缘透镜关档（NvGlassLensTier.None——透镜边带会搅动面板边缘下滚动文字行）。
- * env=null 未接线域回退 GlassFillStrong 实底不变（与 NvGlassPanel 填充常量一致）。
+ * env=null 未接线域回退 [fill] 实底不变（与 NvGlassPanel 填充常量一致）。
  * 主页面组件不经过本弹窗不受影响；主播放器与 RMVB 页 8 个弹窗一次全部生效，零调用方改动。
  * 返工⑭开放 [shape] 参数并改 internal；返工⑮（2026-10-16）起主消费点从 NvBottomSheet
  * heavyGlass 档（已摘除——独立窗口跨窗无玻璃，decisions §25）改为原地覆盖层面板
  * NvCastRemotePanel（NvShape.BottomSheet 形状），配方本体逐参数不变。
+ * 2026-11-19 开放 [fill] 参数（默认 GlassFillStrong 不变，既有调用逐字节不变）：播放器
+ * 极简档「更多」面板/⋯菜单按用户玻璃风格统一拍板传 Scrim（60% 黑中透玻璃——比清玻璃
+ * （15%，返工⑤真机实证文字混画面）可读、比重磨砂（95%）透亮，中间档）。
  */
 @Composable
-internal fun popupGlassBackground(shape: androidx.compose.ui.graphics.Shape = NvShape.Dialog): Modifier {
+internal fun popupGlassBackground(
+    shape: androidx.compose.ui.graphics.Shape = NvShape.Dialog,
+    fill: Color = NvColors.GlassFillStrong,
+): Modifier {
     val env = com.novax.app.ui.glass.LocalNvGlassEnv.current
     return if (env != null) {
         Modifier.nvGlassSurface(
-            NvColors.GlassFillStrong,
+            fill,
             shape,
             NvGlassLensTier.None,
             blurRadius = 28.dp,
             fillOverlay = true,
         )
     } else {
-        Modifier.background(NvColors.GlassFillStrong, shape)
+        Modifier.background(fill, shape)
     }
 }
 

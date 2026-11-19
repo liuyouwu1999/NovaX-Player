@@ -3153,7 +3153,8 @@ class RmvbPlayerActivity : ComponentActivity() {
             }
 
             if (uiShowMoreSheet) {
-                NvPlayerPopup(title = stringResource(R.string.player_sheet_more), onDismiss = { uiShowMoreSheet = false }) {
+                // panelFill=Scrim：2026-11-19 用户拍板玻璃风格统一（与主播放器「更多」面板同配方）
+                NvPlayerPopup(title = stringResource(R.string.player_sheet_more), onDismiss = { uiShowMoreSheet = false }, panelFill = NvColors.Scrim) {
                     // T8（spec 2026-11-15 §5.5/§4）：「播放控制」组——2026-11-19 用户拍板方案 A
                     // 按当前样式智能去重（样式外层已有直接按钮的入口不进组，经典档恒空整组隐藏）；
                     // RMVB 键集剔除保持（§5.3：PIP/清晰度/投屏）。minimal/streaming 档下未覆盖

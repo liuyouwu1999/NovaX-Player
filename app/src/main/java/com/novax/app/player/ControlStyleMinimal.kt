@@ -64,6 +64,8 @@ import androidx.compose.ui.unit.dp
 import com.novax.app.R
 import com.novax.app.ui.components.NvShape
 import com.novax.app.ui.components.NvSheetListItem
+import com.novax.app.ui.glass.NvGlassLensTier
+import com.novax.app.ui.glass.nvGlassSurface
 import com.novax.app.ui.components.NvTypography
 import com.novax.app.ui.components.popupGlassBackground
 import com.novax.app.ui.glass.NvGlassChip
@@ -156,11 +158,13 @@ internal fun quickMenuRows(isRmvb: Boolean, hasCast: Boolean): List<QuickMenuRow
  * 极简顶栏=进度条（rev5 §3.2，nPlayer 1:1）：
  * 48dp 通栏（[MinimalSeekTopBarHeight]），**自绘进度**（不复用 NvChapterSlider：全宽填充+
  * 文字叠加 vs 底部轨道+时间行，结构差异过大）。
- * - 视觉：整栏未播段 `Color.Black.copy(alpha=0.45f)` 打底（画面透出，nPlayer 实测口径）；
- *   已播段主题色（NvColors.Primary，2026-11-19 用户拍板弃 nPlayer 蓝）从 x=0 起铺，宽=
+ * - 视觉：整栏玻璃底 `nvGlassSurface(NvColors.Scrim, RectangleShape)`（2026-11-19 用户拍板
+ *   「风格和 app 玻璃统一」——替换原 45% 纯黑打底；主播放器/RMVB 页视频层均已挂 nvGlassSource，
+ *   玻璃即挂即生效，API≤30 降级近实底；两端口块为满高直角，故保矩形直角玻璃）；已播段主题色
+ *   （NvColors.Primary，2026-11-19 用户拍板弃 nPlayer 蓝）从 x=0 起铺，宽=
  *   [minimalFillWidthPx] 线性映射（2026-11-19 用户拍板弃 nPlayer「lead 最小填充宽」规则：
  *   0%=无填充、✕块右缘即前缘左右对称、拖动全程跟手，见该函数 kdoc）；[minimalDrawsFill]==false
- *   （durationMs<=0 直播/无时长）不画任何主题色填充（整栏仅深底）。**三条禁令**（spec §3.2）：
+ *   （durationMs<=0 直播/无时长）不画任何主题色填充（整栏仅玻璃底）。**三条禁令**（spec §3.2）：
  *   无缓冲段显示、无章节刻度、无拖动气泡（当前时间标签本身即预览）。
  * - 元素（Row 叠在 Canvas 上）：主题色✕块（48dp 见方圆角方块白图标=退出播放器）→ 当前时间
  *   （[formatTime]，拖动中=拖动目标值）→ 标题（居中弹性占位/省略号）→ 剩余时间
@@ -211,6 +215,9 @@ internal fun MinimalSeekTopBar(
             // =手势区=内移后的条（tap/drag 坐标系自洽）
             .padding(horizontal = minimalBarInset())
             .height(MinimalSeekTopBarHeight)
+            // 2026-11-19 用户拍板玻璃风格统一：45% 纯黑打底→Scrim 玻璃面（直角，nvGlassSource
+            // 已在两播放器页挂好即挂即生效）；nvGlassSurface 纯绘制，手势链不受影响
+            .nvGlassSurface(NvColors.Scrim, RectangleShape)
             // 单点 tap 定跳（tap 检测在 drag 之前，NvChapterSlider 同序）：✕/⋯块自身
             // clickable 在上层消费（子节点 consume up→父 tap 探测取消），不抢两块点击
             .pointerInput(Unit) {
@@ -244,11 +251,12 @@ internal fun MinimalSeekTopBar(
                 }
             },
     ) {
-        // 底层 Canvas：整栏未播段半透明深底打底；已播段主题色（Primary 橙黄，2026-11-19 用户拍板
-        // 弃 nPlayer 蓝）从 x=0 起铺（无时长仅深底）。DrawScope 非组合上下文：token 先提升局部值
+        // 底层 Canvas：玻璃底由 Box 的 nvGlassSurface 承载（2026-11-19 玻璃化，原 45% 纯黑
+        // 打底删除——玻璃 tint 已含 Scrim 60% 黑）；Canvas 只画已播段主题色（Primary 橙黄，
+        // 2026-11-19 用户拍板弃 nPlayer 蓝）从 x=0 起铺（无时长不画）。DrawScope 非组合
+        // 上下文：token 先提升局部值
         val accent = NvColors.Primary
         Canvas(Modifier.matchParentSize()) {
-            drawRect(Color.Black.copy(alpha = 0.45f))
             if (drawsFill) {
                 val progress = (displayPos.toFloat() / c.durationMs).coerceIn(0f, 1f)
                 val fillPx = minimalFillWidthPx(progress, size.width)
@@ -363,8 +371,10 @@ internal fun MinimalQuickMenu(c: NvControlContract, isRmvb: Boolean, modifier: M
                 .offset(y = MinimalSeekTopBarHeight)
                 .width(220.dp)
                 .clip(NvShape.Dialog)
-                // MoreActionsSheet（NvPlayerPopup）容器同款玻璃配方（GlassFillStrong+Dialog 圆角）
-                .then(popupGlassBackground(NvShape.Dialog))
+                // 「更多」面板（NvPlayerPopup panelFill=Scrim）同款中透玻璃配方（2026-11-19
+                // 用户拍板玻璃风格统一：GlassFillStrong 95% 重磨砂→Scrim 60% 玻璃——比清玻璃
+                // 可读、比重磨砂透亮，popupGlassBackground fill 参数首用）
+                .then(popupGlassBackground(NvShape.Dialog, NvColors.Scrim))
                 // 卡本体吃掉点击（无 ripple），点卡不关菜单（外点才关）
                 .clickable(
                     interactionSource = remember { MutableInteractionSource() },
@@ -410,15 +420,17 @@ internal fun MinimalQuickMenu(c: NvControlContract, isRmvb: Boolean, modifier: M
 fun nvSpeedStep(current: Float, delta: Float): Float = snapPlaybackSpeed(current + delta)
 
 /**
- * 侧钮列共用圆钮（rev4 §3.2）：46dp 黑色半透明圆底（Black 55%，nPlayer Simple Line 实测）
- * + 24dp 白 icon。与顶栏色块不同——侧钮列是「圆」不是「圆角方块」，1:1 对照用户归档截图。
+ * 侧钮列共用圆钮（rev4 §3.2）：46dp 磨砂玻璃圆底（2026-11-19 用户拍板玻璃风格统一——
+ * 替换原 Black 55% 纯色圆；配方=暂停钮 NvGlassChip 同款 GlassFillStrong+Chip 档+fillOverlay，
+ * 压画面小圆钮清玻璃会隐形的返工⑤先例口径）+ 24dp 白 icon。与顶栏色块不同——侧钮列是
+ * 「圆」不是「圆角方块」，1:1 对照用户归档截图。
  */
 @Composable
 private fun MinimalRailButton(onClick: () -> Unit, contentDescription: String, icon: ImageVector) {
     Box(
         Modifier
             .size(46.dp)
-            .background(Color.Black.copy(alpha = 0.55f), CircleShape)
+            .nvGlassSurface(NvColors.GlassFillStrong, CircleShape, NvGlassLensTier.Chip, fillOverlay = true)
             .clickable(onClick = onClick),
         contentAlignment = Alignment.Center,
     ) {
@@ -477,7 +489,8 @@ internal fun MinimalSpeedRail(c: NvControlContract, modifier: Modifier = Modifie
         Box(
             Modifier
                 .size(46.dp)
-                .background(Color.Black.copy(alpha = 0.55f), CircleShape)
+                // 磨砂玻璃圆底（MinimalRailButton 同配方，2026-11-19 玻璃风格统一）
+                .nvGlassSurface(NvColors.GlassFillStrong, CircleShape, NvGlassLensTier.Chip, fillOverlay = true)
                 .clickable(onClick = { c.onSetSpeed(1f) })
                 // Text 无 cd 参数：重置语义挂 Box semantics（streaming SPEED 槽同款姿势）
                 .semantics { contentDescription = resetCd },
@@ -533,11 +546,13 @@ internal fun MinimalBottomBar(c: NvControlContract, modifier: Modifier = Modifie
     BoxWithConstraints(
         modifier
             .fillMaxWidth()
-            // 2026-11-19 用户拍板「下面的按键条也不要贴边，视觉对称」：background 在 padding
-            // 之前=黑条内移（horizontal [minimalBarInset] 动态 4.5% 屏宽）悬浮条 nPlayer 同款，与顶栏对称；
+            // 2026-11-19 用户拍板「下面的按键条也不要贴边，视觉对称」：背景在 padding
+            // 之前=条内移（horizontal [minimalBarInset] 动态 4.5% 屏宽）悬浮条 nPlayer 同款，与顶栏对称；
             // 两侧边缘区留给根手势层
             .padding(horizontal = minimalBarInset())
-            .background(NvColors.Scrim)
+            // 2026-11-19 用户拍板玻璃风格统一：纯色 Scrim 底→Scrim 玻璃面（直角横条，与顶栏同配方；
+            // 背景组件自带语义不变——玻璃面向下覆盖触摸区不悬空，主/RMVB 两侧宿主裸调用恰一层）
+            .nvGlassSurface(NvColors.Scrim, RectangleShape)
             .padding(top = 2.dp, bottom = 2.dp),
     ) {
         val narrow = maxWidth < 480.dp

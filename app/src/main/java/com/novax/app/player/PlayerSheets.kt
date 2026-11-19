@@ -620,7 +620,9 @@ internal fun MoreActionsSheet(
     onSleepPick: (Int) -> Unit,
     onClose: () -> Unit,
 ) {
-    NvPlayerPopup(title = stringResource(R.string.player_sheet_more), onDismiss = onClose) {
+    // panelFill=Scrim：2026-11-19 用户拍板玻璃风格统一（重磨砂 95%→Scrim 60% 中透玻璃，
+    // 配方见 popupGlassBackground kdoc）
+    NvPlayerPopup(title = stringResource(R.string.player_sheet_more), onDismiss = onClose, panelFill = NvColors.Scrim) {
         QuickControlsSection(quickControls, quickSkipSec, onQuickControl)
         SheetSectionLabel(stringResource(R.string.player_ab_loop_section))
         val loopActive = loopAMs >= 0 && loopBMs > loopAMs
