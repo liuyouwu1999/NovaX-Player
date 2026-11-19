@@ -52,6 +52,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
@@ -86,11 +87,16 @@ import com.novax.app.ui.theme.NvColors
  */
 
 /**
- * rev5 极简顶栏通栏高/两端色块见方边长（spec §3.2 48dp 口径；2026-11-19 用户反馈「太粗」
- * 48→40dp，接近 nPlayer 截图实测比例≈屏高 9.6%）；[MinimalQuickMenu] 下拉
- * offset 同源引用（单一口径，防两处漂移）。
+ * rev5 极简顶栏通栏高/两端色块见方边长（spec §3.2 48dp 口径；2026-11-19 用户两轮反馈
+ * 48→40→36dp「再细一点」）；[MinimalQuickMenu] 下拉 offset 同源引用（单一口径，防漂移）。
  */
-internal val MinimalSeekTopBarHeight = 40.dp
+internal val MinimalSeekTopBarHeight = 36.dp
+
+/** 极简顶栏/底栏左右内移量（2026-11-19 用户拍板「不贴两边/靠边很难点到」：悬浮条 nPlayer 同款） */
+internal val MinimalBarEdgeInset = 16.dp
+
+/** 极简左右侧钮列水平内移量（2026-11-19 用户拍板「靠边被摄像头挡住」：避开挖孔/刘海带） */
+internal val MinimalRailEdgeInset = 32.dp
 
 /**
  * 剩余时间标签（rev5 §3.2 顶栏右半）：`-` + [formatTime]（durationMs−positionMs）。
@@ -205,6 +211,10 @@ internal fun MinimalSeekTopBar(
     Box(
         modifier
             .fillMaxWidth()
+            // 2026-11-19 用户拍板「进度条不贴左右两边/靠近边边很难点到」：顶栏整体内移（悬浮条，
+            // nPlayer 同款），左右各让 16dp——边缘区留给根手势层；pointerInput 挂在 padding 之后
+            // =手势区=内移后的条（tap/drag 坐标系自洽）
+            .padding(horizontal = MinimalBarEdgeInset)
             .height(MinimalSeekTopBarHeight)
             // 单点 tap 定跳（tap 检测在 drag 之前，NvChapterSlider 同序）：✕/⋯块自身
             // clickable 在上层消费（子节点 consume up→父 tap 探测取消），不抢两块点击
@@ -254,8 +264,8 @@ internal fun MinimalSeekTopBar(
             Modifier.matchParentSize(),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            // 主题色✕块：48dp 见方圆角方块=退出播放器（圆角 10dp）
-            val blockShape = RoundedCornerShape(10.dp)
+            // 主题色✕块：36dp 见方直角正方形=退出播放器（2026-11-19 用户拍板「正方形不要圆角」，nPlayer 同款直角）
+            val blockShape = RectangleShape
             Box(
                 Modifier
                     .size(MinimalSeekTopBarHeight)
@@ -431,7 +441,8 @@ private fun MinimalRailButton(onClick: () -> Unit, contentDescription: String, i
  */
 @Composable
 internal fun MinimalSideRail(c: NvControlContract, modifier: Modifier = Modifier) {
-    Column(modifier, verticalArrangement = Arrangement.spacedBy(12.dp)) {
+    // 2026-11-19 用户拍板「靠边被摄像头挡住」：水平内移 [MinimalRailEdgeInset] 避开挖孔/刘海带
+    Column(modifier.padding(horizontal = MinimalRailEdgeInset), verticalArrangement = Arrangement.spacedBy(12.dp)) {
         MinimalRailButton(
             onClick = c.onVideoRotate,
             contentDescription = stringResource(R.string.player_cd_rotate),
@@ -461,7 +472,8 @@ internal fun MinimalSideRail(c: NvControlContract, modifier: Modifier = Modifier
 internal fun MinimalSpeedRail(c: NvControlContract, modifier: Modifier = Modifier) {
     // i18n：semantics 块非组合上下文，资源解析提升到组合期（streaming SPEED 槽同款）
     val resetCd = stringResource(R.string.player_speed_reset)
-    Column(modifier, verticalArrangement = Arrangement.spacedBy(12.dp)) {
+    // 水平内移与左列对称（MinimalRailEdgeInset，2026-11-19 避挖孔/刘海带）
+    Column(modifier.padding(horizontal = MinimalRailEdgeInset), verticalArrangement = Arrangement.spacedBy(12.dp)) {
         MinimalRailButton(
             onClick = { c.onSetSpeed(nvSpeedStep(c.speed, +0.1f)) },
             contentDescription = stringResource(R.string.player_speed_plus),
@@ -526,16 +538,19 @@ internal fun MinimalBottomBar(c: NvControlContract, modifier: Modifier = Modifie
     BoxWithConstraints(
         modifier
             .fillMaxWidth()
-            // R5-T4 背景收回组件自带（恰好一层 Scrim，两侧宿主裸调用）：background 在 padding
-            // 之前=背景铺满整栏含内边距区，与旧宿主 Box 承载逐像素同观感
+            // 2026-11-19 用户拍板「下面的按键条也不要贴边，视觉对称」：background 在 padding
+            // 之前=黑条内移（horizontal [MinimalBarEdgeInset]）悬浮条 nPlayer 同款，与顶栏对称；
+            // 两侧边缘区留给根手势层
+            .padding(horizontal = MinimalBarEdgeInset)
             .background(NvColors.Scrim)
-            .padding(start = 16.dp, end = 16.dp, top = 2.dp, bottom = 4.dp),
+            .padding(top = 2.dp, bottom = 2.dp),
     ) {
         val narrow = maxWidth < 480.dp
         val slots = minimalBottomSlots(narrow)
-        // 2026-11-19 用户拍板「每个按键大小对齐」：暂停钮不再放大（58→48dp 与其它钮一致；窄幅同档 btn），
-        // 全行统一 btn 尺寸+rowIcon 图标；说明文字全部去除（caption=null/showLabel=false，整条变薄）
-        val btn = if (narrow) nvNarrowControlMetrics(maxWidth).second else 48.dp
+        // 2026-11-19 用户拍板「每个按键大小对齐」+「再细一点」：暂停钮不再放大（与其它钮一致），
+        // 全行统一 btn 尺寸+rowIcon 图标；说明文字全部去除（caption=null/showLabel=false，整条变薄）；
+        // btn 48→44dp（整条 48dp）
+        val btn = if (narrow) nvNarrowControlMetrics(maxWidth).second else 44.dp
         val rowIcon = if (narrow) nvRowIconFor(btn) else 24.dp
         Row(
             Modifier.fillMaxWidth(),

@@ -163,53 +163,51 @@ private fun DrawScope.drawClassic(u: Float, primary: Color) {
  * 配色：真机用 NvColors.Primary（用户拍板弃 nPlayer 蓝），示意向量同源。
  */
 private fun DrawScope.drawMinimal(u: Float, primary: Color) {
-    // 顶栏通栏暗条：真实形态=48dp 通栏半透明黑打底（画面透出）；黑底卡上纯黑不可辨，
-    // 沿用本文件未播段语言以半透明白示意暗条段
+    // 2026-11-19 视觉第三轮同步：顶栏 36dp/底栏 44dp 更薄+条不贴边（左右内移 4u 示意 16dp）+
+    // 两端块直角正方形（「正方形不要圆角」）+侧钮列内移示意（三点列 9/111→13/107）
+    // 顶栏通栏暗条：真实形态=36dp 通栏半透明黑打底（画面透出）；黑底卡上纯黑不可辨，
+    // 沿用本文件未播段语言以半透明白示意暗条段；悬浮条不贴边（x=5..115）
     drawRoundRect(
         Color.White.copy(alpha = 0.25f),
         cornerRadius = CornerRadius(1.25f * u),
-        topLeft = Offset(0f, 5.5f * u),
-        size = Size(120f * u, 8f * u),
+        topLeft = Offset(5f, 6f * u),
+        size = Size(110f * u, 7f * u),
     )
-    // 已播段实色从卡左缘起铺（真实形态=主题色填充 x=0 起、无时长不铺；此处 ≈55% 示意已播）
+    // 已播段实色从条左缘起铺（真实形态=主题色填充 x=0 起、无时长不铺；此处 ≈55% 示意已播）
     drawRoundRect(
         primary,
         cornerRadius = CornerRadius(1.25f * u),
-        topLeft = Offset(0f, 5.5f * u),
-        size = Size(66f * u, 8f * u),
+        topLeft = Offset(5f, 6f * u),
+        size = Size(60f * u, 7f * u),
     )
-    // 两端色块：真实形态=48dp 通栏两端 48dp 见方主题色圆角(10dp)方块（✕ 退出/⋯ 更多）；
+    // 两端色块：真实形态=36dp 见方主题色**直角**方块（✕ 退出/⋯ 更多，nPlayer 同款直角）；
     // 左块落在实色段内同色相融=真机已播覆盖✕块的同款观感，右块在暗条段可辨
-    val blockCorner = CornerRadius(1.8f * u)
-    drawRoundRect(
+    drawRect(
         primary,
-        cornerRadius = blockCorner,
-        topLeft = Offset(5f * u, 5.5f * u),
-        size = Size(8f * u, 8f * u),
+        topLeft = Offset(9f * u, 6f * u),
+        size = Size(7f * u, 7f * u),
     )
-    drawRoundRect(
+    drawRect(
         primary,
-        cornerRadius = blockCorner,
-        topLeft = Offset(107f * u, 5.5f * u),
-        size = Size(8f * u, 8f * u),
+        topLeft = Offset(103f * u, 6f * u),
+        size = Size(7f * u, 7f * u),
     )
-    // 左缘三点竖排（旋转/CC 字幕/齿轮）+ 右缘三点竖排（倍速三件套：46dp 圆钮列）
+    // 左缘三点竖排（旋转/CC 字幕/齿轮）+ 右缘三点竖排（倍速三件套：46dp 圆钮列，内移示意）
     listOf(24f, 34f, 44f).forEach { y ->
-        drawCircle(Color.White.copy(alpha = 0.7f), radius = 2f * u, center = Offset(9f * u, y * u))
-        drawCircle(Color.White.copy(alpha = 0.7f), radius = 2f * u, center = Offset(111f * u, y * u))
+        drawCircle(Color.White.copy(alpha = 0.7f), radius = 2f * u, center = Offset(13f * u, y * u))
+        drawCircle(Color.White.copy(alpha = 0.7f), radius = 2f * u, center = Offset(107f * u, y * u))
     }
-    // 底部黑条：真实形态=底栏自带 Scrim 半透明黑贴底线、之下无任何进度条（rev5）；黑底卡上
-    // 纯黑不可辨，同用半透明白示意底条色块
+    // 底部黑条：真实形态=底栏自带 Scrim 半透明黑悬浮条、之下无任何进度条（rev5）；黑底卡上
+    // 纯黑不可辨，同用半透明白示意底条色块（与顶栏对称内移）
     drawRoundRect(
         Color.White.copy(alpha = 0.25f),
         cornerRadius = CornerRadius(1.25f * u),
-        topLeft = Offset(0f, 48f * u),
-        size = Size(120f * u, 20f * u),
+        topLeft = Offset(5f, 49f * u),
+        size = Size(110f * u, 18f * u),
     )
-    // 底条一行七点：锁/上集/快退/暂停/快进/下集/比例（等距，中央暂停 58dp 加大）
-    listOf(-39f, -26f, -13f, 0f, 13f, 26f, 39f).forEach { dx ->
-        val r = if (dx == 0f) 2.8f else 2f
-        drawCircle(Color.White.copy(alpha = 0.7f), radius = r * u, center = Offset((60f + dx) * u, 58f * u))
+    // 底条一行七点：锁/上集/快退/暂停/快进/下集/比例（纯图标等距，尺寸一致 2026-11-19）
+    listOf(-36f, -24f, -12f, 0f, 12f, 24f, 36f).forEach { dx ->
+        drawCircle(Color.White.copy(alpha = 0.7f), radius = 2.2f * u, center = Offset((60f + dx) * u, 58f * u))
     }
 }
 
