@@ -575,10 +575,12 @@ internal fun quickControlLabel(id: QuickControlId, skipSec: Int): String = when 
 }
 
 /**
- * 「播放控制」组（T8，spec 2026-11-15 §5.5 功能全集兜底，评审 P0-2 裁决）：任何样式
- * 任何功能必达——经典档与直接按钮重复属有意冗余（B 站/MX 菜单同款）。键集经
- * [quickControlsFor] 过滤（RMVB 剔 PIP/清晰度/投屏，QUALITY 有质量档才可见）；
- * 回调由宿主接 [dispatchQuickControl]（与顶/底栏完全同源）。主/RMVB 两侧共用本组。
+ * 「播放控制」组（T8，spec 2026-11-15 §5.5；2026-11-19 用户拍板方案 A 改版：按当前样式
+ * 智能去重——样式外层已有直接按钮的入口不再重复进组，替换原「任何样式全集兜底」的
+ * P0-2 有意冗余口径，用户点名极简档与外面按钮重复）。键集经 [quickControlsFor] 过滤
+ * （样式覆盖集去重 + RMVB 剔 PIP/清晰度/投屏 + QUALITY 有质量档才可见）；**ids 空=
+ * 整组不渲染（含组名标签）**——经典档恒空整组隐藏。回调由宿主接 [dispatchQuickControl]
+ * （与顶/底栏完全同源）。主/RMVB 两侧共用本组。
  * 组名键 player_quick_controls，与「控制样式」组名键 player_style_group 一字之差
  * 同面板共存（spec §5.5 防混淆备忘：键与常量必须显式区分）。
  */
@@ -588,6 +590,7 @@ internal fun QuickControlsSection(
     skipSec: Int,
     onAction: (QuickControlId) -> Unit,
 ) {
+    if (ids.isEmpty()) return
     SheetSectionLabel(stringResource(R.string.player_quick_controls))
     ids.forEach { id ->
         NvSheetListItem(quickControlLabel(id, skipSec), selected = false, onClick = { onAction(id) })
@@ -613,8 +616,9 @@ internal fun ControlStyleSection(
 
 /**
  * 「更多」面板（2026-09-17 功能项）：AB 循环 + 睡眠定时。
- * T8（2026-11-15 §5.5/§4）扩容：前置「播放控制」功能全集兜底组 +「控制样式」
- * 播放中切换组（三样式共用同一份组内容，spec §5.5 实现单一性）。
+ * T8（2026-11-15 §5.5/§4）扩容：前置「播放控制」组（2026-11-19 起按样式智能去重，
+ * 经典档组空整组隐藏，见 [QuickControlsSection]）+「控制样式」播放中切换组
+ * （三样式共用同一份组内容，spec §5.5 实现单一性）。
  * AB 循环走心跳判定（越过 B 点跳回 A），换集/重建引擎自动清空；
  * 睡眠定时跨重建有效，到点暂停。
  */

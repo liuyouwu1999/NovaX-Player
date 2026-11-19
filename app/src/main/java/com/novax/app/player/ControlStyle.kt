@@ -20,17 +20,58 @@ val NvControlStyle.dataStoreValue: String
     }
 
 /**
- * 「更多」面板「播放控制」组行键（spec 2026-11-15 §5.5，T8）：功能全集兜底——
+ * 「更多」面板「播放控制」组行键（spec 2026-11-15 §5.5，T8；2026-11-19 起按样式去重）：
  * 16 入口与 §3.4 功能对等总表一一对应（暂停/播放与手势重复，不入组）。
  */
 enum class QuickControlId { LOCK, PREV, NEXT, REW, FWD, SPEED, SUBTITLE, AUDIO, ASPECT, ORIENTATION, MIRROR, ROTATE, PIP, QUALITY, CAST, INFO }
 
-/** 「播放控制」组键集（spec §5.5）：RMVB 按 §5.3 键集剔除 PIP/清晰度/投屏；QUALITY 仅 Jellyfin 有质量档时。 */
-internal fun quickControlsFor(isRmvb: Boolean, hasQuality: Boolean): List<QuickControlId> =
+/** 极简档已被外层直接按钮覆盖的入口（2026-11-19 用户拍板方案 A 去重账目，出处=spec §3.4
+ *  功能对等总表+主会话逐项核对）：锁=底栏+⋯菜单、上下集=底栏+⋯菜单、快退/快进=底栏、
+ *  CC 字幕=左列、旋转=左列、PIP/投屏=⋯菜单。**SPEED 不在集内=有意保留**（见
+ *  [quickControlsFor] kdoc）；ASPECT 窄幅维度单列（宽幅覆盖/窄幅保留）。 */
+private val MINIMAL_STYLE_COVERED: Set<QuickControlId> = setOf(
+    QuickControlId.LOCK,
+    QuickControlId.PREV, QuickControlId.NEXT,
+    QuickControlId.REW, QuickControlId.FWD,
+    QuickControlId.SUBTITLE,
+    QuickControlId.ROTATE,
+    QuickControlId.PIP,
+    QuickControlId.CAST,
+)
+
+/** 长视频风已被外层直接按钮覆盖的入口：上集/下集/快退/快进/倍速=底栏单行、
+ *  字幕/音轨/投屏=顶栏图标簇（[StreamingTopBar]/[StreamingBottomBar]）。 */
+private val STREAMING_STYLE_COVERED: Set<QuickControlId> = setOf(
+    QuickControlId.PREV, QuickControlId.NEXT,
+    QuickControlId.REW, QuickControlId.FWD,
+    QuickControlId.SPEED,
+    QuickControlId.SUBTITLE, QuickControlId.AUDIO, QuickControlId.CAST,
+)
+
+/** 「播放控制」组键集（spec §5.5 T8 + 2026-11-19 用户拍板方案 A：按当前样式智能去重）。
+ *  两层过滤叠加：
+ *  ①RMVB 键集剔除先例保持（spec §5.3）：PIP/清晰度/投屏恒剔，QUALITY 另受 hasQuality；
+ *  ②样式覆盖集：当前样式外层已有直接按钮的入口从组中移除（用户点名「和外面按钮重复」），
+ *    未覆盖入口保留=功能对等兜底。三样式账目（spec §3.4 功能对等表核对）：
+ *  - CLASSIC：顶栏动作区+底栏覆盖全部 16 项 → 恒空（[QuickControlsSection] 组空整组隐藏）；
+ *  - MINIMAL：移除 [MINIMAL_STYLE_COVERED] + ASPECT（仅宽幅——窄幅底栏无比例钮，
+ *    [minimalBottomSlots] 同口径，窄幅保留）。**SPEED 必须保留**：极简右侧倍速三件套
+ *    （−/数值/+）只能 ±0.1 步进/重置，八档+连续细调的任意倍速面板唯一入口就在这组；
+ *  - STREAMING：移除 [STREAMING_STYLE_COVERED]（LOCK/比例/方向/镜像/旋转/PIP/信息顶底栏
+ *    均无直接按钮，留组兜底）。
+ *
+ *  [narrow]=面板宿主屏宽 <480dp（与底栏 480dp 阈值同口径的名义值即可——面板 BottomSheet
+ *  全宽）。回调分派 [dispatchQuickControl] 与本过滤解耦：行少了自然少派，无行级硬编码。 */
+internal fun quickControlsFor(isRmvb: Boolean, hasQuality: Boolean, style: NvControlStyle, narrow: Boolean): List<QuickControlId> =
     QuickControlId.entries.filter { id ->
         val rmvbExcluded = isRmvb && (id == QuickControlId.PIP || id == QuickControlId.QUALITY || id == QuickControlId.CAST)
         val qualityHidden = id == QuickControlId.QUALITY && !hasQuality
-        !rmvbExcluded && !qualityHidden
+        val styleCovered = when (style) {
+            NvControlStyle.CLASSIC -> true
+            NvControlStyle.MINIMAL -> id in MINIMAL_STYLE_COVERED || (id == QuickControlId.ASPECT && !narrow)
+            NvControlStyle.STREAMING -> id in STREAMING_STYLE_COVERED
+        }
+        !rmvbExcluded && !qualityHidden && !styleCovered
     }
 
 /** QuickControlId → 契约回调分派（T8）：与顶/底栏按钮完全同源同语义——
