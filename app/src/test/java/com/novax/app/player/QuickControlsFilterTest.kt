@@ -56,13 +56,23 @@ class QuickControlsFilterTest {
             quickControlsFor(isRmvb = false, hasQuality = true, style = NvControlStyle.STREAMING, narrow = false),
         )
 
+    @Test fun `长视频风窄幅保留九项含倍速`() =
+        assertEquals(
+            listOf(
+                QuickControlId.LOCK, QuickControlId.SPEED, QuickControlId.ASPECT,
+                QuickControlId.ORIENTATION, QuickControlId.MIRROR, QuickControlId.ROTATE,
+                QuickControlId.PIP, QuickControlId.QUALITY, QuickControlId.INFO,
+            ),
+            quickControlsFor(isRmvb = false, hasQuality = true, style = NvControlStyle.STREAMING, narrow = true),
+        )
+
     @Test fun `长视频风 RMVB 减投屏清晰度`() =
         assertEquals(
             listOf(
                 QuickControlId.LOCK, QuickControlId.ASPECT, QuickControlId.ORIENTATION,
                 QuickControlId.MIRROR, QuickControlId.ROTATE, QuickControlId.INFO,
             ),
-            quickControlsFor(isRmvb = true, hasQuality = true, style = NvControlStyle.STREAMING, narrow = true),
+            quickControlsFor(isRmvb = true, hasQuality = true, style = NvControlStyle.STREAMING, narrow = false),
         )
 
     @Test fun `无质量档时 QUALITY 各样式隐藏`() {

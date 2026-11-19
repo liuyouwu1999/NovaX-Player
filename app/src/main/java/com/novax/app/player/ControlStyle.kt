@@ -39,12 +39,13 @@ private val MINIMAL_STYLE_COVERED: Set<QuickControlId> = setOf(
     QuickControlId.CAST,
 )
 
-/** 长视频风已被外层直接按钮覆盖的入口：上集/下集/快退/快进/倍速=底栏单行、
- *  字幕/音轨/投屏=顶栏图标簇（[StreamingTopBar]/[StreamingBottomBar]）。 */
+/** 长视频风已被外层直接按钮覆盖的入口：上集/下集/快退/快进=底栏单行、
+ *  字幕/音轨/投屏=顶栏图标簇（[StreamingTopBar]/[StreamingBottomBar]）。
+ *  SPEED 不在集内=窄幅维度单列（宽幅底栏有倍速钮覆盖/窄幅 [streamingRowSlots] 无倍速
+ *  槽保留），见 [quickControlsFor]。 */
 private val STREAMING_STYLE_COVERED: Set<QuickControlId> = setOf(
     QuickControlId.PREV, QuickControlId.NEXT,
     QuickControlId.REW, QuickControlId.FWD,
-    QuickControlId.SPEED,
     QuickControlId.SUBTITLE, QuickControlId.AUDIO, QuickControlId.CAST,
 )
 
@@ -57,8 +58,10 @@ private val STREAMING_STYLE_COVERED: Set<QuickControlId> = setOf(
  *  - MINIMAL：移除 [MINIMAL_STYLE_COVERED] + ASPECT（仅宽幅——窄幅底栏无比例钮，
  *    [minimalBottomSlots] 同口径，窄幅保留）。**SPEED 必须保留**：极简右侧倍速三件套
  *    （−/数值/+）只能 ±0.1 步进/重置，八档+连续细调的任意倍速面板唯一入口就在这组；
- *  - STREAMING：移除 [STREAMING_STYLE_COVERED]（LOCK/比例/方向/镜像/旋转/PIP/信息顶底栏
- *    均无直接按钮，留组兜底）。
+ *  - STREAMING：移除 [STREAMING_STYLE_COVERED] + SPEED（仅宽幅——宽幅底栏有倍速钮，
+ *    窄幅 [streamingRowSlots] 去倍速槽→窄幅保留：任意倍速档面板唯一入口，与 MINIMAL
+ *    的 ASPECT 窄幅保留镜像对称；[ControlStyleStreaming]「倍速经顶栏更多可达」承诺由本
+ *    保留兑现）。LOCK/比例/方向/镜像/旋转/PIP/信息顶底栏均无直接按钮，留组兜底。
  *
  *  [narrow]=面板宿主屏宽 <480dp（与底栏 480dp 阈值同口径的名义值即可——面板 BottomSheet
  *  全宽）。回调分派 [dispatchQuickControl] 与本过滤解耦：行少了自然少派，无行级硬编码。 */
@@ -69,7 +72,7 @@ internal fun quickControlsFor(isRmvb: Boolean, hasQuality: Boolean, style: NvCon
         val styleCovered = when (style) {
             NvControlStyle.CLASSIC -> true
             NvControlStyle.MINIMAL -> id in MINIMAL_STYLE_COVERED || (id == QuickControlId.ASPECT && !narrow)
-            NvControlStyle.STREAMING -> id in STREAMING_STYLE_COVERED
+            NvControlStyle.STREAMING -> id in STREAMING_STYLE_COVERED || (id == QuickControlId.SPEED && !narrow)
         }
         !rmvbExcluded && !qualityHidden && !styleCovered
     }
