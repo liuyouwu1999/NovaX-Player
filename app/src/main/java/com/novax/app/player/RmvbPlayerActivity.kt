@@ -3157,16 +3157,17 @@ class RmvbPlayerActivity : ComponentActivity() {
                     // T8（spec 2026-11-15 §5.5/§4）：「播放控制」组——2026-11-19 用户拍板方案 A
                     // 按当前样式智能去重（样式外层已有直接按钮的入口不进组，经典档恒空整组隐藏）；
                     // RMVB 键集剔除保持（§5.3：PIP/清晰度/投屏）。minimal/streaming 档下未覆盖
-                    // 入口（如任意倍速面板/方向/镜像/信息）仍以本组为唯一通道兜底；narrow=屏宽
-                    // <480dp 名义值（与底栏阈值同口径，面板 BottomSheet 全宽）。回调接本页契约
-                    // controlContract（与顶栏/底栏同源）。面板型入口先收更多弹层：
+                    // 入口（如任意倍速面板/方向/镜像/信息）仍以本组为唯一通道兜底；narrow=
+                    // nvPanelNarrowOf 名义值（底栏实测阈值=屏宽−32dp<480 → 取 512 对齐，
+                    // 见 [nvPanelNarrowOf]，复审 P1-1）。回调接本页契约 controlContract（与
+                    // 顶栏/底栏同源）。面板型入口先收更多弹层：
                     // 本页各面板是独立 bool，不收会双弹层堆叠（主播放器为单枚举 sheet 自动顶替）
                     QuickControlsSection(
                         ids = quickControlsFor(
                             isRmvb = true,
                             hasQuality = false,
                             style = uiControlStyle,
-                            narrow = LocalConfiguration.current.screenWidthDp < 480,
+                            narrow = nvPanelNarrowOf(LocalConfiguration.current.screenWidthDp),
                         ),
                         skipSec = uiSkipSec,
                         onAction = { id ->

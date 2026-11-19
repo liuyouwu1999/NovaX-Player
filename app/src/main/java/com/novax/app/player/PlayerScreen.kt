@@ -2474,10 +2474,11 @@ fun PlayerScreen(
                 // 2026-09-17 功能项：AB 循环 + 睡眠定时
                 // T8（2026-11-15 §5.5/§4）「播放控制」组 +「控制样式」组——2026-11-19 用户拍板
                 // 方案 A：组键集按当前样式智能去重（外层有直接按钮的入口不进组，经典档恒空整组
-                // 隐藏），narrow=屏宽<480dp 名义值（与底栏阈值同口径，面板 BottomSheet 全宽）。
-                // 回调走 controlContract.dispatchQuickControl（与顶/底栏同源）；QUALITY 行
-                // hasQuality=onQuality 同条件源 isJellyfinSource；样式直写 KEY_CONTROL_STYLE，
-                // playerPrefs 实时流回读 controlStyle 即时换形态（面板选中勾标同帧刷新）
+                // 隐藏），narrow=nvPanelNarrowOf 名义值（底栏实测阈值=屏宽−32dp<480 → 取 512
+                // 对齐，见 [nvPanelNarrowOf]，复审 P1-1）。回调走 controlContract.dispatchQuickControl
+                //（与顶/底栏同源）；QUALITY 行 hasQuality=onQuality 同条件源 isJellyfinSource；
+                // 样式直写 KEY_CONTROL_STYLE，playerPrefs 实时流回读 controlStyle 即时换形态
+                //（面板选中勾标同帧刷新）
                 PlayerSheet.MORE -> MoreActionsSheet(
                     loopAMs = features.loopAMs,
                     loopBMs = features.loopBMs,
@@ -2487,7 +2488,7 @@ fun PlayerScreen(
                         isRmvb = false,
                         hasQuality = isJellyfinSource,
                         style = controlStyle,
-                        narrow = LocalConfiguration.current.screenWidthDp < 480,
+                        narrow = nvPanelNarrowOf(LocalConfiguration.current.screenWidthDp),
                     )
                         // playUrl==null 极端入口剔投屏行（契约 onCast 本就是 no-op）——对齐
                         // T7 顶栏 hasCast 防死按钮口径。当前三样式 CAST 均被外层覆盖（样式过滤

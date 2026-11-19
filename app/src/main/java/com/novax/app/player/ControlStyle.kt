@@ -49,6 +49,14 @@ private val STREAMING_STYLE_COVERED: Set<QuickControlId> = setOf(
     QuickControlId.SUBTITLE, QuickControlId.AUDIO, QuickControlId.CAST,
 )
 
+/** 「更多」面板窄幅名义值判定（复审 P1-1 阈值对齐）：底栏三处（MinimalBottomBar/
+ *  StreamingBottomBar/NvPlayerBottomBar）的 BoxWithConstraints 都在**自身水平内移
+ *  16dp×2 之后**判 maxWidth < 480.dp → 底栏实测窄幅阈值=**窗口宽 < 512dp**。面板
+ *  BottomSheet 全宽取 LocalConfiguration.screenWidthDp 名义值时必须对齐 512——若取 480，
+ *  窗口宽 ∈ [480,512) 档内「底栏窄幅（无比例/倍速钮）而面板按宽幅剔行」= MINIMAL×ASPECT /
+ *  STREAMING×SPEED 的面板入口整体消失（比例/倍速面板无任何入口）。 */
+internal fun nvPanelNarrowOf(screenWidthDp: Int): Boolean = screenWidthDp < 512
+
 /** 「播放控制」组键集（spec §5.5 T8 + 2026-11-19 用户拍板方案 A：按当前样式智能去重）。
  *  两层过滤叠加：
  *  ①RMVB 键集剔除先例保持（spec §5.3）：PIP/清晰度/投屏恒剔，QUALITY 另受 hasQuality；
@@ -63,8 +71,9 @@ private val STREAMING_STYLE_COVERED: Set<QuickControlId> = setOf(
  *    的 ASPECT 窄幅保留镜像对称；[ControlStyleStreaming]「倍速经顶栏更多可达」承诺由本
  *    保留兑现）。LOCK/比例/方向/镜像/旋转/PIP/信息顶底栏均无直接按钮，留组兜底。
  *
- *  [narrow]=面板宿主屏宽 <480dp（与底栏 480dp 阈值同口径的名义值即可——面板 BottomSheet
- *  全宽）。回调分派 [dispatchQuickControl] 与本过滤解耦：行少了自然少派，无行级硬编码。 */
+ *  [narrow]=面板宿主屏宽名义值经 [nvPanelNarrowOf]（<512，对齐底栏内移后实测阈值——
+ *  面板 BottomSheet 全宽）。回调分派 [dispatchQuickControl] 与本过滤解耦：行少了自然
+ *  少派，无行级硬编码。 */
 internal fun quickControlsFor(isRmvb: Boolean, hasQuality: Boolean, style: NvControlStyle, narrow: Boolean): List<QuickControlId> =
     QuickControlId.entries.filter { id ->
         val rmvbExcluded = isRmvb && (id == QuickControlId.PIP || id == QuickControlId.QUALITY || id == QuickControlId.CAST)

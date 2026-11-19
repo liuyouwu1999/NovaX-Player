@@ -12,8 +12,19 @@ import org.junit.Test
  * 整组隐藏——键集侧以恒空列表表达。
  *
  * 精确列表断言=成员+顺序双锚（顺序=QuickControlId 枚举序，即面板行序）。
+ * 边界口径（复审 P1-1）：面板 narrow 名义值=[nvPanelNarrowOf]（屏宽<512）——底栏三处
+ * BoxWithConstraints 在水平内移 16dp×2 后判 maxWidth<480dp，实测窄幅阈值=窗口宽<512dp，
+ * 名义值取 512 对齐实测（取 480 会在 [480,512) 档底栏窄幅而面板宽幅剔行=断档）。
  */
 class QuickControlsFilterTest {
+    @Test fun `面板窄幅名义值阈值对齐底栏实测 512`() {
+        org.junit.Assert.assertTrue(nvPanelNarrowOf(479))
+        org.junit.Assert.assertTrue(nvPanelNarrowOf(480)) // 旧口径 480 恰漏判：底栏 448<480 实为窄幅
+        org.junit.Assert.assertTrue(nvPanelNarrowOf(511))
+        org.junit.Assert.assertFalse(nvPanelNarrowOf(512))
+        org.junit.Assert.assertFalse(nvPanelNarrowOf(600))
+    }
+
     @Test fun `经典档顶栏底栏全覆盖组恒空`() {
         assertEquals(emptyList<QuickControlId>(), quickControlsFor(isRmvb = false, hasQuality = true, style = NvControlStyle.CLASSIC, narrow = false))
         assertEquals(emptyList<QuickControlId>(), quickControlsFor(isRmvb = true, hasQuality = true, style = NvControlStyle.CLASSIC, narrow = true))
@@ -44,6 +55,15 @@ class QuickControlsFilterTest {
                 QuickControlId.MIRROR, QuickControlId.INFO,
             ),
             quickControlsFor(isRmvb = true, hasQuality = true, style = NvControlStyle.MINIMAL, narrow = false),
+        )
+
+    @Test fun `极简 RMVB 窄幅六项含比例`() =
+        assertEquals(
+            listOf(
+                QuickControlId.SPEED, QuickControlId.AUDIO, QuickControlId.ASPECT,
+                QuickControlId.ORIENTATION, QuickControlId.MIRROR, QuickControlId.INFO,
+            ),
+            quickControlsFor(isRmvb = true, hasQuality = false, style = NvControlStyle.MINIMAL, narrow = true),
         )
 
     @Test fun `长视频风保留八项精确列表`() =
