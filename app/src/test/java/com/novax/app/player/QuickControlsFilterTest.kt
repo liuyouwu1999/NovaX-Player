@@ -12,17 +12,24 @@ import org.junit.Test
  * 整组隐藏——键集侧以恒空列表表达。
  *
  * 精确列表断言=成员+顺序双锚（顺序=QuickControlId 枚举序，即面板行序）。
- * 边界口径（复审 P1-1）：面板 narrow 名义值=[nvPanelNarrowOf]（屏宽<512）——底栏三处
- * BoxWithConstraints 在水平内移 16dp×2 后判 maxWidth<480dp，实测窄幅阈值=窗口宽<512dp，
- * 名义值取 512 对齐实测（取 480 会在 [480,512) 档底栏窄幅而面板宽幅剔行=断档）。
+ * 边界口径（复审 P1-1 + 三轮视觉动态化）：面板 narrow=[nvPanelNarrowOf]——底栏在水平内移
+ * （[nvMinimalBarInsetOf]=4.5% 屏宽动态）后判 maxWidth<480dp，阈值随内移公式动态漂移
+ * （断点 W=480/0.955≈502.6：W≤502 底栏 479.4<480 窄幅=面板保留兜底行；W≥503 两边宽幅）。
+ * 固定阈值（480/512）都会在漂移档内重现「底栏窄幅而面板宽幅剔行」断档，故动态自洽。
  */
 class QuickControlsFilterTest {
-    @Test fun `面板窄幅名义值阈值对齐底栏实测 512`() {
-        org.junit.Assert.assertTrue(nvPanelNarrowOf(479))
-        org.junit.Assert.assertTrue(nvPanelNarrowOf(480)) // 旧口径 480 恰漏判：底栏 448<480 实为窄幅
-        org.junit.Assert.assertTrue(nvPanelNarrowOf(511))
-        org.junit.Assert.assertFalse(nvPanelNarrowOf(512))
-        org.junit.Assert.assertFalse(nvPanelNarrowOf(600))
+    @Test fun `面板窄幅阈值随内移公式动态自洽`() {
+        org.junit.Assert.assertTrue(nvPanelNarrowOf(479))  // 457.4<480 窄
+        org.junit.Assert.assertTrue(nvPanelNarrowOf(480))  // 458.4<480 窄
+        org.junit.Assert.assertTrue(nvPanelNarrowOf(502))  // 479.4<480 窄（动态断点前最后值）
+        org.junit.Assert.assertFalse(nvPanelNarrowOf(503)) // 480.4≥480 宽（动态断点后首值）
+        org.junit.Assert.assertFalse(nvPanelNarrowOf(512)) // 488.0≥480 宽
+        org.junit.Assert.assertFalse(nvPanelNarrowOf(600)) // 横屏恒宽
+    }
+
+    @Test fun `悬浮条内移按屏宽45%比例`() {
+        org.junit.Assert.assertEquals(16.2f, nvMinimalBarInsetOf(360).value, 0.01f) // 竖屏≈16dp
+        org.junit.Assert.assertEquals(40.1f, nvMinimalBarInsetOf(891).value, 0.01f) // 横屏≈40dp nPlayer 同款
     }
 
     @Test fun `经典档顶栏底栏全覆盖组恒空`() {

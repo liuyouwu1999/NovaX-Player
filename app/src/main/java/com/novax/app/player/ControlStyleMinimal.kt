@@ -92,8 +92,12 @@ import com.novax.app.ui.theme.NvColors
  */
 internal val MinimalSeekTopBarHeight = 36.dp
 
-/** 极简顶栏/底栏左右内移量（2026-11-19 用户拍板「不贴两边/靠边很难点到」：悬浮条 nPlayer 同款） */
-internal val MinimalBarEdgeInset = 16.dp
+/** 极简顶栏/底栏左右内移量（2026-11-19 三轮「还是太长」：动态 4.5% 屏宽 [nvMinimalBarInsetOf]，
+ *  横屏≈40dp 对齐 nPlayer、竖屏≈16dp；[nvPanelNarrowOf] 阈值随本公式动态自洽）。
+ *  Composable 壳：调用点组合期取 screenWidthDp 传入纯函数（helper 不持组合上下文）。 */
+@Composable
+internal fun minimalBarInset(): androidx.compose.ui.unit.Dp =
+    nvMinimalBarInsetOf(androidx.compose.ui.platform.LocalConfiguration.current.screenWidthDp)
 
 /** 极简左右侧钮列水平内移量（2026-11-19 用户拍板「靠边被摄像头挡住」：避开挖孔/刘海带） */
 internal val MinimalRailEdgeInset = 32.dp
@@ -214,7 +218,7 @@ internal fun MinimalSeekTopBar(
             // 2026-11-19 用户拍板「进度条不贴左右两边/靠近边边很难点到」：顶栏整体内移（悬浮条，
             // nPlayer 同款），左右各让 16dp——边缘区留给根手势层；pointerInput 挂在 padding 之后
             // =手势区=内移后的条（tap/drag 坐标系自洽）
-            .padding(horizontal = MinimalBarEdgeInset)
+            .padding(horizontal = minimalBarInset())
             .height(MinimalSeekTopBarHeight)
             // 单点 tap 定跳（tap 检测在 drag 之前，NvChapterSlider 同序）：✕/⋯块自身
             // clickable 在上层消费（子节点 consume up→父 tap 探测取消），不抢两块点击
@@ -539,9 +543,9 @@ internal fun MinimalBottomBar(c: NvControlContract, modifier: Modifier = Modifie
         modifier
             .fillMaxWidth()
             // 2026-11-19 用户拍板「下面的按键条也不要贴边，视觉对称」：background 在 padding
-            // 之前=黑条内移（horizontal [MinimalBarEdgeInset]）悬浮条 nPlayer 同款，与顶栏对称；
+            // 之前=黑条内移（horizontal [minimalBarInset] 动态 4.5% 屏宽）悬浮条 nPlayer 同款，与顶栏对称；
             // 两侧边缘区留给根手势层
-            .padding(horizontal = MinimalBarEdgeInset)
+            .padding(horizontal = minimalBarInset())
             .background(NvColors.Scrim)
             .padding(top = 2.dp, bottom = 2.dp),
     ) {

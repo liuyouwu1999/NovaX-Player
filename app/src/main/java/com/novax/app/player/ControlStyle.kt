@@ -49,13 +49,23 @@ private val STREAMING_STYLE_COVERED: Set<QuickControlId> = setOf(
     QuickControlId.SUBTITLE, QuickControlId.AUDIO, QuickControlId.CAST,
 )
 
-/** 「更多」面板窄幅名义值判定（复审 P1-1 阈值对齐）：底栏三处（MinimalBottomBar/
- *  StreamingBottomBar/NvPlayerBottomBar）的 BoxWithConstraints 都在**自身水平内移
- *  16dp×2 之后**判 maxWidth < 480.dp → 底栏实测窄幅阈值=**窗口宽 < 512dp**。面板
- *  BottomSheet 全宽取 LocalConfiguration.screenWidthDp 名义值时必须对齐 512——若取 480，
- *  窗口宽 ∈ [480,512) 档内「底栏窄幅（无比例/倍速钮）而面板按宽幅剔行」= MINIMAL×ASPECT /
- *  STREAMING×SPEED 的面板入口整体消失（比例/倍速面板无任何入口）。 */
-internal fun nvPanelNarrowOf(screenWidthDp: Int): Boolean = screenWidthDp < 512
+/** 「更多」面板窄幅判定（2026-11-19 三轮视觉后动态化）：底栏三处（MinimalBottomBar/
+ *  StreamingBottomBar/NvPlayerBottomBar）都在**自身水平内移之后**判 maxWidth < 480.dp，
+ *  而内移量自三轮视觉起为动态比例 [nvMinimalBarInsetOf]（4.5% 屏宽）→ 底栏实测窄幅阈值
+ *  = 窗口宽 − 2×内移 < 480，随屏宽动态漂移（固定 512 在内移 40dp 的横屏下会重现复审
+ *  P1-1 的「底栏窄幅而面板宽幅剔行」断档）。本函数按同一内移公式推阈值（自洽零漂移），
+ *  面板与底栏共享同一输入口径。 */
+internal fun nvPanelNarrowOf(screenWidthDp: Int): Boolean =
+    screenWidthDp - nvMinimalBarInsetOf(screenWidthDp).value < 480f
+
+/**
+ * 极简顶栏/底栏悬浮条左右内移量（2026-11-19 用户三轮反馈「还是太长」→ 二轮固定 16dp 升级为
+ * **按屏宽 4.5% 比例**，对齐 nPlayer 截图实测边距≈屏宽 4.35%）：横屏 891dp 宽→≈40dp（nPlayer
+ * 同款观感）、竖屏 360dp→≈16dp（竖屏用户未抱怨维持原量）、平板随宽自适应。纯函数 JVM 可测；
+ * [nvPanelNarrowOf] 阈值按本公式动态推（自洽零漂移）。
+ */
+fun nvMinimalBarInsetOf(screenWidthDp: Int): androidx.compose.ui.unit.Dp =
+    androidx.compose.ui.unit.Dp(screenWidthDp * 0.045f)
 
 /** 「播放控制」组键集（spec §5.5 T8 + 2026-11-19 用户拍板方案 A：按当前样式智能去重）。
  *  两层过滤叠加：
